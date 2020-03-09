@@ -1,9 +1,20 @@
 %{
     #include <stdio.h>
     #include "syntax.tab.h"
+
+    // Bison location information
+    int yycolumn = 1;
+    #define YY_USER_ACTION \
+        yylloc.first_line = yylloc.last_line = yylineno; \
+        yylloc.first_column = yycolumn; \
+        yylloc.last_column = yycolumn + yyleng - 1; \
+        yycolumn += yyleng;
+
+    // Funciton to debug
     void printDebug(char* str){
         printf("[%d] %s: %s\n", yylineno, str, yytext);
     }
+    // Function to print error type A
     void printErrorTypeA(char* str){
         printf("Error type A at Line %d: Mysterious character \"%s\".\n", yylineno, str);
     }
@@ -43,6 +54,8 @@ MAIN        "main"
 WHITESPACE  [ \t\r\n]+
 
 %%
+
+\n              {   yycolumn = 1; }
 
 {INT}           {   printDebug("INT");
                     return INT;         }
@@ -99,6 +112,7 @@ WHITESPACE  [ \t\r\n]+
 {ID}            {   printDebug("ID");
                     return ID;          }
 {WHITESPACE}+   {   /* Do nothing */    }
+
 .               {   printErrorTypeA(yytext);    }
 
 %%

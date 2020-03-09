@@ -66,8 +66,8 @@
 
     #include <stdio.h>
     #include "lex.yy.c"
-    void printDebug2(char* str){
-        printf("%s\n", str);
+    void printDebug2(char* str, int lineno){
+        printf("%s (%d)\n",str, lineno);
     }
 
 #line 74 "syntax.tab.c" /* yacc.c:339  */
@@ -142,16 +142,30 @@ typedef int YYSTYPE;
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
+/* Location type.  */
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+
 
 extern YYSTYPE yylval;
-
+extern YYLTYPE yylloc;
 int yyparse (void);
 
 #endif /* !YY_YY_SYNTAX_TAB_H_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 
-#line 155 "syntax.tab.c" /* yacc.c:358  */
+#line 169 "syntax.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -332,13 +346,15 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 
 #if (! defined yyoverflow \
      && (! defined __cplusplus \
-         || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
+         || (defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL \
+             && defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
   yytype_int16 yyss_alloc;
   YYSTYPE yyvs_alloc;
+  YYLTYPE yyls_alloc;
 };
 
 /* The size of the maximum gap between one aligned stack and the next.  */
@@ -347,8 +363,8 @@ union yyalloc
 /* The size of an array large to enough to hold all stacks, each with
    N elements.  */
 # define YYSTACK_BYTES(N) \
-     ((N) * (sizeof (yytype_int16) + sizeof (YYSTYPE)) \
-      + YYSTACK_GAP_MAXIMUM)
+     ((N) * (sizeof (yytype_int16) + sizeof (YYSTYPE) + sizeof (YYLTYPE)) \
+      + 2 * YYSTACK_GAP_MAXIMUM)
 
 # define YYCOPY_NEEDED 1
 
@@ -679,6 +695,32 @@ while (0)
 #define YYERRCODE       256
 
 
+/* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
+   If N is 0, then set CURRENT to the empty location which ends
+   the previous symbol: RHS[0] (always defined).  */
+
+#ifndef YYLLOC_DEFAULT
+# define YYLLOC_DEFAULT(Current, Rhs, N)                                \
+    do                                                                  \
+      if (N)                                                            \
+        {                                                               \
+          (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;        \
+          (Current).first_column = YYRHSLOC (Rhs, 1).first_column;      \
+          (Current).last_line    = YYRHSLOC (Rhs, N).last_line;         \
+          (Current).last_column  = YYRHSLOC (Rhs, N).last_column;       \
+        }                                                               \
+      else                                                              \
+        {                                                               \
+          (Current).first_line   = (Current).last_line   =              \
+            YYRHSLOC (Rhs, 0).last_line;                                \
+          (Current).first_column = (Current).last_column =              \
+            YYRHSLOC (Rhs, 0).last_column;                              \
+        }                                                               \
+    while (0)
+#endif
+
+#define YYRHSLOC(Rhs, K) ((Rhs)[K])
+
 
 /* Enable debugging if requested.  */
 #if YYDEBUG
@@ -694,9 +736,48 @@ do {                                            \
     YYFPRINTF Args;                             \
 } while (0)
 
-/* This macro is provided for backward compatibility. */
+
+/* YY_LOCATION_PRINT -- Print the location on the stream.
+   This macro was not mandated originally: define only if we know
+   we won't break user code: when these are the locations we know.  */
+
 #ifndef YY_LOCATION_PRINT
-# define YY_LOCATION_PRINT(File, Loc) ((void) 0)
+# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+
+/* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
+
+YY_ATTRIBUTE_UNUSED
+static unsigned
+yy_location_print_ (FILE *yyo, YYLTYPE const * const yylocp)
+{
+  unsigned res = 0;
+  int end_col = 0 != yylocp->last_column ? yylocp->last_column - 1 : 0;
+  if (0 <= yylocp->first_line)
+    {
+      res += YYFPRINTF (yyo, "%d", yylocp->first_line);
+      if (0 <= yylocp->first_column)
+        res += YYFPRINTF (yyo, ".%d", yylocp->first_column);
+    }
+  if (0 <= yylocp->last_line)
+    {
+      if (yylocp->first_line < yylocp->last_line)
+        {
+          res += YYFPRINTF (yyo, "-%d", yylocp->last_line);
+          if (0 <= end_col)
+            res += YYFPRINTF (yyo, ".%d", end_col);
+        }
+      else if (0 <= end_col && yylocp->first_column < end_col)
+        res += YYFPRINTF (yyo, "-%d", end_col);
+    }
+  return res;
+ }
+
+#  define YY_LOCATION_PRINT(File, Loc)          \
+  yy_location_print_ (File, &(Loc))
+
+# else
+#  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
+# endif
 #endif
 
 
@@ -706,7 +787,7 @@ do {                                                                      \
     {                                                                     \
       YYFPRINTF (stderr, "%s ", Title);                                   \
       yy_symbol_print (stderr,                                            \
-                  Type, Value); \
+                  Type, Value, Location); \
       YYFPRINTF (stderr, "\n");                                           \
     }                                                                     \
 } while (0)
@@ -717,10 +798,11 @@ do {                                                                      \
 `----------------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
 {
   FILE *yyo = yyoutput;
   YYUSE (yyo);
+  YYUSE (yylocationp);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
@@ -736,12 +818,14 @@ yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvalue
 `--------------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
 {
   YYFPRINTF (yyoutput, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep);
+  YY_LOCATION_PRINT (yyoutput, *yylocationp);
+  YYFPRINTF (yyoutput, ": ");
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -774,7 +858,7 @@ do {                                                            \
 `------------------------------------------------*/
 
 static void
-yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule)
+yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule)
 {
   unsigned long int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
@@ -788,7 +872,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule)
       yy_symbol_print (stderr,
                        yystos[yyssp[yyi + 1 - yynrhs]],
                        &(yyvsp[(yyi + 1) - (yynrhs)])
-                                              );
+                       , &(yylsp[(yyi + 1) - (yynrhs)])                       );
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -796,7 +880,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule)
 # define YY_REDUCE_PRINT(Rule)          \
 do {                                    \
   if (yydebug)                          \
-    yy_reduce_print (yyssp, yyvsp, Rule); \
+    yy_reduce_print (yyssp, yyvsp, yylsp, Rule); \
 } while (0)
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1054,9 +1138,10 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 `-----------------------------------------------*/
 
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp)
 {
   YYUSE (yyvaluep);
+  YYUSE (yylocationp);
   if (!yymsg)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
@@ -1074,6 +1159,12 @@ int yychar;
 
 /* The semantic value of the lookahead symbol.  */
 YYSTYPE yylval;
+/* Location data for the lookahead symbol.  */
+YYLTYPE yylloc
+# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+  = { 1, 1, 1, 1 }
+# endif
+;
 /* Number of syntax errors so far.  */
 int yynerrs;
 
@@ -1092,6 +1183,7 @@ yyparse (void)
     /* The stacks and their tools:
        'yyss': related to states.
        'yyvs': related to semantic values.
+       'yyls': related to locations.
 
        Refer to the stacks through separate pointers, to allow yyoverflow
        to reallocate them elsewhere.  */
@@ -1106,6 +1198,14 @@ yyparse (void)
     YYSTYPE *yyvs;
     YYSTYPE *yyvsp;
 
+    /* The location stack.  */
+    YYLTYPE yylsa[YYINITDEPTH];
+    YYLTYPE *yyls;
+    YYLTYPE *yylsp;
+
+    /* The locations where the error started and ended.  */
+    YYLTYPE yyerror_range[3];
+
     YYSIZE_T yystacksize;
 
   int yyn;
@@ -1115,6 +1215,7 @@ yyparse (void)
   /* The variables used to return semantic value and location from the
      action routines.  */
   YYSTYPE yyval;
+  YYLTYPE yyloc;
 
 #if YYERROR_VERBOSE
   /* Buffer for error messages, and its allocated size.  */
@@ -1123,7 +1224,7 @@ yyparse (void)
   YYSIZE_T yymsg_alloc = sizeof yymsgbuf;
 #endif
 
-#define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
+#define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N), yylsp -= (N))
 
   /* The number of symbols on the RHS of the reduced rule.
      Keep to zero when no symbol should be popped.  */
@@ -1131,6 +1232,7 @@ yyparse (void)
 
   yyssp = yyss = yyssa;
   yyvsp = yyvs = yyvsa;
+  yylsp = yyls = yylsa;
   yystacksize = YYINITDEPTH;
 
   YYDPRINTF ((stderr, "Starting parse\n"));
@@ -1139,6 +1241,7 @@ yyparse (void)
   yyerrstatus = 0;
   yynerrs = 0;
   yychar = YYEMPTY; /* Cause a token to be read.  */
+  yylsp[0] = yylloc;
   goto yysetstate;
 
 /*------------------------------------------------------------.
@@ -1164,6 +1267,7 @@ yyparse (void)
            memory.  */
         YYSTYPE *yyvs1 = yyvs;
         yytype_int16 *yyss1 = yyss;
+        YYLTYPE *yyls1 = yyls;
 
         /* Each stack pointer address is followed by the size of the
            data in use in that stack, in bytes.  This used to be a
@@ -1172,8 +1276,10 @@ yyparse (void)
         yyoverflow (YY_("memory exhausted"),
                     &yyss1, yysize * sizeof (*yyssp),
                     &yyvs1, yysize * sizeof (*yyvsp),
+                    &yyls1, yysize * sizeof (*yylsp),
                     &yystacksize);
 
+        yyls = yyls1;
         yyss = yyss1;
         yyvs = yyvs1;
       }
@@ -1196,6 +1302,7 @@ yyparse (void)
           goto yyexhaustedlab;
         YYSTACK_RELOCATE (yyss_alloc, yyss);
         YYSTACK_RELOCATE (yyvs_alloc, yyvs);
+        YYSTACK_RELOCATE (yyls_alloc, yyls);
 #  undef YYSTACK_RELOCATE
         if (yyss1 != yyssa)
           YYSTACK_FREE (yyss1);
@@ -1205,6 +1312,7 @@ yyparse (void)
 
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
+      yylsp = yyls + yysize - 1;
 
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
                   (unsigned long int) yystacksize));
@@ -1282,7 +1390,7 @@ yybackup:
   YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   *++yyvsp = yylval;
   YY_IGNORE_MAYBE_UNINITIALIZED_END
-
+  *++yylsp = yylloc;
   goto yynewstate;
 
 
@@ -1313,360 +1421,361 @@ yyreduce:
      GCC warning that YYVAL may be used uninitialized.  */
   yyval = yyvsp[1-yylen];
 
-
+  /* Default location.  */
+  YYLLOC_DEFAULT (yyloc, (yylsp - yylen), yylen);
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
         case 2:
 #line 29 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Program -> ExtDefList");   }
-#line 1324 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Program -> ExtDefList", (yyloc).first_line);   }
+#line 1433 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
 #line 32 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("ExtDefList -> ExtDef ExtDefList");    }
-#line 1330 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("ExtDefList -> ExtDef ExtDefList", (yyloc).first_line);    }
+#line 1439 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
 #line 33 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("ExtDefList -> Empty");    }
-#line 1336 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("ExtDefList -> Empty", (yyloc).first_line);    }
+#line 1445 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
 #line 36 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("ExtDef -> Specifier ExtDecList SEMI");  }
-#line 1342 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("ExtDef -> Specifier ExtDecList SEMI", (yyloc).first_line);  }
+#line 1451 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
 #line 37 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("ExtDef -> Specifier SEMI");  }
-#line 1348 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("ExtDef -> Specifier SEMI", (yyloc).first_line);  }
+#line 1457 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
 #line 38 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("ExtDef -> Specifier FuncDec CompSt");  }
-#line 1354 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("ExtDef -> Specifier FuncDec CompSt", (yyloc).first_line);  }
+#line 1463 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
 #line 41 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("ExtDecList -> VarDec");  }
-#line 1360 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("ExtDecList -> VarDec", (yyloc).first_line);  }
+#line 1469 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
 #line 42 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("ExtDecList -> VarDec COMMA ExtDecList"); }
-#line 1366 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("ExtDecList -> VarDec COMMA ExtDecList", (yyloc).first_line); }
+#line 1475 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
 #line 46 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Specifier -> TYPE"); }
-#line 1372 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Specifier -> TYPE", (yyloc).first_line); }
+#line 1481 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
 #line 47 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Specifier -> StructSpecifier");  }
-#line 1378 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Specifier -> StructSpecifier", (yyloc).first_line);  }
+#line 1487 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
 #line 50 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("StructSpecifier -> STRUCT OptTag LC DefList RC");    }
-#line 1384 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("StructSpecifier -> STRUCT OptTag LC DefList RC", (yyloc).first_line);    }
+#line 1493 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
 #line 51 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("StructSpecifier -> STRUCT Tag"); }
-#line 1390 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("StructSpecifier -> STRUCT Tag", (yyloc).first_line); }
+#line 1499 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
 #line 54 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("OptTag -> ID");  }
-#line 1396 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("OptTag -> ID", (yyloc).first_line);  }
+#line 1505 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
 #line 55 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("OptTag -> Empty");   }
-#line 1402 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("OptTag -> Empty", (yyloc).first_line);   }
+#line 1511 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
 #line 58 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Tag -> ID"); }
-#line 1408 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Tag -> ID", (yyloc).first_line); }
+#line 1517 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
 #line 62 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("VarDec -> ID");   }
-#line 1414 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("VarDec -> ID", (yyloc).first_line);   }
+#line 1523 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
 #line 63 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("VarDec -> VarDec LB INT RB");    }
-#line 1420 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("VarDec -> VarDec LB INT RB", (yyloc).first_line);    }
+#line 1529 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
 #line 66 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("FunDec -> ID LP VarList RP");    }
-#line 1426 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("FunDec -> ID LP VarList RP", (yyloc).first_line);    }
+#line 1535 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
 #line 67 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("FunDec -> ID LP RP");    }
-#line 1432 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("FunDec -> ID LP RP", (yyloc).first_line);    }
+#line 1541 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
 #line 70 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("VarList -> ParamDec COMMA VarList"); }
-#line 1438 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("VarList -> ParamDec COMMA VarList", (yyloc).first_line); }
+#line 1547 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
 #line 71 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("VarList -> ParamDec");   }
-#line 1444 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("VarList -> ParamDec", (yyloc).first_line);   }
+#line 1553 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
 #line 74 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("ParamDec -> Specifier VarDec");  }
-#line 1450 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("ParamDec -> Specifier VarDec", (yyloc).first_line);  }
+#line 1559 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
 #line 78 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("CompSt -> LC DefList StmtList RC");  }
-#line 1456 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("CompSt -> LC DefList StmtList RC", (yyloc).first_line);  }
+#line 1565 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
 #line 81 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("StmtList -> Stmt StmtList"); }
-#line 1462 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("StmtList -> Stmt StmtList", (yyloc).first_line); }
+#line 1571 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
 #line 82 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("StmtList -> Empty"); }
-#line 1468 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("StmtList -> Empty", (yyloc).first_line); }
+#line 1577 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
 #line 85 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Stmt -> Exp SEMI");  }
-#line 1474 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Stmt -> Exp SEMI", (yyloc).first_line);  }
+#line 1583 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
 #line 86 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Stmt -> CompSt");    }
-#line 1480 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Stmt -> CompSt", (yyloc).first_line);    }
+#line 1589 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
 #line 87 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Stmt -> RETURN Exp SEMI");   }
-#line 1486 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Stmt -> RETURN Exp SEMI", (yyloc).first_line);   }
+#line 1595 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
 #line 88 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Stmt -> IF LP Exp RP Stmt"); }
-#line 1492 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Stmt -> IF LP Exp RP Stmt", (yyloc).first_line); }
+#line 1601 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
 #line 89 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Stmt -> IF LP Exp RP Stmt ELSE Stmt");   }
-#line 1498 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Stmt -> IF LP Exp RP Stmt ELSE Stmt", (yyloc).first_line);   }
+#line 1607 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
 #line 90 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Stmt -> WHILE LP Exp RP Stmt");  }
-#line 1504 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Stmt -> WHILE LP Exp RP Stmt", (yyloc).first_line);  }
+#line 1613 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
 #line 94 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("DefList -> Def DefList");    }
-#line 1510 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("DefList -> Def DefList", (yyloc).first_line);    }
+#line 1619 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
 #line 95 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("DefList -> Empty");  }
-#line 1516 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("DefList -> Empty", (yyloc).first_line);  }
+#line 1625 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
 #line 98 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Def -> Specifier DecList SEMI"); }
-#line 1522 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Def -> Specifier DecList SEMI", (yyloc).first_line); }
+#line 1631 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
 #line 101 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("DecList -> Dec");    }
-#line 1528 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("DecList -> Dec", (yyloc).first_line);    }
+#line 1637 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
 #line 102 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("DecList -> Dec COMMA DecList");  }
-#line 1534 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("DecList -> Dec COMMA DecList", (yyloc).first_line);  }
+#line 1643 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
 #line 105 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Dec -> VarDec"); }
-#line 1540 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Dec -> VarDec", (yyloc).first_line); }
+#line 1649 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
 #line 106 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Dec -> VarDec ASSIGNOP Exp");    }
-#line 1546 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Dec -> VarDec ASSIGNOP Exp", (yyloc).first_line);    }
+#line 1655 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
 #line 110 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> Exp ASSIGNOP Exp");   }
-#line 1552 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> Exp ASSIGNOP Exp", (yyloc).first_line);   }
+#line 1661 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
 #line 111 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> Exp AND Exp");        }
-#line 1558 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> Exp AND Exp", (yyloc).first_line);        }
+#line 1667 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
 #line 112 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> Exp OR Exp");         }
-#line 1564 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> Exp OR Exp", (yyloc).first_line);         }
+#line 1673 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
 #line 113 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> Exp RELOP Exp");      }
-#line 1570 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> Exp RELOP Exp", (yyloc).first_line);      }
+#line 1679 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
 #line 114 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> Exp PLUS Exp");       }
-#line 1576 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> Exp PLUS Exp", (yyloc).first_line);       }
+#line 1685 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
 #line 115 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> Exp MINUS Exp");      }
-#line 1582 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> Exp MINUS Exp", (yyloc).first_line);      }
+#line 1691 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
 #line 116 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> Exp STAR Exp");       }
-#line 1588 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> Exp STAR Exp", (yyloc).first_line);       }
+#line 1697 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
 #line 117 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> Exp DIV Exp");        }
-#line 1594 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> Exp DIV Exp", (yyloc).first_line);        }
+#line 1703 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
 #line 118 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> LP Exp RP");          }
-#line 1600 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> LP Exp RP", (yyloc).first_line);          }
+#line 1709 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
 #line 119 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> MINUS Exp");          }
-#line 1606 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> MINUS Exp", (yyloc).first_line);          }
+#line 1715 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
 #line 120 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> NOT Exp");            }
-#line 1612 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> NOT Exp", (yyloc).first_line);            }
+#line 1721 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
 #line 121 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> ID LP Args RP");      }
-#line 1618 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> ID LP Args RP", (yyloc).first_line);      }
+#line 1727 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
 #line 122 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> ID LP RP");           }
-#line 1624 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> ID LP RP", (yyloc).first_line);           }
+#line 1733 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
 #line 123 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> Exp LB Exp RB");      }
-#line 1630 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> Exp LB Exp RB", (yyloc).first_line);      }
+#line 1739 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
 #line 124 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> Exp DOT ID");         }
-#line 1636 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> Exp DOT ID", (yyloc).first_line);         }
+#line 1745 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
 #line 125 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> ID");                 }
-#line 1642 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> ID", (yyloc).first_line);                 }
+#line 1751 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
 #line 126 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> INT");                }
-#line 1648 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> INT", (yyloc).first_line);                }
+#line 1757 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
 #line 127 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Exp -> FLOAT");              }
-#line 1654 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Exp -> FLOAT", (yyloc).first_line);              }
+#line 1763 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
 #line 130 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Args -> Exp COMMA Args");    }
-#line 1660 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Args -> Exp COMMA Args", (yyloc).first_line);    }
+#line 1769 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
 #line 131 "syntax.y" /* yacc.c:1646  */
-    { printDebug2("Args -> Exp");               }
-#line 1666 "syntax.tab.c" /* yacc.c:1646  */
+    { printDebug2("Args -> Exp", (yyloc).first_line);               }
+#line 1775 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1670 "syntax.tab.c" /* yacc.c:1646  */
+#line 1779 "syntax.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1687,6 +1796,7 @@ yyreduce:
   YY_STACK_PRINT (yyss, yyssp);
 
   *++yyvsp = yyval;
+  *++yylsp = yyloc;
 
   /* Now 'shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
@@ -1751,7 +1861,7 @@ yyerrlab:
 #endif
     }
 
-
+  yyerror_range[1] = yylloc;
 
   if (yyerrstatus == 3)
     {
@@ -1767,7 +1877,7 @@ yyerrlab:
       else
         {
           yydestruct ("Error: discarding",
-                      yytoken, &yylval);
+                      yytoken, &yylval, &yylloc);
           yychar = YYEMPTY;
         }
     }
@@ -1788,6 +1898,7 @@ yyerrorlab:
   if (/*CONSTCOND*/ 0)
      goto yyerrorlab;
 
+  yyerror_range[1] = yylsp[1-yylen];
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYERROR.  */
   YYPOPSTACK (yylen);
@@ -1821,9 +1932,9 @@ yyerrlab1:
       if (yyssp == yyss)
         YYABORT;
 
-
+      yyerror_range[1] = *yylsp;
       yydestruct ("Error: popping",
-                  yystos[yystate], yyvsp);
+                  yystos[yystate], yyvsp, yylsp);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1833,6 +1944,11 @@ yyerrlab1:
   *++yyvsp = yylval;
   YY_IGNORE_MAYBE_UNINITIALIZED_END
 
+  yyerror_range[2] = yylloc;
+  /* Using YYLLOC is tempting, but would change the location of
+     the lookahead.  YYLOC is available though.  */
+  YYLLOC_DEFAULT (yyloc, yyerror_range, 2);
+  *++yylsp = yyloc;
 
   /* Shift the error token.  */
   YY_SYMBOL_PRINT ("Shifting", yystos[yyn], yyvsp, yylsp);
@@ -1872,7 +1988,7 @@ yyreturn:
          user semantic actions for why this is necessary.  */
       yytoken = YYTRANSLATE (yychar);
       yydestruct ("Cleanup: discarding lookahead",
-                  yytoken, &yylval);
+                  yytoken, &yylval, &yylloc);
     }
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYABORT or YYACCEPT.  */
@@ -1881,7 +1997,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-                  yystos[*yyssp], yyvsp);
+                  yystos[*yyssp], yyvsp, yylsp);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow

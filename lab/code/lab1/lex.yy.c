@@ -394,8 +394,8 @@ static void yy_fatal_error (yyconst char msg[]  );
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
 
-#define YY_NUM_RULES 30
-#define YY_END_OF_BUFFER 31
+#define YY_NUM_RULES 31
+#define YY_END_OF_BUFFER 32
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -405,13 +405,13 @@ struct yy_trans_info
 	};
 static yyconst flex_int16_t yy_accept[66] =
     {   0,
-        0,    0,   31,   29,   28,   28,   14,   29,   16,   17,
-        9,    7,    4,    8,   13,   10,    1,    3,    6,    5,
-        6,   27,   18,   19,   27,   27,   27,   27,   27,   27,
-       20,   29,   21,   28,    6,   11,    0,    1,   27,   27,
-       27,   24,   27,   27,   27,   27,   12,    2,   27,   27,
-       15,   27,   27,   27,   25,   27,   27,   27,   27,   27,
-       27,   26,   23,   22,    0
+        0,    0,   32,   30,   29,    1,   15,   30,   17,   18,
+       10,    8,    5,    9,   14,   11,    2,    4,    7,    6,
+        7,   28,   19,   20,   28,   28,   28,   28,   28,   28,
+       21,   30,   22,   29,    7,   12,    0,    2,   28,   28,
+       28,   25,   28,   28,   28,   28,   13,    3,   28,   28,
+       16,   28,   28,   28,   26,   28,   28,   28,   28,   28,
+       28,   27,   24,   23,    0
     } ;
 
 static yyconst YY_CHAR yy_ec[256] =
@@ -513,10 +513,10 @@ static yyconst flex_int16_t yy_chk[122] =
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static yyconst flex_int32_t yy_rule_can_match_eol[31] =
+static yyconst flex_int32_t yy_rule_can_match_eol[32] =
     {   0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,     };
+1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,     };
 
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
@@ -536,13 +536,24 @@ char *yytext;
 #line 2 "lexical.l"
     #include <stdio.h>
     #include "syntax.tab.h"
+
+    // Bison location information
+    int yycolumn = 1;
+    #define YY_USER_ACTION \
+        yylloc.first_line = yylloc.last_line = yylineno; \
+        yylloc.first_column = yycolumn; \
+        yylloc.last_column = yycolumn + yyleng - 1; \
+        yycolumn += yyleng;
+
+    // Funciton to debug
     void printDebug(char* str){
         printf("[%d] %s: %s\n", yylineno, str, yytext);
     }
+    // Function to print error type A
     void printErrorTypeA(char* str){
         printf("Error type A at Line %d: Mysterious character \"%s\".\n", yylineno, str);
     }
-#line 546 "lex.yy.c"
+#line 557 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -760,10 +771,10 @@ YY_DECL
 		}
 
 	{
-#line 45 "lexical.l"
+#line 56 "lexical.l"
 
 
-#line 767 "lex.yy.c"
+#line 778 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -831,184 +842,190 @@ do_action:	/* This label is used only to access EOF actions. */
 			goto yy_find_action;
 
 case 1:
+/* rule 1 can match eol */
 YY_RULE_SETUP
-#line 47 "lexical.l"
-{   printDebug("INT");
-                    return INT;         }
+#line 58 "lexical.l"
+{   yycolumn = 1; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 49 "lexical.l"
-{   printDebug("FLOAT");
-                    return FLOAT;       }
+#line 60 "lexical.l"
+{   printDebug("INT");
+                    return INT;         }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 51 "lexical.l"
-{   printDebug("SEMI");
-                    return SEMI;        }
+#line 62 "lexical.l"
+{   printDebug("FLOAT");
+                    return FLOAT;       }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 53 "lexical.l"
-{   printDebug("COMMA");
-                    return COMMA;       }
+#line 64 "lexical.l"
+{   printDebug("SEMI");
+                    return SEMI;        }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 55 "lexical.l"
-{   printDebug("ASSIGNOP");
-                    return ASSIGNOP;    }
+#line 66 "lexical.l"
+{   printDebug("COMMA");
+                    return COMMA;       }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 57 "lexical.l"
-{   printDebug("RELOP");
-                    return RELOP;       }
+#line 68 "lexical.l"
+{   printDebug("ASSIGNOP");
+                    return ASSIGNOP;    }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 59 "lexical.l"
-{   printDebug("PLUS");
-                    return PLUS;        }
+#line 70 "lexical.l"
+{   printDebug("RELOP");
+                    return RELOP;       }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 61 "lexical.l"
-{   printDebug("MINUS");
-                    return MINUS;       }
+#line 72 "lexical.l"
+{   printDebug("PLUS");
+                    return PLUS;        }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 63 "lexical.l"
-{   printDebug("STAR");
-                    return STAR;        }
+#line 74 "lexical.l"
+{   printDebug("MINUS");
+                    return MINUS;       }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 65 "lexical.l"
-{   printDebug("DIV");
-                    return DIV;         }
+#line 76 "lexical.l"
+{   printDebug("STAR");
+                    return STAR;        }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 67 "lexical.l"
-{   printDebug("AND");
-                    return AND;         }
+#line 78 "lexical.l"
+{   printDebug("DIV");
+                    return DIV;         }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 69 "lexical.l"
-{   printDebug("OR");
-                    return OR;          }
+#line 80 "lexical.l"
+{   printDebug("AND");
+                    return AND;         }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 71 "lexical.l"
-{   printDebug("DOT");
-                    return DOT;         }
+#line 82 "lexical.l"
+{   printDebug("OR");
+                    return OR;          }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 73 "lexical.l"
-{   printDebug("NOT");
-                    return NOT;         }
+#line 84 "lexical.l"
+{   printDebug("DOT");
+                    return DOT;         }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 75 "lexical.l"
-{   printDebug("TYPE");
-                    return TYPE;        }
+#line 86 "lexical.l"
+{   printDebug("NOT");
+                    return NOT;         }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 77 "lexical.l"
-{   printDebug("LP");
-                    return LP;          }
+#line 88 "lexical.l"
+{   printDebug("TYPE");
+                    return TYPE;        }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 79 "lexical.l"
-{   printDebug("RP");
-                    return RP;          }
+#line 90 "lexical.l"
+{   printDebug("LP");
+                    return LP;          }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 81 "lexical.l"
-{   printDebug("LB");
-                    return LB;          }
+#line 92 "lexical.l"
+{   printDebug("RP");
+                    return RP;          }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 83 "lexical.l"
-{   printDebug("RB");
-                    return RB;          }
+#line 94 "lexical.l"
+{   printDebug("LB");
+                    return LB;          }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 85 "lexical.l"
-{   printDebug("LC");
-                    return LC;          }
+#line 96 "lexical.l"
+{   printDebug("RB");
+                    return RB;          }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 87 "lexical.l"
-{   printDebug("RC");
-                    return RC;          }
+#line 98 "lexical.l"
+{   printDebug("LC");
+                    return LC;          }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 89 "lexical.l"
-{   printDebug("STRUCT");
-                    return STRUCT;      }
+#line 100 "lexical.l"
+{   printDebug("RC");
+                    return RC;          }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 91 "lexical.l"
-{   printDebug("RETURN");
-                    return RETURN;      }
+#line 102 "lexical.l"
+{   printDebug("STRUCT");
+                    return STRUCT;      }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 93 "lexical.l"
-{   printDebug("IF");
-                    return IF;          }
+#line 104 "lexical.l"
+{   printDebug("RETURN");
+                    return RETURN;      }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 95 "lexical.l"
-{   printDebug("ELSE");
-                    return ELSE;        }
+#line 106 "lexical.l"
+{   printDebug("IF");
+                    return IF;          }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 97 "lexical.l"
-{   printDebug("WHILE");
-                    return WHILE;       }
+#line 108 "lexical.l"
+{   printDebug("ELSE");
+                    return ELSE;        }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 99 "lexical.l"
+#line 110 "lexical.l"
+{   printDebug("WHILE");
+                    return WHILE;       }
+	YY_BREAK
+case 28:
+YY_RULE_SETUP
+#line 112 "lexical.l"
 {   printDebug("ID");
                     return ID;          }
 	YY_BREAK
-case 28:
-/* rule 28 can match eol */
-YY_RULE_SETUP
-#line 101 "lexical.l"
-{   /* Do nothing */    }
-	YY_BREAK
 case 29:
+/* rule 29 can match eol */
 YY_RULE_SETUP
-#line 102 "lexical.l"
-{   printErrorTypeA(yytext);    }
+#line 114 "lexical.l"
+{   /* Do nothing */    }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 104 "lexical.l"
+#line 116 "lexical.l"
+{   printErrorTypeA(yytext);    }
+	YY_BREAK
+case 31:
+YY_RULE_SETUP
+#line 118 "lexical.l"
 ECHO;
 	YY_BREAK
-#line 1012 "lex.yy.c"
+#line 1029 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2021,7 +2038,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 104 "lexical.l"
+#line 118 "lexical.l"
 
 
 
