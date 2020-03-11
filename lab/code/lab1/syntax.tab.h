@@ -71,7 +71,8 @@ extern int yydebug;
     RETURN = 281,
     IF = 282,
     ELSE = 283,
-    WHILE = 284
+    WHILE = 284,
+    INVALID_ID = 285
   };
 #endif
 
@@ -80,14 +81,14 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 11 "syntax.y" /* yacc.c:1909  */
+#line 17 "syntax.y" /* yacc.c:1909  */
 
     int type_int;
     float type_float;
     char* type_str;
-    Node* node;
+    Node* type_node;
 
-#line 91 "syntax.tab.h" /* yacc.c:1909  */
+#line 92 "syntax.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

@@ -1,8 +1,9 @@
 #include "parseTree.h"
-
+bool debug = false;      // set true to enter debug mode
 // Create a node
 // Set first_line to -1 if not need to print out
 Node* createNode(char* name, char* propertyValue, int first_line){
+
     Node* n = (Node*)malloc(sizeof(Node));    // allocate space in memory
     n->name = (char*)malloc(strlen(name) + 1);
     strcpy(n->name, name);
@@ -12,6 +13,7 @@ Node* createNode(char* name, char* propertyValue, int first_line){
     n->n_children = 0;
     n->parent = NULL;
     n->children = NULL;
+    n->if_leaf = false;     // not leaf node by default
     return n;
 }
 
@@ -36,12 +38,20 @@ void preOrderTraverse(Node* root, int depth){
         printf("  ");
     }
     printf("%s", root->name);
-    if(strlen(root->propertyValue) > 0)
-        printf(": %s", root->propertyValue);
-    // cases to show line number
-    if(root->first_line != -1)
-        printf("  (%d)", root->first_line);
-    printf("\n");
+    if(!debug){
+        if(root -> if_leaf){
+            if( strcmp(root->name, "TYPE") == 0 ||
+                strcmp(root->name, "ID") == 0   ||
+                strcmp(root->name, "INT") == 0  ||
+                strcmp(root->name, "FLOAT") == 0)
+                    printf(": %s", root->propertyValue);
+        }else{
+            printf("  (%d)", root->first_line);
+        }
+        printf("\n");
+    }else{
+        printf(": %s [%d]\n", root->propertyValue, root->first_line);
+    }
 
     for(int i = 0; i < root->n_children; ++i){
         preOrderTraverse(root->children[i], depth + 1);

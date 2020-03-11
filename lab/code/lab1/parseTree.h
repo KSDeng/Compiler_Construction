@@ -6,6 +6,11 @@
 #include <string.h>
 #include <stdarg.h>
 
+// Bool type
+typedef enum Boolean{
+    true = 1, false = 0
+} bool;
+
 // Tree node type
 typedef struct TreeNode{
     char* name;             // name of node, e.g. ID, LP, Stmt
@@ -14,6 +19,7 @@ typedef struct TreeNode{
     int first_line;         // first line number of current node
     struct TreeNode* parent;           // parent of current node
     struct TreeNode** children;        // children of current node
+    bool if_leaf;           // note if current node is leaf node
 } Node;
 
 // Create a node

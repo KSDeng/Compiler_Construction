@@ -1,6 +1,8 @@
 %{
     #include "parseTree.h"
     #include "syntax.tab.h"
+    int n_error = 0;        // number of error
+    extern bool debug;
     // Bison location information
     int yycolumn = 1;
     #define YY_USER_ACTION \
@@ -10,11 +12,11 @@
         yycolumn += yyleng;
 
     #define NEW_NODE(token_name) \
-        yylval.node = createNode(#token_name, yytext, yylloc.first_line)
-    // Funciton to debug
-    void printDebug(char* str){
-        // printf("[%d] %s: %s\n", yylineno, str, yytext);
-    }
+        yylval.type_node = createNode(#token_name, yytext, yylloc.first_line);   \
+        (yylval.type_node) -> if_leaf = true
+
+    #define INFO(STR) if(debug) printf("[%d] %s: %s\n", yylineno, #STR, yytext)
+
     // Function to print error type A
     void printErrorTypeA(char* str){
         printf("Error type A at Line %d: Mysterious character \"%s\".\n", yylineno, str);
@@ -53,95 +55,101 @@ ELSE        "else"
 WHILE       "while"
 MAIN        "main"
 WHITESPACE  [ \t\r\n]+
+INVALID_ID  ({DIGIT})+{ID}
 
 %%
 
 \n              {   yycolumn = 1; }
 
-{INT}           {   printDebug("INT");
+{INT}           {   
+                    INFO(INT);
                     NEW_NODE(INT);
                     return INT;         }
-{FLOAT}         {   printDebug("FLOAT");
+{FLOAT}         {   INFO(FLOAT);
                     NEW_NODE(FLOAT);
                     return FLOAT;       }
-{SEMI}          {   printDebug("SEMI");
+{SEMI}          {   INFO(SEMI);
                     NEW_NODE(SEMI);
                     return SEMI;        }
-{COMMA}         {   printDebug("COMMA");
+{COMMA}         {   INFO(COMMA);
                     NEW_NODE(COMMA);
                     return COMMA;       }
-{ASSIGNOP}      {   printDebug("ASSIGNOP");
+{ASSIGNOP}      {   INFO(ASSIGNOP);
                     NEW_NODE(ASSIGNOP);
                     return ASSIGNOP;    }
-{RELOP}         {   printDebug("RELOP");
+{RELOP}         {   INFO(RELOP);
                     NEW_NODE(RELOP);
                     return RELOP;       }
-{PLUS}          {   printDebug("PLUS");
+{PLUS}          {   INFO(PLUS);
                     NEW_NODE(PLUS);
                     return PLUS;        }
-{MINUS}         {   printDebug("MINUS");
+{MINUS}         {   INFO(MINUS);
                     NEW_NODE(MINUS);
                     return MINUS;       }
-{STAR}          {   printDebug("STAR");
+{STAR}          {   INFO(STAR);
                     NEW_NODE(STAR);
                     return STAR;        }
-{DIV}           {   printDebug("DIV");
+{DIV}           {   INFO(DIV);
                     NEW_NODE(DIV);
                     return DIV;         }
-{AND}           {   printDebug("AND");
+{AND}           {   INFO(AND);
                     NEW_NODE(AND);
                     return AND;         }
-{OR}            {   printDebug("OR");
+{OR}            {   INFO(OR);
                     NEW_NODE(OR);
                     return OR;          }
-{DOT}           {   printDebug("DOT");
+{DOT}           {   INFO(DOT);
                     NEW_NODE(DOT);
                     return DOT;         }
-{NOT}           {   printDebug("NOT");
+{NOT}           {   INFO(NOT);
                     NEW_NODE(NOT);
                     return NOT;         }
-{TYPE}          {   printDebug("TYPE");
+{TYPE}          {   INFO(TYPE);
                     NEW_NODE(TYPE);
                     return TYPE;        }
-{LP}            {   printDebug("LP");
+{LP}            {   INFO(LP);
                     NEW_NODE(LP);
                     return LP;          }
-{RP}            {   printDebug("RP");
+{RP}            {   INFO(RP);
                     NEW_NODE(RP);
                     return RP;          }
-{LB}            {   printDebug("LB");
+{LB}            {   INFO(LB);
                     NEW_NODE(LB);
                     return LB;          }
-{RB}            {   printDebug("RB");
+{RB}            {   INFO(RB);
                     NEW_NODE(RB);
                     return RB;          }
-{LC}            {   printDebug("LC");
+{LC}            {   INFO(LC);
                     NEW_NODE(LC);
                     return LC;          }
-{RC}            {   printDebug("RC");
+{RC}            {   INFO(RC);
                     NEW_NODE(RC);
                     return RC;          }
-{STRUCT}        {   printDebug("STRUCT");
+{STRUCT}        {   INFO(STRUCT);
                     NEW_NODE(STRUCT);
                     return STRUCT;      }
-{RETURN}        {   printDebug("RETURN");
+{RETURN}        {   INFO(RETURN);
                     NEW_NODE(RETURN);
                     return RETURN;      }
-{IF}            {   printDebug("IF");
+{IF}            {   INFO(IF);
                     NEW_NODE(IF);
                     return IF;          }
-{ELSE}          {   printDebug("ELSE");
+{ELSE}          {   INFO(ELSE);
                     NEW_NODE(ELSE);
                     return ELSE;        }
-{WHILE}         {   printDebug("WHILE");
+{WHILE}         {   INFO(WHILE);
                     NEW_NODE(WHILE);
                     return WHILE;       }
-{ID}            {   printDebug("ID");
+{ID}            {   INFO(ID);
                     NEW_NODE(ID);
                     return ID;          }
 {WHITESPACE}+   {   /* Do nothing */    }
 
-.               {   printErrorTypeA(yytext);    }
+{INVALID_ID}    {   INFO(INVALID_ID);
+                    NEW_NODE(INVALID_ID);
+                    return INVALID_ID;  }
+.               {   printErrorTypeA(yytext);  
+                    n_error++;          }
 
 %%
 

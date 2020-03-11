@@ -2,8 +2,14 @@
     #include "parseTree.h"
     #include "lex.yy.c"
     Node* root;
+    extern int n_error;    // number of errors
+    extern bool debug;
     void printDebug2(char* str, int lineno){
-        // printf("%s (%d)\n",str, lineno);
+        if(debug) printf("%s (%d)\n",str, lineno);
+    }
+    void printErrorTypeB(char* str, int lineno){
+        fprintf(stderr, "Error type B at Line %d: %s\n", lineno, str);
+        // printf("Error type B at line %d: %s\n", lineno, str);
     }
 %}
 
@@ -12,21 +18,24 @@
     int type_int;
     float type_float;
     char* type_str;
-    Node* node;
+    Node* type_node;
 }
 
 /* Tokens */
 /* terminals */
-%token <node> INT FLOAT ID SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV
-%token <node> AND OR DOT NOT TYPE LP RP LB RB LC RC
-%token <node> STRUCT RETURN IF ELSE WHILE
+%token <type_node> INT FLOAT ID SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV
+%token <type_node> AND OR DOT NOT TYPE LP RP LB RB LC RC
+%token <type_node> STRUCT RETURN IF ELSE WHILE
 /* non-terminals */
-%type <node> Program ExtDefList ExtDef ExtDecList
-%type <node> Specifier StructSpecifier OptTag Tag
-%type <node> VarDec FunDec VarList ParamDec
-%type <node> CompSt StmtList Stmt
-%type <node> DefList Def DecList Dec
-%type <node> Exp Args
+%type <type_node> Program ExtDefList ExtDef ExtDecList
+%type <type_node> Specifier StructSpecifier OptTag Tag
+%type <type_node> VarDec FunDec VarList ParamDec
+%type <type_node> CompSt StmtList Stmt
+%type <type_node> DefList Def DecList Dec
+%type <type_node> Exp Args
+
+/* errors */
+%token <type_node> INVALID_ID
 
 /* Associative property and priority */
 /* https://zh.cppreference.com/w/c/language/operator_precedence */
@@ -66,6 +75,10 @@ ExtDef : Specifier ExtDecList SEMI  { printDebug2("ExtDef -> Specifier ExtDecLis
     | Specifier FunDec CompSt       { printDebug2("ExtDef -> Specifier FuncDec CompSt", @$.first_line);
                                       $$ = createNode("ExtDef", "", @$.first_line);
                                       constructTree($$, 3, $1, $2, $3);                 }
+    | Specifier error               { printDebug2("ExtDef -> Specifier error", @$.first_line);
+                                      n_error++;
+                                      $$ = createNode("Error", "", @$.first_line);
+                                      printErrorTypeB("Missing \";\"", @$.last_line);      }
     ;
 
 ExtDecList : VarDec     { printDebug2("ExtDecList -> VarDec", @$.first_line);  
@@ -112,6 +125,10 @@ VarDec : ID    { printDebug2("VarDec -> ID", @$.first_line);
     | VarDec LB INT RB  { printDebug2("VarDec -> VarDec LB INT RB", @$.first_line);    
                           $$ = createNode("VarDec", "", @$.first_line);  
                           constructTree($$, 4, $1, $2, $3, $4);     }
+    | VarDec LB ID RB   { printDebug2("VarDec -> VarDec LB ID RB", @$.first_line);
+                          $$ = createNode("Error", "", @$.first_line);
+                          n_error++;
+                          printErrorTypeB("Invalid array declaration, dynamic space not allowed", @$.first_line);    }
     ;
 
 FunDec : ID LP VarList RP   { printDebug2("FunDec -> ID LP VarList RP", @$.first_line);
@@ -120,6 +137,11 @@ FunDec : ID LP VarList RP   { printDebug2("FunDec -> ID LP VarList RP", @$.first
     | ID LP RP  { printDebug2("FunDec -> ID LP RP", @$.first_line);    
                   $$ = createNode("FunDec", "", @$.first_line);
                   constructTree($$, 3, $1, $2, $3);     }
+    | INVALID_ID LP RP       {  printDebug2("FunDec -> INVALID_ID LP RP", @$.first_line);
+                                $$ = createNode("FunDec", "", @$.first_line);
+                                constructTree($$, 3, $1, $2, $3);
+                                n_error++;
+                                printErrorTypeB("Invalid ID", @$.first_line);     }   
     ;
 
 VarList : ParamDec COMMA VarList    { printDebug2("VarList -> ParamDec COMMA VarList", @$.first_line);
@@ -252,6 +274,19 @@ Exp : Exp ASSIGNOP Exp      { printDebug2("Exp -> Exp ASSIGNOP Exp", @$.first_li
     | FLOAT                 { printDebug2("Exp -> FLOAT", @$.first_line);
                               $$ = createNode("Exp", "", @$.first_line);
                               constructTree($$, 1, $1);     }
+    | Exp ASSIGNOP error    { printDebug2("Exp -> Exp ASSIGNOP error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("syntax error", @$.first_line);   }
+    | Exp LB RB             { printDebug2("Exp -> Exp LB RB", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Empty content inside \"[]\"", @$.first_line);   }
+    | Exp LB error RB       { printDebug2("Exp -> Exp LB error RB", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Syntax error inside \"[]\"", @$.first_line);
+                              yyerrok;              }
     ;
 
 Args : Exp COMMA Args       { printDebug2("Args -> Exp COMMA Args", @$.first_line);
@@ -274,12 +309,10 @@ int main(int argc, char** argv){
     }
     yyrestart(f);
     yyparse();
-    preOrderTraverse(root, 0);
+    if(n_error == 0) preOrderTraverse(root, 0);
     return 0;
 }
 
-
-
-
-
-
+int yyerror(char* str){
+    /*  do nothing */
+}
