@@ -30,5 +30,8 @@ void constructTree(Node* parent, int n_children, ...);
 // Pre order traverse the tree
 void preOrderTraverse(Node* root, int depth);
 
+// Print error message
+void printErrorTypeA(char* msg, int lineno);
+void printErrorTypeB(char* msg, int lineno);
 
 #endif

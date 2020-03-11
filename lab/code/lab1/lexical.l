@@ -1,7 +1,9 @@
 %{
     #include "parseTree.h"
     #include "syntax.tab.h"
-    int n_error = 0;        // number of error
+    int np = 0, nb = 0, nc = 0;
+    int line_p = 0, line_b = 0, line_c = 0;
+    int n_error = 0;            // number of error
     extern bool debug;
     // Bison location information
     int yycolumn = 1;
@@ -17,10 +19,6 @@
 
     #define INFO(STR) if(debug) printf("[%d] %s: %s\n", yylineno, #STR, yytext)
 
-    // Function to print error type A
-    void printErrorTypeA(char* str){
-        printf("Error type A at Line %d: Mysterious character \"%s\".\n", yylineno, str);
-    }
 %}
 %option yylineno
 
@@ -58,6 +56,8 @@ WHITESPACE  [ \t\r\n]+
 INVALID_ID  ({DIGIT})+{ID}
 
 %%
+
+
 
 \n              {   yycolumn = 1; }
 
@@ -107,22 +107,34 @@ INVALID_ID  ({DIGIT})+{ID}
 {TYPE}          {   INFO(TYPE);
                     NEW_NODE(TYPE);
                     return TYPE;        }
-{LP}            {   INFO(LP);
+{LP}            {   INFO(LP); np++; line_p = yylineno;
                     NEW_NODE(LP);
                     return LP;          }
-{RP}            {   INFO(RP);
+{RP}            {   INFO(RP); np--; line_p = yylineno;
+                    if(np < 0) {
+                        printErrorTypeB("Parentheses not match, redundant \")\"", yylineno);
+                        np = 0;
+                    }
                     NEW_NODE(RP);
                     return RP;          }
-{LB}            {   INFO(LB);
+{LB}            {   INFO(LB); nb++; line_b = yylineno;
                     NEW_NODE(LB);
                     return LB;          }
-{RB}            {   INFO(RB);
+{RB}            {   INFO(RB); nb--; line_b = yylineno;
+                    if(nb < 0) {
+                        printErrorTypeB("Brackets not match, redundant \"]\"", yylineno);
+                        nb = 0;
+                    }
                     NEW_NODE(RB);
                     return RB;          }
-{LC}            {   INFO(LC);
+{LC}            {   INFO(LC); nc++; line_c = yylineno;
                     NEW_NODE(LC);
                     return LC;          }
-{RC}            {   INFO(RC);
+{RC}            {   INFO(RC); nc--; line_c = yylineno;
+                    if(nc < 0) {
+                        printErrorTypeB("Brackets not match, redundant \"}\"", yylineno);
+                        nc = 0;
+                    }
                     NEW_NODE(RC);
                     return RC;          }
 {STRUCT}        {   INFO(STRUCT);
@@ -148,7 +160,7 @@ INVALID_ID  ({DIGIT})+{ID}
 {INVALID_ID}    {   INFO(INVALID_ID);
                     NEW_NODE(INVALID_ID);
                     return INVALID_ID;  }
-.               {   printErrorTypeA(yytext);  
+.               {   printErrorTypeA(yytext, yylineno);  
                     n_error++;          }
 
 %%

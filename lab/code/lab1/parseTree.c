@@ -59,3 +59,13 @@ void preOrderTraverse(Node* root, int depth){
     return;
 }
 
+// Function to print error type A
+void printErrorTypeA(char* msg, int lineno){
+    printf("Error type A at Line %d: Mysterious character \"%s\".\n", lineno, msg);
+}
+// Function to print error type B
+void printErrorTypeB(char* msg, int lineno){
+    fprintf(stderr, "Error type B at Line %d: %s\n", lineno, msg);
+    // printf("Error type B at line %d: %s\n", lineno, str);
+}
+

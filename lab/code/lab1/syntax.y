@@ -2,14 +2,12 @@
     #include "parseTree.h"
     #include "lex.yy.c"
     Node* root;
+    extern int np, nb, nc;
+    extern int line_p, line_b, line_c;
     extern int n_error;    // number of errors
     extern bool debug;
     void printDebug2(char* str, int lineno){
         if(debug) printf("%s (%d)\n",str, lineno);
-    }
-    void printErrorTypeB(char* str, int lineno){
-        fprintf(stderr, "Error type B at Line %d: %s\n", lineno, str);
-        // printf("Error type B at line %d: %s\n", lineno, str);
     }
 %}
 
@@ -76,9 +74,10 @@ ExtDef : Specifier ExtDecList SEMI  { printDebug2("ExtDef -> Specifier ExtDecLis
                                       $$ = createNode("ExtDef", "", @$.first_line);
                                       constructTree($$, 3, $1, $2, $3);                 }
     | Specifier error               { printDebug2("ExtDef -> Specifier error", @$.first_line);
-                                      n_error++;
                                       $$ = createNode("Error", "", @$.first_line);
-                                      printErrorTypeB("Missing \";\"", @$.last_line);      }
+                                      n_error++;
+                                      printErrorTypeB("Missing \";\"", @$.last_line);   }
+
     ;
 
 ExtDecList : VarDec     { printDebug2("ExtDecList -> VarDec", @$.first_line);  
@@ -138,7 +137,7 @@ FunDec : ID LP VarList RP   { printDebug2("FunDec -> ID LP VarList RP", @$.first
                   $$ = createNode("FunDec", "", @$.first_line);
                   constructTree($$, 3, $1, $2, $3);     }
     | INVALID_ID LP RP       {  printDebug2("FunDec -> INVALID_ID LP RP", @$.first_line);
-                                $$ = createNode("FunDec", "", @$.first_line);
+                                $$ = createNode("Error", "", @$.first_line);
                                 constructTree($$, 3, $1, $2, $3);
                                 n_error++;
                                 printErrorTypeB("Invalid ID", @$.first_line);     }   
@@ -188,6 +187,36 @@ Stmt : Exp SEMI     { printDebug2("Stmt -> Exp SEMI", @$.first_line);
     | WHILE LP Exp RP Stmt      { printDebug2("Stmt -> WHILE LP Exp RP Stmt", @$.first_line);  
                                   $$ = createNode("Stmt", "", @$.first_line);
                                   constructTree($$, 5, $1, $2, $3, $4, $5);      }
+    | RETURN error SEMI     
+                                { printDebug2("Stmt -> RETURN error SEMI", @$.first_line);
+                                  $$ = createNode("Error", "", @$.first_line);
+                                  n_error++;
+                                  printErrorTypeB("Return expression invalid", @$.first_line);
+                                  yyerrok;          }
+    | RETURN Exp error          
+                                { printDebug2("Stmt -> RETURN Exp error", @$.first_line);
+                                  $$ = createNode("Error", "", @$.first_line);
+                                  n_error++;
+                                  printErrorTypeB("Return expression invalid", @$.first_line);
+                                  yyerrok;          }
+    | IF LP error RP Stmt
+                                { printDebug2("Stmt -> IF LP error Stmt", @$.first_line);
+                                  $$ = createNode("Error", "", @$.first_line);
+                                  n_error++;
+                                  printErrorTypeB("If expression invalid conditions", @$.first_line);
+                                  yyerrok;          }
+    | IF LP error RP Stmt ELSE Stmt
+                                { printDebug2("Stmt -> IF LP error RP Stmt ELSE Stmt", @$.first_line);
+                                  $$ = createNode("Error", "", @$.first_line);
+                                  n_error++;
+                                  printErrorTypeB("IF expression invalid body", @$.first_line);
+                                  yyerrok;          }
+    | IF LP Exp RP Stmt ELSE error
+                                { printDebug2("Stmt -> IF LP Exp RP Stmt ELSE error", @$.first_line);
+                                  $$ = createNode("Error", "", @$.first_line);
+                                  n_error++;
+                                  printErrorTypeB("Else expression invalid body", @$.first_line);
+                                  yyerrok;          }
     ;
 
 /* Local Definitions */
@@ -201,6 +230,11 @@ DefList : Def DefList       { printDebug2("DefList -> Def DefList", @$.first_lin
 Def : Specifier DecList SEMI        { printDebug2("Def -> Specifier DecList SEMI", @$.first_line); 
                                       $$ = createNode("Def", "", @$.first_line);
                                       constructTree($$, 3, $1, $2, $3);       }
+    | Specifier error SEMI          { printDebug2("Def -> Specifier error SEMI", @$.first_line);
+                                      $$ = createNode("Error", "", @$.first_line);
+                                      n_error++;
+                                      printErrorTypeB("Declaration error", @$.first_line);  
+                                      yyerrok;          }
     ;
 
 DecList : Dec       { printDebug2("DecList -> Dec", @$.first_line);    
@@ -287,6 +321,149 @@ Exp : Exp ASSIGNOP Exp      { printDebug2("Exp -> Exp ASSIGNOP Exp", @$.first_li
                               $$ = createNode("Error", "", @$.first_line);
                               printErrorTypeB("Syntax error inside \"[]\"", @$.first_line);
                               yyerrok;              }
+    | Exp LP Args error     { printDebug2("Exp -> Exp LP Args error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Missing \")\"", @$.first_line);
+                              yyerrok;              }
+    | Exp LB Args error     { printDebug2("Exp -> Exp LB Args error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Missing \"]\"", @$.first_line);
+                              yyerrok;              }
+    | ID error              { printDebug2("Exp -> ID error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Syntax error", @$.first_line);
+                              yyerrok;              }
+    
+    | error ASSIGNOP Exp    
+                            { printDebug2("Exp -> error ASSIGNOP Exp", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | Exp AND error
+                            { printDebug2("Exp -> Exp AND error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | error AND Exp
+                            { printDebug2("Exp -> error AND Exp", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | Exp OR error
+                            { printDebug2("Exp -> Exp OR error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | error OR Exp
+                            { printDebug2("Exp -> error OR Exp", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | Exp RELOP error
+                            { printDebug2("Exp -> Exp RELOP error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | error RELOP Exp
+                            { printDebug2("Exp -> error RELOP Exp", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | Exp PLUS error
+                            { printDebug2("Exp -> Exp PLUS error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | error PLUS Exp
+                            { printDebug2("Exp -> error PLUS Exp", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | Exp MINUS error
+                            { printDebug2("Exp -> Exp MINUS error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | error MINUS Exp
+                            { printDebug2("Exp -> error MINUS Exp", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | Exp STAR error
+                            { printDebug2("Exp -> Exp STAR error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | error STAR Exp
+                            { printDebug2("Exp -> error STAR Exp", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | Exp DIV error
+                            { printDebug2("Exp -> Exp DIV error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | error DIV Exp
+                            { printDebug2("Exp -> error DIV Exp", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | LP error RP
+                            { printDebug2("Exp -> LP error RP", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | MINUS error
+                            { printDebug2("Exp -> MINUS error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | NOT error
+                            { printDebug2("Exp -> NOT error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | error LB Exp RB
+                            { printDebug2("Exp -> error LB Exp RB", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | error DOT ID
+                            { printDebug2("Exp -> error DOT ID", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+    | Exp DOT error
+                            { printDebug2("Exp -> Exp DOT error", @$.first_line);
+                              n_error++;
+                              $$ = createNode("Error", "", @$.first_line);
+                              printErrorTypeB("Invalid expression", @$.first_line);
+                              yyerrok;              }
+
     ;
 
 Args : Exp COMMA Args       { printDebug2("Args -> Exp COMMA Args", @$.first_line);
@@ -309,6 +486,11 @@ int main(int argc, char** argv){
     }
     yyrestart(f);
     yyparse();
+    if(debug) printf("np = %d  nb = %d  nc = %d\n", np, nb, nc);
+    if(np > 0) printErrorTypeB("Parentheses not match, missing \")\"", line_p);
+    if(nb > 0) printErrorTypeB("Brackets not match, missing \"]\"", line_b);
+    if(nc > 0) printErrorTypeB("Brackets not match, missing \"}\"", line_c);
+
     if(n_error == 0) preOrderTraverse(root, 0);
     return 0;
 }
