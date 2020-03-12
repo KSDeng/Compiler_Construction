@@ -959,15 +959,17 @@ YY_RULE_SETUP
 case 17:
 YY_RULE_SETUP
 #line 110 "lexical.l"
-{   INFO(LP); np++; line_p = yylineno;
+{   INFO(LP);
+                    np++; line_p = yylineno;
                     NEW_NODE(LP);
                     return LP;          }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 113 "lexical.l"
-{   INFO(RP); np--; line_p = yylineno;
-                    if(np < 0) {
+#line 114 "lexical.l"
+{   INFO(RP);
+                    np--; line_p = yylineno;
+                    if(np < 0){
                         printErrorTypeB("Parentheses not match, redundant \")\"", yylineno);
                         np = 0;
                     }
@@ -976,16 +978,18 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 120 "lexical.l"
-{   INFO(LB); nb++; line_b = yylineno;
+#line 122 "lexical.l"
+{   INFO(LB);
+                    nb++; line_b = yylineno;
                     NEW_NODE(LB);
                     return LB;          }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 123 "lexical.l"
-{   INFO(RB); nb--; line_b = yylineno;
-                    if(nb < 0) {
+#line 126 "lexical.l"
+{   INFO(RB);
+                    nb--; line_b = yylineno;
+                    if(nb < 0){
                         printErrorTypeB("Brackets not match, redundant \"]\"", yylineno);
                         nb = 0;
                     }
@@ -994,16 +998,18 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 130 "lexical.l"
-{   INFO(LC); nc++; line_c = yylineno;
+#line 134 "lexical.l"
+{   INFO(LC);
+                    nc++; line_c = yylineno;
                     NEW_NODE(LC);
                     return LC;          }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 133 "lexical.l"
-{   INFO(RC); nc--; line_c = yylineno;
-                    if(nc < 0) {
+#line 138 "lexical.l"
+{   INFO(RC);
+                    nc--; line_c = yylineno;
+                    if(nc < 0){
                         printErrorTypeB("Brackets not match, redundant \"}\"", yylineno);
                         nc = 0;
                     }
@@ -1012,42 +1018,42 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 140 "lexical.l"
+#line 146 "lexical.l"
 {   INFO(STRUCT);
                     NEW_NODE(STRUCT);
                     return STRUCT;      }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 143 "lexical.l"
+#line 149 "lexical.l"
 {   INFO(RETURN);
                     NEW_NODE(RETURN);
                     return RETURN;      }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 146 "lexical.l"
+#line 152 "lexical.l"
 {   INFO(IF);
                     NEW_NODE(IF);
                     return IF;          }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 149 "lexical.l"
+#line 155 "lexical.l"
 {   INFO(ELSE);
                     NEW_NODE(ELSE);
                     return ELSE;        }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 152 "lexical.l"
+#line 158 "lexical.l"
 {   INFO(WHILE);
                     NEW_NODE(WHILE);
                     return WHILE;       }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 155 "lexical.l"
+#line 161 "lexical.l"
 {   INFO(ID);
                     NEW_NODE(ID);
                     return ID;          }
@@ -1055,28 +1061,30 @@ YY_RULE_SETUP
 case 29:
 /* rule 29 can match eol */
 YY_RULE_SETUP
-#line 158 "lexical.l"
+#line 164 "lexical.l"
 {   /* Do nothing */    }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 160 "lexical.l"
-{   INFO(INVALID_ID);
+#line 166 "lexical.l"
+{
+                    INFO(INVALID_ID);
                     NEW_NODE(INVALID_ID);
-                    return INVALID_ID;  }
+                    return INVALID_ID;
+                }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 163 "lexical.l"
+#line 171 "lexical.l"
 {   printErrorTypeA(yytext, yylineno);  
                     n_error++;          }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 166 "lexical.l"
+#line 174 "lexical.l"
 ECHO;
 	YY_BREAK
-#line 1080 "lex.yy.c"
+#line 1088 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2089,7 +2097,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 166 "lexical.l"
+#line 174 "lexical.l"
 
 
 

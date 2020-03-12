@@ -107,31 +107,37 @@ INVALID_ID  ({DIGIT})+{ID}
 {TYPE}          {   INFO(TYPE);
                     NEW_NODE(TYPE);
                     return TYPE;        }
-{LP}            {   INFO(LP); np++; line_p = yylineno;
+{LP}            {   INFO(LP);
+                    np++; line_p = yylineno;
                     NEW_NODE(LP);
                     return LP;          }
-{RP}            {   INFO(RP); np--; line_p = yylineno;
-                    if(np < 0) {
+{RP}            {   INFO(RP);
+                    np--; line_p = yylineno;
+                    if(np < 0){
                         printErrorTypeB("Parentheses not match, redundant \")\"", yylineno);
                         np = 0;
                     }
                     NEW_NODE(RP);
                     return RP;          }
-{LB}            {   INFO(LB); nb++; line_b = yylineno;
+{LB}            {   INFO(LB);
+                    nb++; line_b = yylineno;
                     NEW_NODE(LB);
                     return LB;          }
-{RB}            {   INFO(RB); nb--; line_b = yylineno;
-                    if(nb < 0) {
+{RB}            {   INFO(RB);
+                    nb--; line_b = yylineno;
+                    if(nb < 0){
                         printErrorTypeB("Brackets not match, redundant \"]\"", yylineno);
                         nb = 0;
                     }
                     NEW_NODE(RB);
                     return RB;          }
-{LC}            {   INFO(LC); nc++; line_c = yylineno;
+{LC}            {   INFO(LC);
+                    nc++; line_c = yylineno;
                     NEW_NODE(LC);
                     return LC;          }
-{RC}            {   INFO(RC); nc--; line_c = yylineno;
-                    if(nc < 0) {
+{RC}            {   INFO(RC);
+                    nc--; line_c = yylineno;
+                    if(nc < 0){
                         printErrorTypeB("Brackets not match, redundant \"}\"", yylineno);
                         nc = 0;
                     }
@@ -157,9 +163,11 @@ INVALID_ID  ({DIGIT})+{ID}
                     return ID;          }
 {WHITESPACE}+   {   /* Do nothing */    }
 
-{INVALID_ID}    {   INFO(INVALID_ID);
+{INVALID_ID}    {
+                    INFO(INVALID_ID);
                     NEW_NODE(INVALID_ID);
-                    return INVALID_ID;  }
+                    return INVALID_ID;
+                }
 .               {   printErrorTypeA(yytext, yylineno);  
                     n_error++;          }
 
