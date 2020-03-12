@@ -125,6 +125,12 @@ VarDec : ID    { printDebug2("VarDec -> ID", @$.first_line);
     | VarDec LB INT RB  { printDebug2("VarDec -> VarDec LB INT RB", @$.first_line);    
                           $$ = createNode("VarDec", "", @$.first_line);  
                           constructTree($$, 4, $1, $2, $3, $4);     }
+    | VarDec LB FLOAT RB
+                        {
+                          printDebug2("VarDec -> VarDec LB FLOAT RB", @$.first_line);
+                          printErrorTypeB("Unexpected float, expecting int", @$.first_line);
+                          n_error++;
+                        }
     | VarDec LB error RB    {
                                 printErrorTypeB("Array initialization error, only constant space allowed", @$.first_line);
                                 n_error++;
@@ -192,6 +198,12 @@ Stmt : Exp SEMI     { printDebug2("Stmt -> Exp SEMI", @$.first_line);
                               printErrorTypeB("Return expression syntax error", @$.first_line);
                               n_error++;
                               yyerrok;      
+                            }
+    | RETURN Exp error      
+                            {
+                              printErrorTypeB("Missing \";\"", @$.first_line);
+                              n_error++;
+                              yyerrok;
                             }
     ;
 
@@ -308,6 +320,16 @@ Exp : Exp ASSIGNOP Exp      { printDebug2("Exp -> Exp ASSIGNOP Exp", @$.first_li
                               n_error++;
                               yyerrok;
                             }
+    | Exp PLUS PLUS         
+                            { printErrorTypeB("Illegal expression", @$.first_line);
+                              n_error++;
+                              yyerrok;
+                            }
+    | Exp LB ID DOT RB      
+                            { printDebug2("Exp -> Exp LB ID DOT RB", @$.first_line);
+                              printErrorTypeB("Illegal expression inside \"[]\"", @$.first_line);
+                              n_error++;
+                            }
     ;
 
 Args : Exp COMMA Args       { printDebug2("Args -> Exp COMMA Args", @$.first_line);
@@ -331,9 +353,9 @@ int main(int argc, char** argv){
     yyrestart(f);
     yyparse();
 
-    if(np > 0) printErrorTypeB("Parentheses not match, missing \")\"", line_p);
-    if(nb > 0) printErrorTypeB("Brackets not match, missing \"]\"", line_b);
-    if(nc > 0) printErrorTypeB("Brackets not match, missing \"}\"", line_c);
+    if(np > 0) printErrorTypeB("np > 0, Parentheses not match, missing \")\"", line_p);
+    if(nb > 0) printErrorTypeB("nb > 0, Brackets not match, missing \"]\"", line_b);
+    if(nc > 0) printErrorTypeB("nc > 0, Brackets not match, missing \"}\"", line_c);
 
     if(debug) preOrderTraverse(root, 0);
     else{
