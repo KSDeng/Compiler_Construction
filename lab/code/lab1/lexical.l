@@ -24,7 +24,7 @@
 
 DIGIT       [0-9]
 INT         {DIGIT}+
-FLOAT       {INT}\.{DIGIT}+
+FLOAT       ({INT}\.{INT})|((({INT}\.)|(\.{INT})|({INT}\.{INT}))([eE][+-]?{INT}))
 LETTER_     [a-zA-Z_]
 ID          {LETTER_}({LETTER_}|{DIGIT})*
 SEMI        ";"

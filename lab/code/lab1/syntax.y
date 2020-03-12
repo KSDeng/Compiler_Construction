@@ -104,6 +104,10 @@ StructSpecifier : STRUCT OptTag LC DefList RC   { printDebug2("StructSpecifier -
     | STRUCT Tag    { printDebug2("StructSpecifier -> STRUCT Tag", @$.first_line); 
                       $$ = createNode("StructSpecifier", "", @$.first_line);
                       constructTree($$, 2, $1, $2);  }
+    | error Tag 
+                    { printDebug2("StructSpecifier -> error Tag", @$.first_line);
+                      printErrorTypeB("Syntax error, unexpected ID", @$.last_line);
+                      n_error++;         }
     ;
 
 OptTag : ID     { printDebug2("OptTag -> ID", @$.first_line);
@@ -295,30 +299,10 @@ Exp : Exp ASSIGNOP Exp      { printDebug2("Exp -> Exp ASSIGNOP Exp", @$.first_li
     | FLOAT                 { printDebug2("Exp -> FLOAT", @$.first_line);
                               $$ = createNode("Exp", "", @$.first_line);
                               constructTree($$, 1, $1);     }
-    | Exp error Exp         {
-                              printErrorTypeB("Illegal operator between expressions", @$.first_line);
-                              n_error++;
-                              yyerrok;          
-                            }
-    | error Exp RP          {
-                              printErrorTypeB("Parentheses don't match, missing \"(\"", @$.first_line);
-                              n_error++;
-                              yyerrok;          
-                            }
     | Exp LB error RB       {
                               printErrorTypeB("Syntax error inside \"[]\"", @$.first_line);
                               n_error++;
                               yyerrok; 
-                            }
-    | Exp error Exp RB      {
-                              printErrorTypeB("Syntax error, missing \"[\"", @$.first_line);
-                              n_error++;
-                              yyerrok;
-                            }
-    | Exp LB Exp error      {
-                              printErrorTypeB("Brackets don't match, missing \"]\"", @$.first_line);
-                              n_error++;
-                              yyerrok;
                             }
     | Exp PLUS PLUS         
                             { printErrorTypeB("Illegal expression", @$.first_line);
@@ -330,6 +314,26 @@ Exp : Exp ASSIGNOP Exp      { printDebug2("Exp -> Exp ASSIGNOP Exp", @$.first_li
                               printErrorTypeB("Illegal expression inside \"[]\"", @$.first_line);
                               n_error++;
                             }
+    | Exp LB ID COMMA ID RB
+                            { printDebug2("Exp -> Exp LB ID COMMA ID RB", @$.first_line);
+                              printErrorTypeB("Illegal expression inside \"[]\"", @$.first_line);
+                              n_error++;
+                            }
+    | LB Exp RP             
+                            { printDebug2("Exp -> LB Exp RP", @$.first_line);
+                              printErrorTypeB("Syntax error, parentheses don't match", @$.first_line);
+                              n_error++;
+                            }
+    | INVALID_ID
+                            { printDebug2("Exp -> INVALID_ID", @$.first_line);
+                              printErrorTypeB("Illegal ID", @$.first_line);
+                              n_error++;
+                            }
+    | Exp RELOP error Exp   
+                            { printDebug2("Exp -> Exp RELOP error Exp", @$.first_line);
+                              printErrorTypeB("Unexpected RELOP", @$.first_line);
+                              n_error++;
+                              yyerrok;      }
     ;
 
 Args : Exp COMMA Args       { printDebug2("Args -> Exp COMMA Args", @$.first_line);
@@ -353,9 +357,10 @@ int main(int argc, char** argv){
     yyrestart(f);
     yyparse();
 
-    if(np > 0) printErrorTypeB("np > 0, Parentheses not match, missing \")\"", line_p);
-    if(nb > 0) printErrorTypeB("nb > 0, Brackets not match, missing \"]\"", line_b);
-    if(nc > 0) printErrorTypeB("nc > 0, Brackets not match, missing \"}\"", line_c);
+    if(debug) printf("np = %d  nb = %d  nc = %d\n", np, nb, nc);
+    if(np > 0) printErrorTypeB("Parentheses not match, missing \")\"", line_p);
+    if(nb > 0) printErrorTypeB("Brackets not match, missing \"]\"", line_b);
+    if(nc > 0) printErrorTypeB("Brackets not match, missing \"}\"", line_c);
 
     if(debug) preOrderTraverse(root, 0);
     else{
