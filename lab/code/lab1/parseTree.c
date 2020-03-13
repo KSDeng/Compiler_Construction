@@ -46,7 +46,7 @@ void preOrderTraverse(Node* root, int depth){
                 strcmp(root->name, "FLOAT") == 0)
                     printf(": %s", root->propertyValue);
         }else{
-            printf("  (%d)", root->first_line);
+            printf(" (%d)", root->first_line);
         }
         printf("\n");
     }else{
