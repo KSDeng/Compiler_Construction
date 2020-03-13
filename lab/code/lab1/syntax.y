@@ -79,6 +79,12 @@ ExtDef : Specifier ExtDecList SEMI  { printDebug2("ExtDef -> Specifier ExtDecLis
                               n_error++;
                               yyerrok;
                             }
+    | Specifier ExtDecList error
+                                    { printDebug2("ExtDef -> Specifier ExtDecList error", @$.first_line);
+                                      printErrorTypeB("Missing \";\"", @$.first_line);
+                                      n_error++;
+                                      yyerrok;
+                                    }
     ;
 
 ExtDecList : VarDec     { printDebug2("ExtDecList -> VarDec", @$.first_line);  
@@ -198,7 +204,8 @@ Stmt : Exp SEMI     { printDebug2("Stmt -> Exp SEMI", @$.first_line);
     | WHILE LP Exp RP Stmt      { printDebug2("Stmt -> WHILE LP Exp RP Stmt", @$.first_line);  
                                   $$ = createNode("Stmt", "", @$.first_line);
                                   constructTree($$, 5, $1, $2, $3, $4, $5);      }
-    | RETURN error SEMI     { 
+    | RETURN error SEMI     {
+                              printDebug2("Stmt -> RETURN error SEMI", @$.first_line);
                               printErrorTypeB("Return expression syntax error", @$.first_line);
                               n_error++;
                             }
@@ -207,6 +214,12 @@ Stmt : Exp SEMI     { printDebug2("Stmt -> Exp SEMI", @$.first_line);
                               printErrorTypeB("Missing \";\"", @$.first_line);
                               n_error++;
                               yyerrok;
+                            }
+    | IF LP Exp RP error ELSE Stmt
+                            {
+                                printDebug2("Stmt -> IF LP Exp RP error ELSE Stmt", @$.first_line);
+                                printErrorTypeB("Syntax error", @$.first_line);
+                                n_error++;
                             }
     ;
 
@@ -222,6 +235,7 @@ Def : Specifier DecList SEMI        { printDebug2("Def -> Specifier DecList SEMI
                                       $$ = createNode("Def", "", @$.first_line);
                                       constructTree($$, 3, $1, $2, $3);       }
     | Specifier error SEMI          {
+                                      printDebug2("Def -> Specifier error SEMI", @$.first_line);
                                       printErrorTypeB("Syntax error when defining variable", @$.first_line);
                                       n_error++;
                                                     }
@@ -299,7 +313,7 @@ Exp : Exp ASSIGNOP Exp      { printDebug2("Exp -> Exp ASSIGNOP Exp", @$.first_li
                               $$ = createNode("Exp", "", @$.first_line);
                               constructTree($$, 1, $1);     }
     | Exp LB error RB       {
-                              printErrorTypeB("Syntax error inside \"[]\"", @$.first_line);
+                              printErrorTypeB("Syntax error between []", @$.first_line);
                               n_error++;
                             }
     | Exp PLUS PLUS         
@@ -308,7 +322,7 @@ Exp : Exp ASSIGNOP Exp      { printDebug2("Exp -> Exp ASSIGNOP Exp", @$.first_li
                             }
     | Exp LB ID COMMA ID RB
                             { printDebug2("Exp -> Exp LB ID COMMA ID RB", @$.first_line);
-                              printErrorTypeB("Illegal expression inside \"[]\"", @$.first_line);
+                              printErrorTypeB("Syntax error between []", @$.first_line);
                               n_error++;
                             }
     | LB Exp RP             

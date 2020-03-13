@@ -1,5 +1,6 @@
+#line 2 "./lex.yy.c"
 
-#line 3 "lex.yy.c"
+#line 4 "./lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -537,8 +538,8 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "lexical.l"
-#line 2 "lexical.l"
+#line 1 "./lexical.l"
+#line 2 "./lexical.l"
     #include "parseTree.h"
     #include "syntax.tab.h"
     int np = 0, nb = 0, nc = 0;
@@ -559,7 +560,7 @@ char *yytext;
 
     #define INFO(STR) if(debug) printf("[%d] %s: %s\n", yylineno, #STR, yytext)
 
-#line 563 "lex.yy.c"
+#line 564 "./lex.yy.c"
 
 #define INITIAL 0
 
@@ -777,12 +778,12 @@ YY_DECL
 		}
 
 	{
-#line 58 "lexical.l"
+#line 58 "./lexical.l"
 
 
 
 
-#line 786 "lex.yy.c"
+#line 787 "./lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -852,12 +853,12 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 62 "lexical.l"
+#line 62 "./lexical.l"
 {   yycolumn = 1; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 64 "lexical.l"
+#line 64 "./lexical.l"
 {   
                     INFO(INT);
                     NEW_NODE(INT);
@@ -865,105 +866,105 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 68 "lexical.l"
+#line 68 "./lexical.l"
 {   INFO(FLOAT);
                     NEW_NODE(FLOAT);
                     return FLOAT;       }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 71 "lexical.l"
+#line 71 "./lexical.l"
 {   INFO(SEMI);
                     NEW_NODE(SEMI);
                     return SEMI;        }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 74 "lexical.l"
+#line 74 "./lexical.l"
 {   INFO(COMMA);
                     NEW_NODE(COMMA);
                     return COMMA;       }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 77 "lexical.l"
+#line 77 "./lexical.l"
 {   INFO(ASSIGNOP);
                     NEW_NODE(ASSIGNOP);
                     return ASSIGNOP;    }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 80 "lexical.l"
+#line 80 "./lexical.l"
 {   INFO(RELOP);
                     NEW_NODE(RELOP);
                     return RELOP;       }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 83 "lexical.l"
+#line 83 "./lexical.l"
 {   INFO(PLUS);
                     NEW_NODE(PLUS);
                     return PLUS;        }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 86 "lexical.l"
+#line 86 "./lexical.l"
 {   INFO(MINUS);
                     NEW_NODE(MINUS);
                     return MINUS;       }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 89 "lexical.l"
+#line 89 "./lexical.l"
 {   INFO(STAR);
                     NEW_NODE(STAR);
                     return STAR;        }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 92 "lexical.l"
+#line 92 "./lexical.l"
 {   INFO(DIV);
                     NEW_NODE(DIV);
                     return DIV;         }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 95 "lexical.l"
+#line 95 "./lexical.l"
 {   INFO(AND);
                     NEW_NODE(AND);
                     return AND;         }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 98 "lexical.l"
+#line 98 "./lexical.l"
 {   INFO(OR);
                     NEW_NODE(OR);
                     return OR;          }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 101 "lexical.l"
+#line 101 "./lexical.l"
 {   INFO(DOT);
                     NEW_NODE(DOT);
                     return DOT;         }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 104 "lexical.l"
+#line 104 "./lexical.l"
 {   INFO(NOT);
                     NEW_NODE(NOT);
                     return NOT;         }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 107 "lexical.l"
+#line 107 "./lexical.l"
 {   INFO(TYPE);
                     NEW_NODE(TYPE);
                     return TYPE;        }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 110 "lexical.l"
+#line 110 "./lexical.l"
 {   INFO(LP);
                     np++; line_p = yylineno;
                     NEW_NODE(LP);
@@ -971,7 +972,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 114 "lexical.l"
+#line 114 "./lexical.l"
 {   INFO(RP);
                     np--; line_p = yylineno;
                     if(np < 0){
@@ -983,7 +984,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 122 "lexical.l"
+#line 122 "./lexical.l"
 {   INFO(LB);
                     nb++; line_b = yylineno;
                     NEW_NODE(LB);
@@ -991,7 +992,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 126 "lexical.l"
+#line 126 "./lexical.l"
 {   INFO(RB);
                     nb--; line_b = yylineno;
                     if(nb < 0){
@@ -1003,7 +1004,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 134 "lexical.l"
+#line 134 "./lexical.l"
 {   INFO(LC);
                     nc++; line_c = yylineno;
                     NEW_NODE(LC);
@@ -1011,7 +1012,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 138 "lexical.l"
+#line 138 "./lexical.l"
 {   INFO(RC);
                     nc--; line_c = yylineno;
                     if(nc < 0){
@@ -1023,42 +1024,42 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 146 "lexical.l"
+#line 146 "./lexical.l"
 {   INFO(STRUCT);
                     NEW_NODE(STRUCT);
                     return STRUCT;      }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 149 "lexical.l"
+#line 149 "./lexical.l"
 {   INFO(RETURN);
                     NEW_NODE(RETURN);
                     return RETURN;      }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 152 "lexical.l"
+#line 152 "./lexical.l"
 {   INFO(IF);
                     NEW_NODE(IF);
                     return IF;          }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 155 "lexical.l"
+#line 155 "./lexical.l"
 {   INFO(ELSE);
                     NEW_NODE(ELSE);
                     return ELSE;        }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 158 "lexical.l"
+#line 158 "./lexical.l"
 {   INFO(WHILE);
                     NEW_NODE(WHILE);
                     return WHILE;       }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 161 "lexical.l"
+#line 161 "./lexical.l"
 {   INFO(ID);
                     NEW_NODE(ID);
                     return ID;          }
@@ -1066,12 +1067,12 @@ YY_RULE_SETUP
 case 29:
 /* rule 29 can match eol */
 YY_RULE_SETUP
-#line 164 "lexical.l"
+#line 164 "./lexical.l"
 {   /* Do nothing */    }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 166 "lexical.l"
+#line 166 "./lexical.l"
 {
                     INFO(INVALID_ID);
                     NEW_NODE(INVALID_ID);
@@ -1080,16 +1081,16 @@ YY_RULE_SETUP
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 171 "lexical.l"
+#line 171 "./lexical.l"
 {   printErrorTypeA(yytext, yylineno);  
                     n_error++;          }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 174 "lexical.l"
+#line 174 "./lexical.l"
 ECHO;
 	YY_BREAK
-#line 1093 "lex.yy.c"
+#line 1094 "./lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2102,7 +2103,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 174 "lexical.l"
+#line 174 "./lexical.l"
 
 
 
