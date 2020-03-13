@@ -104,10 +104,11 @@ StructSpecifier : STRUCT OptTag LC DefList RC   { printDebug2("StructSpecifier -
     | STRUCT Tag    { printDebug2("StructSpecifier -> STRUCT Tag", @$.first_line); 
                       $$ = createNode("StructSpecifier", "", @$.first_line);
                       constructTree($$, 2, $1, $2);  }
-    | error Tag 
+    | error Tag
                     { printDebug2("StructSpecifier -> error Tag", @$.first_line);
                       printErrorTypeB("Syntax error, unexpected ID", @$.last_line);
-                      n_error++;         }
+                      n_error++;
+                    }
     ;
 
 OptTag : ID     { printDebug2("OptTag -> ID", @$.first_line);
@@ -136,9 +137,8 @@ VarDec : ID    { printDebug2("VarDec -> ID", @$.first_line);
                           n_error++;
                         }
     | VarDec LB error RB    {
-                                printErrorTypeB("Array initialization error, only constant space allowed", @$.first_line);
+                                printErrorTypeB("Syntax error between []", @$.first_line);
                                 n_error++;
-                                yyerrok;    
                             }
     ;
 
@@ -201,7 +201,6 @@ Stmt : Exp SEMI     { printDebug2("Stmt -> Exp SEMI", @$.first_line);
     | RETURN error SEMI     { 
                               printErrorTypeB("Return expression syntax error", @$.first_line);
                               n_error++;
-                              yyerrok;      
                             }
     | RETURN Exp error      
                             {
@@ -225,7 +224,7 @@ Def : Specifier DecList SEMI        { printDebug2("Def -> Specifier DecList SEMI
     | Specifier error SEMI          {
                                       printErrorTypeB("Syntax error when defining variable", @$.first_line);
                                       n_error++;
-                                      yyerrok;      }
+                                                    }
     ;
 
 DecList : Dec       { printDebug2("DecList -> Dec", @$.first_line);    
@@ -302,16 +301,9 @@ Exp : Exp ASSIGNOP Exp      { printDebug2("Exp -> Exp ASSIGNOP Exp", @$.first_li
     | Exp LB error RB       {
                               printErrorTypeB("Syntax error inside \"[]\"", @$.first_line);
                               n_error++;
-                              yyerrok; 
                             }
     | Exp PLUS PLUS         
                             { printErrorTypeB("Illegal expression", @$.first_line);
-                              n_error++;
-                              yyerrok;
-                            }
-    | Exp LB ID DOT RB      
-                            { printDebug2("Exp -> Exp LB ID DOT RB", @$.first_line);
-                              printErrorTypeB("Illegal expression inside \"[]\"", @$.first_line);
                               n_error++;
                             }
     | Exp LB ID COMMA ID RB
@@ -333,7 +325,7 @@ Exp : Exp ASSIGNOP Exp      { printDebug2("Exp -> Exp ASSIGNOP Exp", @$.first_li
                             { printDebug2("Exp -> Exp RELOP error Exp", @$.first_line);
                               printErrorTypeB("Unexpected RELOP", @$.first_line);
                               n_error++;
-                              yyerrok;      }
+                            }
     ;
 
 Args : Exp COMMA Args       { printDebug2("Args -> Exp COMMA Args", @$.first_line);
@@ -357,7 +349,7 @@ int main(int argc, char** argv){
     yyrestart(f);
     yyparse();
 
-    if(debug) printf("np = %d  nb = %d  nc = %d\n", np, nb, nc);
+    // if(debug) printf("np = %d  nb = %d  nc = %d\n", np, nb, nc);
     if(np > 0) printErrorTypeB("Parentheses not match, missing \")\"", line_p);
     if(nb > 0) printErrorTypeB("Brackets not match, missing \"]\"", line_b);
     if(nc > 0) printErrorTypeB("Brackets not match, missing \"}\"", line_c);
