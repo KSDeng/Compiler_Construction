@@ -32,12 +32,6 @@ struct FUNC_INFO {
     char* returnTypeName;   // type name of return value
 };
 
-/*
-enum VAR_INFO_TYPE {
-    INT, FLOAT, STRUCT, ARRAY, FUNCTION, UNDECIDED
-};
-typedef enum VAR_INFO_TYPE VAR_INFO_TYPE;
-*/
 
 // Legal type names are as follows:
 // "int"
@@ -59,6 +53,7 @@ struct VAR_INFO {
 // don'e allow nested structure/function
 struct TYPE_INFO {
     char* typeName;
+    char* typeCategory;     // "array", "function" or "struct"
     union TYPE_DETAIL* typeDetail;
 };
 // detail of complex type
@@ -93,14 +88,6 @@ typedef union TYPE_DETAIL TYPE_DETAIL;
 typedef struct SYMBOL_LIST_NODE SYMBOL_NODE;
 typedef struct TYPE_LIST_NODE TYPE_NODE;
 
-// hash table
-// find out if a variable or type has been defined or not
-// both variable name and type name will be hashed into this table (any two of them can not be the same)
-// bool hash_table[HASH_TABLE_SIZE];
-// the head node of list of current defined variables
-// SYMBOL_NODE* symbol_list_head = NULL;
-// the head node of list of current defined types
-// TYPE_NODE* type_list_head = NULL;
 
 // hashing functions
 unsigned int BKDRHash(char* str);
@@ -122,15 +109,15 @@ TYPE_INFO* getTypeInfo(char* typeName);     // search for type info by its name
 void Program(Node* program);
 void ExtDefList(Node* extdeflist);
 void ExtDef(Node* extdef);
-void ExtDecList(Node* extdeclist);
+void ExtDecList(Node* extdeclist, char* typeName);
 // Specifiers
 char* Specifier(Node* specifier);       // return a string representing TYPE name, then you can get the detail of this type by calling getTypeInfo(char* typeName)
 char* StructSpecifier(Node* structspecifier);   // return structure name
 char* OptTag(Node* opttag);         // return ID
 char* Tag(Node* tag);               // return ID
 // Declarations
-char* VarDec(Node* vardec);         // return type name
-FUNC_INFO* FunDec(Node* fundec);      // insert symbol: function name
+char* VarDec(Node* vardec, char* typeName);
+void FunDec(Node* fundec, char* returnTypeName);      // insert symbol: function name
 // VAR_INFO** VarList(Node* varlist);
 // VAR_INFO* ParamDec(Node* paramdec);  // insert symbol: int/float/struct/array (function params)
 // Statements
@@ -141,26 +128,18 @@ void Stmt(Node* stmt);
 void DefList(Node* deflist);
 void Def(Node* def);            // insert symbol or type: int/float/struct/array
 void DecList(Node* declist, char* typeName);        // insert symbol into symbol list
-void Dec(Node* dec);
+void Dec(Node* dec, char* typeName);
 // Expressions
 char* Exp(Node* exp);           // return a string representing TYPE name
 void Args(Node* args, char* funcName);
 
 // utils
-// Complex pointer creation: malloc space and fill in compulsory fields
-// ARRAY_INFO* createArrayInfo(int size, VAR_INFO* ele_info);
-// STRUCT_INFO* createStructInfo(int n_fields, VAR_INFO** fields);
-// FUNC_INFO* createFuncInfo(int n_params, VAR_INFO** params, VAR_INFO* return_info);
-
-// VAR_INFO* createVarInfo(char* varType);
-// TYPE_INFO* createTypeInfo(char* typeName);
-// SYMBOL_NODE* createSymbolNode(VAR_INFO* info);
-// TYPE_NODE* createTypeNode(TYPE_INFO* info);
-// Copy complex pointer, you're not supposed to use '=' directly between pointers
 VAR_INFO* copyVarInfo(VAR_INFO* src);
 TYPE_INFO* copyTypeInfo(TYPE_INFO* src, const char* typeCategory);
 ARRAY_INFO* copyArrayInfo(ARRAY_INFO* src);
 STRUCT_INFO* copyStructInfo(STRUCT_INFO* src);
 FUNC_INFO* copyFuncInfo(FUNC_INFO* src);
+void showSymbolList();
+void showTypeList();
 
 #endif
