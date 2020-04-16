@@ -1,6 +1,6 @@
 #include "semantic.h"
 // debug flag
-bool debug_sema = false;
+bool debug_sema = true;
 // hash table
 // both variable name and type name will be hashed into this table, since each two of them can not be identical
 bool hash_table[HASH_TABLE_SIZE];
@@ -170,6 +170,7 @@ FUNC_INFO* copyFuncInfo(FUNC_INFO* src){
     strcpy(p->returnTypeName, src->returnTypeName);
     p->params = (VAR_INFO**)malloc(sizeof(VAR_INFO*) * src->n_params);
     for(int i = 0; i < src->n_params; ++i){
+        p->params[i] = (VAR_INFO*)malloc(sizeof(VAR_INFO));
         p->params[i]->varName = (char*)malloc(strlen(src->params[i]->varName)+1);
         strcpy(p->params[i]->varName, src->params[i]->varName);
         p->params[i]->varType = (char*)malloc(strlen(src->params[i]->varType)+1);
@@ -331,7 +332,8 @@ char* VarDec(Node* vardec, char* typeName){
     if(vardec->n_children == 1){        // VarDec -> ID
         char* id = vardec->children[0]->propertyValue;
         if(searchHashTable(id)){
-            printf("Error in VarDec->ID, redefined \"%s\"\n", id);
+            int line = vardec->children[0]->first_line;
+            printf("Error type 3 at Line %d: Redefined variable \"%s\".\n", line, id);
             return "";
         }
         insertIntoHashTable(id);
@@ -477,26 +479,32 @@ void FunDec(Node* fundec, char* returnTypeName){
     char* id = fundec->children[0]->propertyValue;
     bool searchRes = searchHashTable(id);
     if(searchRes){
-        printf("Error in FunDec(), ID \"%s\" already exists\n", id);
+        int line = fundec->first_line;
+        printf("Error type 4 at Line %d: Redefined function \"%s\".\n", line, id);
         return;
     }
     insertIntoHashTable(id);
 
     if(fundec->n_children == 4){        // FunDec -> ID LP VarList RP
         // count number of parameters
-        int n_params = 0;
+        int n_params = 1;
         Node* paramNodePointer = fundec->children[2];
-        while(paramNodePointer->n_children > 0){
+        while(paramNodePointer->n_children > 2){
             n_params++;
-            paramNodePointer = paramNodePointer->children[0];
+            paramNodePointer = paramNodePointer->children[2];
         }
+        if(debug_sema) printf("Function %s has %d parameters\n", id, n_params);
         funcInfo->n_params = n_params;
         // analyse parameters of function declaration
         funcInfo->params = (VAR_INFO**)malloc(sizeof(VAR_INFO*) * n_params);
+        for(int i = 0; i < n_params; ++i){
+            funcInfo->params[i] = (VAR_INFO*)malloc(sizeof(VAR_INFO));
+        }
         Node* paramNodePointer2 = fundec->children[2];  // VarList
         int i = 0;
         // processing VarList
         while(paramNodePointer2->n_children > 0){
+            if(debug_sema) printf("%s\n", paramNodePointer2->name);
             Node* paramdec = paramNodePointer2->children[0];    // ParamDec
             char* paramType = Specifier(paramdec->children[0]);
             char* paramName = VarDec(paramdec->children[1], paramType);
@@ -505,8 +513,16 @@ void FunDec(Node* fundec, char* returnTypeName){
             strcpy(funcInfo->params[i]->varType, paramType);
             funcInfo->params[i]->varName = (char*)malloc(strlen(paramName)+1);
             strcpy(funcInfo->params[i]->varName, paramName);
-            paramNodePointer2 = paramNodePointer2->children[0];
-            ++i;
+            if(paramNodePointer2->n_children == 3){   // VarList->ParamDec COMMA VarList
+                // processing next parameter
+                paramNodePointer2 = paramNodePointer2->children[2];
+                ++i;
+            }else if(paramNodePointer2->n_children == 1){   // VarList -> ParamDec
+                break;
+            }else{
+                printf("Error in FunDec(), unknown production for VarList\n");
+                return;
+            }
         }
     }else if(fundec->n_children == 3){  // FunDec -> ID LP RP
         funcInfo->n_params = 0;
@@ -532,6 +548,7 @@ void FunDec(Node* fundec, char* returnTypeName){
     funcTypeInfo->typeDetail = (TYPE_DETAIL*)malloc(sizeof(TYPE_DETAIL));
     funcTypeInfo->typeDetail->func_info = copyFuncInfo(funcInfo);
     insertType(funcTypeInfo, "function");
+    if(debug_sema) showTypeList();
 }
 void CompSt(Node* compst){
     if(debug_sema) printf("CompSt()\n");
@@ -727,15 +744,24 @@ char* Exp(Node* exp){
         case 3:{
             // char* child1Name = exp->children[1]->name;
             if(strcmp(exp->children[1]->name, "ASSIGNOP") == 0){    // Exp -> Exp ASSIGNOP Exp
+                // Assignment left-side check
+                Node* leftExp = exp->children[0];
+                if(strcmp(leftExp->children[0]->name, "INT") == 0 || strcmp(leftExp->children[0]->name, "FLOAT") == 0){
+                    int line = exp->first_line;
+                    printf("Error type 6 at Line %d: The left-hand side of an assignment must be a variable.\n", line);
+                    return "";
+                }
                 char* type1 = Exp(exp->children[0]);
                 char* type2 = Exp(exp->children[2]);
                 if(strcmp(type1, "") == 0 || strcmp(type2, "") == 0)
                     return "";      // some error occurs in subtree
                 // type check
                 if(strcmp(type1, type2) != 0){
-                    printf("Error in Exp(), type not compatible ASSIGNOP\n");
+                    int line = exp->first_line;
+                    printf("Error type 5 at Line %d: Type mismatched for assignment.\n", line);
                     return "";
                 }
+                return type1;
 
             }else if(strcmp(exp->children[1]->name, "AND") == 0){   // Exp -> Exp AND Exp
                 Exp(exp->children[0]);
@@ -747,10 +773,19 @@ char* Exp(Node* exp){
                 return "bool";
                 
             }else if(strcmp(exp->children[1]->name, "RELOP") == 0){ // Exp -> Exp RELOP Exp
-                //VAR_INFO* case3_exp1_info4 = Exp(exp->children[0]);
-                //VAR_INFO* case3_exp2_info4 = Exp(exp->children[2]);
-                Exp(exp->children[0]);
-                Exp(exp->children[2]);
+                char* type1 = Exp(exp->children[0]);
+                char* type2 = Exp(exp->children[2]);
+                if((strcmp(type1, "int")!=0 && strcmp(type1, "float")!=0) ||
+                    (strcmp(type2, "float")!=0 && strcmp(type2, "float")!=0)){
+                    printf("Illegal type in Exp() RELOP, with \"%s\" RELOP \"%s\".\n", type1, type2);
+                    return "";
+                }
+                if(strcmp(type1, type2) != 0){
+                    int line = exp->first_line;
+                    printf("Error type 7 at Line %d: Type mismatched for operands.\n", line);
+                    return "";
+                }
+
                 return "bool";
             }else if(strcmp(exp->children[1]->name, "PLUS") == 0){  // Exp -> Exp PLUS Exp
                 char* type1 = Exp(exp->children[0]);
@@ -760,40 +795,38 @@ char* Exp(Node* exp){
                     return "";
                 }
                 if(strcmp(type1, type2) != 0){
-                    printf("Illegal type in Exp() PLUS, not the same type\n");
+                    int line = exp->first_line;
+                    printf("Error type 7 at Line %d: Type mismatched for operands.\n", line);
                     return "";
                 }
                 return type1;
             }else if(strcmp(exp->children[1]->name, "MINUS") == 0){ // Exp -> Exp MINUS Exp
-                //VAR_INFO* case3_exp1_info5 = Exp(exp->children[0]);
-                //VAR_INFO* case3_exp2_info5 = Exp(exp->children[2]);
-                // TODO
                 char* type1 = Exp(exp->children[0]);
                 char* type2 = Exp(exp->children[2]);
                 if(strcmp(type1, type2) != 0){
-                    printf("Type not compatible. Exp MINUS\n");
+                    int line = exp->first_line;
+                    printf("Error type 7 at Line %d: Type mismatched for operands.\n", line);
+                    return "";
                 }
                 return type1;
 
             }else if(strcmp(exp->children[1]->name, "STAR") == 0){  // Exp -> Exp STAR Exp
-                //VAR_INFO* case3_exp1_info6 = Exp(exp->children[0]);
-                //VAR_INFO* case3_exp2_info6 = Exp(exp->children[2]);
-                // TODO
                 char* type1 = Exp(exp->children[0]);
                 char* type2 = Exp(exp->children[2]);
                 if(strcmp(type1, type2) != 0){
-                    printf("Type not compatible. Exp MINUS\n");
+                    int line = exp->first_line;
+                    printf("Error type 7 at Line %d: Type mismatched for operands.\n", line);
+                    return "";
                 }
                 return type1;
 
             }else if(strcmp(exp->children[1]->name, "DIV") == 0){   // Exp -> Exp DIV Exp
-                //VAR_INFO* case3_exp1_info7 = Exp(exp->children[0]);
-                //VAR_INFO* case3_exp2_info7 = Exp(exp->children[2]);
-                // TODO
                 char* type1 = Exp(exp->children[0]);
                 char* type2 = Exp(exp->children[2]);
                 if(strcmp(type1, type2) != 0){
-                    printf("type not compatible. exp minus\n");
+                    int line = exp->first_line;
+                    printf("Error type 7 at Line %d: Type mismatched for operands.\n", line);
+                    return "";
                 }
                 return type1;
             }else if(strcmp(exp->children[1]->name, "Exp") == 0){   // Exp -> LP Exp RP
@@ -837,11 +870,13 @@ char* Exp(Node* exp){
         case 4:{
             if(strcmp(exp->children[0]->name, "ID") == 0){  // Exp -> ID LP Args RP
                 // call function
-                //VAR_INFO* case4_args_info = Args(exp->children[2]);
-                // TODO
                 char* id = exp->children[0]->propertyValue;
                 bool searchRes = searchHashTable(id);
-                if(!searchRes) printf("Error in Exp() case 4, undefined function \"%s\"\n", id);
+                if(!searchRes) {
+                    int line = exp->children[0]->first_line;
+                    printf("Error type 2 at Line %d: Undefined function \"%s\".\n", line, id);
+                    return "";
+                }
                 insertIntoHashTable(id);
                 Args(exp->children[2], id);
                 TYPE_INFO* typeInfo = getTypeInfo(id);
