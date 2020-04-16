@@ -1,0 +1,166 @@
+#ifndef _SEMANTIC_H_
+#define _SEMANTIC_H_
+
+#include "parseTree.h"
+#define HASH_TABLE_SIZE 24593
+
+// debug flag
+// bool debug_sema = true;
+
+// array info
+struct ARRAY_INFO {    
+    int size;               // size of array
+    // type info of array element
+    // for multi-dimentional array, ele_info->typeName equals "array", and ele_info->typeDetail->array_info->ele_info->typeName is still "array", by parity of reasoning
+    // struct TYPE_INFO* ele_info;     // type info of element (only type name)
+
+    // to get detailed type info, use getTypeInfo(eleTypeName)
+    char* eleTypeName;      // type name of element
+};
+
+// struct info
+struct STRUCT_INFO {
+    int n_fields;   // num of fields
+    struct VAR_INFO** fields;         // fields of struct (var type and var name)
+};
+
+// func info
+struct FUNC_INFO {
+    int n_params;       // num of parameters
+    struct VAR_INFO** params;     // parameters of function (var type and var name)
+    // struct TYPE_INFO* return_info;         // info of return value (only type name and type detail)
+    char* returnTypeName;   // type name of return value
+};
+
+/*
+enum VAR_INFO_TYPE {
+    INT, FLOAT, STRUCT, ARRAY, FUNCTION, UNDECIDED
+};
+typedef enum VAR_INFO_TYPE VAR_INFO_TYPE;
+*/
+
+// Legal type names are as follows:
+// "int"
+// "float"
+// self-defined type name (struct ID / function ID / array ID)
+// typeName + "_pointer" (only 1-demisional pointer)
+
+// A variable should be added to SYMBOL_LIST after it has been defined
+// A type should be added to TYPE_LIST after it has been defined
+
+// information of certain variable(varName != "") or constant (varName == "")
+struct VAR_INFO {
+    char* varType;
+    char* varName;
+};
+// information of certain type
+// for basic type, the typeDetail pointer is NULL
+// allow 2-D array (enumeration in code when defining)
+// don'e allow nested structure/function
+struct TYPE_INFO {
+    char* typeName;
+    union TYPE_DETAIL* typeDetail;
+};
+// detail of complex type
+union TYPE_DETAIL {
+    struct ARRAY_INFO* array_info;
+    struct STRUCT_INFO* struct_info;
+    struct FUNC_INFO* func_info;
+};
+
+// symbol list node
+// constants won't be added into this list, but they have their types
+// each node represents a VARIABLE that has already been defined
+struct SYMBOL_LIST_NODE {
+    struct VAR_INFO* info;
+    struct SYMBOL_LIST_NODE* next;
+};
+// type list node
+// each node represents a TYPE that has already been defined
+struct TYPE_LIST_NODE {
+    struct TYPE_INFO* info;
+    struct TYPE_LIST_NODE* next;
+};
+
+// typedef
+typedef struct ARRAY_INFO ARRAY_INFO;
+typedef struct STRUCT_INFO STRUCT_INFO;
+typedef struct FUNC_INFO FUNC_INFO;
+
+typedef struct VAR_INFO VAR_INFO;
+typedef struct TYPE_INFO TYPE_INFO;
+typedef union TYPE_DETAIL TYPE_DETAIL;
+typedef struct SYMBOL_LIST_NODE SYMBOL_NODE;
+typedef struct TYPE_LIST_NODE TYPE_NODE;
+
+// hash table
+// find out if a variable or type has been defined or not
+// both variable name and type name will be hashed into this table (any two of them can not be the same)
+// bool hash_table[HASH_TABLE_SIZE];
+// the head node of list of current defined variables
+// SYMBOL_NODE* symbol_list_head = NULL;
+// the head node of list of current defined types
+// TYPE_NODE* type_list_head = NULL;
+
+// hashing functions
+unsigned int BKDRHash(char* str);
+void initHashTable();                     // init all hash table elements to be false
+void insertIntoHashTable(char* str);      // turn the flag in hash table, solve conflicts at the same time
+bool searchHashTable(char* str);          // search if a name has already existed
+
+// list functions
+void insertSymbol(VAR_INFO* varInfo);      // insert a new symbol into symbol list
+VAR_INFO* getSymbolInfo(char* varName);        // search for symbol info by its name
+void insertType(TYPE_INFO* typeInfo, const char* typeCategory);       // insert a new type into type list
+TYPE_INFO* getTypeInfo(char* typeName);     // search for type info by its name
+
+// semantic analysis
+// return value: return to parent level
+// parameter: pass to sub level
+
+// High-level Definitions
+void Program(Node* program);
+void ExtDefList(Node* extdeflist);
+void ExtDef(Node* extdef);
+void ExtDecList(Node* extdeclist);
+// Specifiers
+char* Specifier(Node* specifier);       // return a string representing TYPE name, then you can get the detail of this type by calling getTypeInfo(char* typeName)
+char* StructSpecifier(Node* structspecifier);   // return structure name
+char* OptTag(Node* opttag);         // return ID
+char* Tag(Node* tag);               // return ID
+// Declarations
+char* VarDec(Node* vardec);         // return type name
+FUNC_INFO* FunDec(Node* fundec);      // insert symbol: function name
+// VAR_INFO** VarList(Node* varlist);
+// VAR_INFO* ParamDec(Node* paramdec);  // insert symbol: int/float/struct/array (function params)
+// Statements
+void CompSt(Node* compst);
+void StmtList(Node* stmtlist);
+void Stmt(Node* stmt);
+// Local Definitions
+void DefList(Node* deflist);
+void Def(Node* def);            // insert symbol or type: int/float/struct/array
+void DecList(Node* declist, char* typeName);        // insert symbol into symbol list
+void Dec(Node* dec);
+// Expressions
+char* Exp(Node* exp);           // return a string representing TYPE name
+void Args(Node* args, char* funcName);
+
+// utils
+// Complex pointer creation: malloc space and fill in compulsory fields
+// ARRAY_INFO* createArrayInfo(int size, VAR_INFO* ele_info);
+// STRUCT_INFO* createStructInfo(int n_fields, VAR_INFO** fields);
+// FUNC_INFO* createFuncInfo(int n_params, VAR_INFO** params, VAR_INFO* return_info);
+
+// VAR_INFO* createVarInfo(char* varType);
+// TYPE_INFO* createTypeInfo(char* typeName);
+// SYMBOL_NODE* createSymbolNode(VAR_INFO* info);
+// TYPE_NODE* createTypeNode(TYPE_INFO* info);
+// Copy complex pointer, you're not supposed to use '=' directly between pointers
+VAR_INFO* copyVarInfo(VAR_INFO* src);
+TYPE_INFO* copyTypeInfo(TYPE_INFO* src, const char* typeCategory);
+ARRAY_INFO* copyArrayInfo(ARRAY_INFO* src);
+STRUCT_INFO* copyStructInfo(STRUCT_INFO* src);
+FUNC_INFO* copyFuncInfo(FUNC_INFO* src);
+
+#endif
