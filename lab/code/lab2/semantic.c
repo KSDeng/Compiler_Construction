@@ -882,23 +882,18 @@ char* Exp(Node* exp){
                     printf("Error type 2 at Line %d: Undefined function \"%s\".\n", line, id);
                     return "";
                 }
-                insertIntoHashTable(id);
-                Args(exp->children[2], id);
-                TYPE_INFO* typeInfo = getTypeInfo(id);
-                FUNC_INFO* funcInfo = typeInfo->typeDetail->func_info;
-                return funcInfo->returnTypeName;
+                char* returnTypeName = Args(exp->children[2], id);
+                return returnTypeName;
             }else if(strcmp(exp->children[0]->name, "Exp") == 0){   // Exp -> Exp LB Exp RB
-                //VAR_INFO* case4_exp1_info = Exp(exp->children[0]);
-                //VAR_INFO* case4_exp2_info = Exp(exp->children[2]);
-                // TODO
                 char* type1 = Exp(exp->children[0]);
                 char* type2 = Exp(exp->children[2]);
+                int line = exp->first_line;
                 if(strcmp(type2, "int") != 0){
                     printf("Error, illegal index type\n");
                     return "";
                 }
                 if(strcmp(type1, "array") != 0){
-                    printf("Error, cannot use index syntax to non-array type\n");
+                    printf("Error type 10 at Line %d: illegal subscript with a non-array variable.\n", line);
                     return "";
                 }
                 TYPE_INFO* arrayInfo = getTypeInfo(type1);
@@ -917,26 +912,78 @@ char* Exp(Node* exp){
     }
 }
 
-void Args(Node* args, char* funcName){
+char* Args(Node* args, char* funcName){
     if(debug_sema) printf("Args()\n");
     if(!args){
         if(debug_sema) printf("Args node NULL\n");
-        return;
+        return "";
     }
+    TYPE_INFO* funcTypeInfo = getTypeInfo(funcName);
+    if(strcmp(funcTypeInfo->typeCategory, "function") != 0){
+        printf("Error, %s is not a function\n", funcName);
+        return "";
+    }
+    FUNC_INFO* funcInfo = funcTypeInfo->typeDetail->func_info;
+    int nFuncParam = funcInfo->n_params;
+    VAR_INFO** params = funcInfo->params;
+
+    int line = args->first_line;
+
     if(args->n_children == 3){      // Args -> Exp COMMA Args
-        // VAR_INFO* exp_info = Exp(args->children[0]);
-        // VAR_INFO* args_info = Args(args->children[2]);
-        // TODO
-        Exp(args->children[0]);
-        Args(args->children[2], funcName);
+        int n_params = 1;
+        Node* moreArgs = args->children[2];
+        while(moreArgs->n_children > 0){
+            n_params++;
+            if(moreArgs->n_children == 3) moreArgs = moreArgs->children[2];
+            else if(moreArgs->n_children == 1) break;
+            else{
+                printf("Error, unknwon production in Args()\n");
+                return "";
+            }
+        }
+        if(nFuncParam != n_params){
+            printf("Error type 9 at Line %d: Function call is not applicable with arguments.\n", line);
+            return "";
+        }
+
+        // traverse all parameters
+        int i = 0;
+        Node* tmpArg = args;
+        while(i < n_params){
+            char* paramType = Exp(tmpArg->children[0]);
+            char* argType = params[i]->varType;
+            if(strcmp(paramType, argType) != 0){
+                printf("Error type 9 at Line %d: Function call is not applicable with arguments.\n", line);
+                return "";
+            }
+            if(tmpArg->n_children == 3) {
+                tmpArg = tmpArg->children[2];
+                ++i;
+            }
+            else if(tmpArg->n_children == 1) break;
+            else{
+                printf("Error unknown production in Args()...\n");
+                return "";
+            }
+        }
+
+        return funcInfo->returnTypeName;
     }else if(args->n_children == 1){    // Args -> Exp
-        // VAR_INFO* exp_info = Exp(args->children[0]);
-        // TODO
-        Exp(args->children[0]);
+        if(nFuncParam != 1){
+            printf("Error type 9 at Line %d: Function call is not applicable with arguments.\n", line);
+            return "";
+        }
+        char* paramType = Exp(args->children[0]);
+        char* argType = params[0]->varType;
+        if(strcmp(paramType, argType) != 0){
+            printf("Error type 9 at Line %d: Function call is not applicable with arguments.\n", line);
+            return "";
+        }
+        return funcInfo->returnTypeName;
 
     }else{
         printf("Args(), error with unknown production\n");
-        return;
+        return "";
     }
 }
 

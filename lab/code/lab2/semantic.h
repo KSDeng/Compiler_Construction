@@ -131,7 +131,7 @@ void DecList(Node* declist, char* typeName);        // insert symbol into symbol
 void Dec(Node* dec, char* typeName);
 // Expressions
 char* Exp(Node* exp);           // return a string representing TYPE name
-void Args(Node* args, char* funcName);
+char* Args(Node* args, char* funcName);     // return function return type name
 
 // utils
 VAR_INFO* copyVarInfo(VAR_INFO* src);
