@@ -1,6 +1,6 @@
 #include "semantic.h"
 // debug flag
-bool debug_sema = true;
+bool debug_sema = false;
 // hash table
 // both variable name and type name will be hashed into this table, since each two of them can not be identical
 bool hash_table[HASH_TABLE_SIZE];
@@ -143,7 +143,7 @@ void ExtDef(Node* extdef){
     }else if(strcmp(extdef->children[1]->name, "FunDec") == 0){ // ExtDef -> Specifier FunDec CompSt
         char* returnTypeName = Specifier(extdef->children[0]);
         FunDec(extdef->children[1], returnTypeName);
-        CompSt(extdef->children[2]);
+        CompSt(extdef->children[2], returnTypeName);
 
     }else{
         printf("ExtDef(), error with unknown production\n");
@@ -550,7 +550,7 @@ void FunDec(Node* fundec, char* returnTypeName){
     insertType(funcTypeInfo, "function");
     if(debug_sema) showTypeList();
 }
-void CompSt(Node* compst){
+void CompSt(Node* compst, char* returnType){
     if(debug_sema) printf("CompSt()\n");
     if(!compst){
         if(debug_sema) printf("Compst node NULL\n");
@@ -559,21 +559,22 @@ void CompSt(Node* compst){
     if(compst->n_children == 4){        // CompSt -> LC DefList StmtList RC
         DefList(compst->children[1]);
         if(debug_sema) showSymbolList();
-        StmtList(compst->children[2]);
+        StmtList(compst->children[2], returnType);
+        return;
     }else{
         printf("CompSt(), error with unknown production\n");
         return;
     }
 }
-void StmtList(Node* stmtlist){
+void StmtList(Node* stmtlist, char* returnType){
     if(debug_sema) printf("StmtList()\n");
     if(!stmtlist){
         if(debug_sema) printf("StmtList node NULL\n");
         return;
     }
     if(stmtlist->n_children == 2){      // StmtList -> Stmt StmtList
-        Stmt(stmtlist->children[0]);
-        StmtList(stmtlist->children[1]);
+        Stmt(stmtlist->children[0], returnType);
+        StmtList(stmtlist->children[1], returnType);
     }else if(stmtlist->n_children == 0){    // StmtList -> empty
         return;
     }else{
@@ -581,7 +582,7 @@ void StmtList(Node* stmtlist){
         return;
     }
 }
-void Stmt(Node* stmt){
+void Stmt(Node* stmt, char* returnType){
     if(debug_sema) printf("Stmt()\n");
     if(!stmt){
         if(debug_sema) printf("Stmt node NULL\n");
@@ -593,17 +594,21 @@ void Stmt(Node* stmt){
             break;
         }
         case 1:{        // Stmt -> CompSt
-            CompSt(stmt->children[0]);
+            CompSt(stmt->children[0], returnType);
             break;
         }
         case 3:{        // Stmt -> RETURN Exp SEMI
-            Exp(stmt->children[1]);
+            char* expType = Exp(stmt->children[1]);
+            if(strcmp(returnType, expType) != 0){
+                int line = stmt->first_line;
+                printf("Error type 8 at Line %d: Type mismatched for return.\n", line);
+            }
             break;
         }
         case 5:{        
             if(strcmp(stmt->children[0]->name, "IF") == 0){ // Stmt -> IF LP Exp RP Stmt
                 Exp(stmt->children[2]);
-                Stmt(stmt->children[4]);
+                Stmt(stmt->children[4], returnType);
             }else if(strcmp(stmt->children[0]->name, "WHILE") == 0){ // Stmt -> WHILE LP Exp RP Stmt
                 Exp(stmt->children[2]);
                 Exp(stmt->children[4]);
@@ -615,8 +620,8 @@ void Stmt(Node* stmt){
         }
         case 7:{    // Stmt -> IF LP Exp RP Stmt ELSE Stmt
             Exp(stmt->children[2]);
-            Stmt(stmt->children[4]);
-            Stmt(stmt->children[6]);
+            Stmt(stmt->children[4], returnType);
+            Stmt(stmt->children[6], returnType);
             break;
         }
         default:{

@@ -121,9 +121,9 @@ void FunDec(Node* fundec, char* returnTypeName);      // insert symbol: function
 // VAR_INFO** VarList(Node* varlist);
 // VAR_INFO* ParamDec(Node* paramdec);  // insert symbol: int/float/struct/array (function params)
 // Statements
-void CompSt(Node* compst);
-void StmtList(Node* stmtlist);
-void Stmt(Node* stmt);
+void CompSt(Node* compst, char* returnType);         // returnType: function return type
+void StmtList(Node* stmtlist, char* returnType);     // returnType: function return type
+void Stmt(Node* stmt, char* returnType);             // returnType: function return type
 // Local Definitions
 void DefList(Node* deflist);
 void Def(Node* def);            // insert symbol or type: int/float/struct/array
