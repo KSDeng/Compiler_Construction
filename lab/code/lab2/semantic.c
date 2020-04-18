@@ -139,7 +139,7 @@ void ExtDef(Node* extdef){
         char* typeName = Specifier(extdef->children[0]);
         ExtDecList(extdef->children[1], typeName);
     }else if(strcmp(extdef->children[1]->name, "SEMI") == 0){   // ExtDef -> Specifier SEMI
-        char* typeName = Specifier(extdef->children[0]);
+        Specifier(extdef->children[0]);
     }else if(strcmp(extdef->children[1]->name, "FunDec") == 0){ // ExtDef -> Specifier FunDec CompSt
         char* returnTypeName = Specifier(extdef->children[0]);
         FunDec(extdef->children[1], returnTypeName);
@@ -183,6 +183,7 @@ STRUCT_INFO* copyStructInfo(STRUCT_INFO* src){
     p->n_fields = src->n_fields;
     p->fields = (VAR_INFO**)malloc(sizeof(VAR_INFO*) * src->n_fields);
     for(int i = 0; i < src->n_fields; ++i){
+        p->fields[i] = (VAR_INFO*)malloc(sizeof(VAR_INFO));
         p->fields[i]->varName = (char*)malloc(strlen(src->fields[i]->varName)+1);
         strcpy(p->fields[i]->varName, src->fields[i]->varName);
         p->fields[i]->varType = (char*)malloc(strlen(src->fields[i]->varType)+1);
@@ -251,7 +252,10 @@ char* Specifier(Node* specifier){
         Node* node_type = specifier->children[0];
         return node_type->propertyValue;        // "int" or "float"
     }else if(strcmp(specifier->children[0]->name, "StructSpecifier") == 0){ // Specifier -> StructSpecifier
+        // return struct name as type id
         char* structName = StructSpecifier(specifier->children[0]);
+        // for structures, the type insert work should be done here
+
         return structName;
     }else{
         printf("Specifier(), error with unknown production\n");
@@ -266,11 +270,93 @@ char* StructSpecifier(Node* structspecifier){
     }
 
     if(structspecifier->n_children == 5){   // StructSpecifier -> STRUCT OptTag LC DefList RC
-        OptTag(structspecifier->children[1]);
-        DefList(structspecifier->children[3]);
+        char* structName = OptTag(structspecifier->children[1]);
+        // DefList(structspecifier->children[3]);
+        
+        Node* deflist = structspecifier->children[3];
+        // count number of fields
+        Node* tmpDeflist = deflist;
+        int n_def = 0, n_fields = 0;
+        while(tmpDeflist){     // DefList -> Def DefList
+            n_def++;
+            Node* def = tmpDeflist->children[0];
+            int n_fieldsDeclist = 1;
+            Node* declist = def->children[1];   // Def -> Specifier DecList SEMI
+            Node* tmpDeclist = declist;
+            while(tmpDeclist->n_children == 3){
+                n_fieldsDeclist++;
+                tmpDeclist = tmpDeclist->children[2];
+            }
+            n_fields += n_fieldsDeclist;
+            tmpDeflist = tmpDeflist -> children[1];
+        }
+        if(debug_sema) printf("number of fields: %d\n", n_fields);
+
+        // set type info of struct
+        TYPE_INFO* structTypeInfo = (TYPE_INFO*)malloc(sizeof(TYPE_INFO));
+        structTypeInfo->typeCategory = "struct";
+        structTypeInfo->typeName = (char*)malloc(strlen(structName)+1);
+        strcpy(structTypeInfo->typeName, structName);
+
+        structTypeInfo->typeDetail = (TYPE_DETAIL*)malloc(sizeof(TYPE_DETAIL));
+        // create struct info
+        STRUCT_INFO* structInfo = (STRUCT_INFO*)malloc(sizeof(STRUCT_INFO));
+        structInfo->n_fields = n_fields;
+        structInfo->fields = (VAR_INFO**)malloc(sizeof(VAR_INFO*) * n_fields);
+        for(int i = 0; i < n_fields; ++i){
+            structInfo->fields[i] = (VAR_INFO*)malloc(sizeof(VAR_INFO));
+        }
+        // set fields info
+        Node* tmpDefList2 = deflist;
+        int i = 0;
+        while(tmpDefList2){         // DefList -> Def DefList
+            Node* def = tmpDefList2->children[0];
+            Node* declist = def->children[1];       // Def -> Specifier DecList SEMI
+            char* currentType = Specifier(def->children[0]);
+            Node* tmpDeclist = declist;
+            while(tmpDeclist->n_children > 0){
+                Node* dec = tmpDeclist->children[0];
+                if(dec->n_children == 3){       // Dec -> VarDec ASSIGNOP Exp
+                    printf("Error, variable initialization is not allowed in struct definition.\n");
+                    return "";
+                }
+                Node* vardec = dec->children[0];    // Dec -> VarDec
+                char* varName = VarDec(vardec, currentType);
+                if(strcmp(varName, "") == 0) return "";     // error occurs in vardec
+                VAR_INFO* fieldVarInfo = (VAR_INFO*)malloc(sizeof(VAR_INFO));
+                fieldVarInfo->varName = (char*)malloc(strlen(varName)+1);
+                strcpy(fieldVarInfo->varName, varName);
+                fieldVarInfo->varType = (char*)malloc(strlen(currentType)+1);
+                strcpy(fieldVarInfo->varType, currentType);
+
+                structInfo->fields[i] = copyVarInfo(fieldVarInfo);
+                ++i;
+                if(tmpDeclist->n_children == 3){        // DecList -> Dec COMMA DecList
+                    tmpDeclist = tmpDeclist->children[2];
+                }else if(tmpDeclist->n_children == 1){  // DecList -> Dec
+                    break;
+                }else{
+                    printf("Error, unknown production for DecList. StructSpecifier().\n");
+                    return "";
+                }   
+            }
+            if(tmpDefList2->n_children == 2){
+                tmpDefList2 = tmpDefList2 -> children[1];
+            }else if(tmpDefList2->n_children == 0){
+                break;
+            }else{
+                printf("Error, unknown production for DefList. StructSpecifier().\n");
+                return "";
+            }
+        }
+        structTypeInfo->typeDetail->struct_info = copyStructInfo(structInfo);
+        insertType(structTypeInfo, "struct");
+        if(debug_sema) showTypeList();
+        return structName;
 
     }else if(structspecifier->n_children == 2){ // StructSpecifier -> STRUCT Tag
-        Tag(structspecifier->children[1]);
+        Node* idNode = structspecifier->children[1]->children[0];       // Tag -> ID
+        return idNode->propertyValue;
     }else{
         printf("StructSpecifier(), error with unknown production\n");
         return "";
@@ -287,7 +373,8 @@ char* OptTag(Node* opttag){
         char* id = opttag->children[0]->propertyValue;
         bool searchRes = searchHashTable(id);
         if(searchRes){  // ID redefined
-            printf("Error in OptTag(), ID \"%s\" already exists\n", id);
+            int line = opttag->first_line;
+            printf("Error type 16 at Line %d: Duplicated name \"%s\".\n", line, id);
             return "";
         }
         insertIntoHashTable(id);
@@ -300,6 +387,7 @@ char* OptTag(Node* opttag){
         return "";
     }
 }
+/*
 char* Tag(Node* tag){
     if(debug_sema) printf("Tag()\n");
     if(!tag){
@@ -320,9 +408,9 @@ char* Tag(Node* tag){
         return "";
     }
 }
-
+*/
 // return variable name(ID), can be dropped if not need to use
-// return value used in FunDec
+// return value used in FunDec and StructSpecifier
 char* VarDec(Node* vardec, char* typeName){
     if(debug_sema) printf("VarDec()\n");
     if(!vardec){
@@ -331,6 +419,13 @@ char* VarDec(Node* vardec, char* typeName){
     }
     if(vardec->n_children == 1){        // VarDec -> ID
         char* id = vardec->children[0]->propertyValue;
+        // Undefined complex type
+        if(strcmp(typeName, "int") != 0 && strcmp(typeName, "float") != 0 && !searchHashTable(typeName)){
+            int line = vardec->children[0]->first_line;
+            printf("Error type 17 at Line %d: Undefined type \"%s\".\n", line, typeName);
+            return "";
+        }
+        // ID redefined
         if(searchHashTable(id)){
             int line = vardec->children[0]->first_line;
             printf("Error type 3 at Line %d: Redefined variable \"%s\".\n", line, id);
@@ -718,7 +813,20 @@ char* Exp(Node* exp){
                 if(strcmp(varInfo->varType, "int") == 0) return "int";
                 else if(strcmp(varInfo->varType, "float") == 0) return "float";
                 else {
-                    TYPE_INFO* typeInfo = getTypeInfo(id);
+                    // complex type
+                    TYPE_INFO* typeInfo;
+                    if(strcmp(varInfo->varType, "array") == 0 || strcmp(varInfo->varType, "function") == 0){
+                        typeInfo = getTypeInfo(varInfo->varName);
+                    }else{
+                        // only structure is user-defined type
+                        // variable type of a structure variable is the structure name
+                        typeInfo = getTypeInfo(varInfo->varType);
+                    }
+                    if(!typeInfo){
+                        int line = exp->first_line;
+                        printf("Error in Exp->ID, undefined type of variable \"%s\".\n", id);
+                        return "";
+                    }
                     return typeInfo->typeName;
                 }
             }else if(strcmp(exp->children[0]->name, "INT") == 0){  // Exp -> INT
@@ -780,6 +888,7 @@ char* Exp(Node* exp){
             }else if(strcmp(exp->children[1]->name, "RELOP") == 0){ // Exp -> Exp RELOP Exp
                 char* type1 = Exp(exp->children[0]);
                 char* type2 = Exp(exp->children[2]);
+                if(strcmp(type1, "") == 0 || strcmp(type2, "") == 0) return ""; // some error occurs in subtree
                 if((strcmp(type1, "int")!=0 && strcmp(type1, "float")!=0) ||
                     (strcmp(type2, "float")!=0 && strcmp(type2, "float")!=0)){
                     printf("Illegal type in Exp() RELOP, with \"%s\" RELOP \"%s\".\n", type1, type2);
@@ -853,18 +962,27 @@ char* Exp(Node* exp){
                 return returnType;
 
             }else if(strcmp(exp->children[1]->name, "DOT") == 0){   // Exp -> Exp DOT ID
-                //VAR_INFO* case3_exp1_info9 = Exp(exp->children[0]);
-                // TODO: check type of exp, and if ID is legal
-                char* type = Exp(exp->children[0]);
+                char* expType = Exp(exp->children[0]);
                 char* id = exp->children[2]->propertyValue;
-                TYPE_INFO* typeInfo = getTypeInfo(type);
+                int line = exp->first_line;
+                // int or float
+                if(strcmp(expType, "int") == 0 || strcmp(expType, "float") == 0){
+                    printf("Error type 13 at Line %d: Illegal use of \".\".\n", line);
+                    return "";
+                }
+                char* structId = exp->children[0]->propertyValue;
+                TYPE_INFO* typeInfo = getTypeInfo(expType);
+                // other complex types except struct
+                if(strcmp(typeInfo->typeCategory, "struct") != 0){
+                    printf("Error type 13 at Line %d: Illegal use of \".\".\n", line);
+                    return "";
+                }
                 STRUCT_INFO* structDetail = typeInfo->typeDetail->struct_info;
                 for(int i = 0; i < structDetail->n_fields; ++i){
                     VAR_INFO* p = structDetail->fields[i];
                     if(strcmp(id, p->varName) == 0) return p->varType;
                 }
-                VAR_INFO* p = structDetail->fields[0];
-                printf("Error, no field named %s in structure \"%s\"\n", id, typeInfo->typeName);
+                printf("Error type 14 at Line %d: Non-existent field \"%s\".\n", line, id);
                 return "";
             }else{
                 printf("Exp() case 3, error with unknown production\n");
@@ -882,6 +1000,12 @@ char* Exp(Node* exp){
                     printf("Error type 2 at Line %d: Undefined function \"%s\".\n", line, id);
                     return "";
                 }
+                VAR_INFO* idInfo = getSymbolInfo(id);
+                if(strcmp(idInfo->varType, "function") != 0){
+                    int line = exp->first_line;
+                    printf("Error type 11 at Line %d: \"%s\" is not a function.\n", line, id);
+                    return "";
+                }
                 char* returnTypeName = Args(exp->children[2], id);
                 return returnTypeName;
             }else if(strcmp(exp->children[0]->name, "Exp") == 0){   // Exp -> Exp LB Exp RB
@@ -889,7 +1013,7 @@ char* Exp(Node* exp){
                 char* type2 = Exp(exp->children[2]);
                 int line = exp->first_line;
                 if(strcmp(type2, "int") != 0){
-                    printf("Error, illegal index type\n");
+                    printf("Error type 12 at Line %d: subscript is not an integer.\n", line);
                     return "";
                 }
                 if(strcmp(type1, "array") != 0){

@@ -114,7 +114,7 @@ void ExtDecList(Node* extdeclist, char* typeName);
 char* Specifier(Node* specifier);       // return a string representing TYPE name, then you can get the detail of this type by calling getTypeInfo(char* typeName)
 char* StructSpecifier(Node* structspecifier);   // return structure name
 char* OptTag(Node* opttag);         // return ID
-char* Tag(Node* tag);               // return ID
+// char* Tag(Node* tag);               // return ID
 // Declarations
 char* VarDec(Node* vardec, char* typeName);
 void FunDec(Node* fundec, char* returnTypeName);      // insert symbol: function name
