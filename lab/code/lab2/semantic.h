@@ -2,7 +2,17 @@
 #define _SEMANTIC_H_
 
 #include "parseTree.h"
-#define HASH_TABLE_SIZE 24593
+#define HASH_TABLE_SIZE 769
+
+// Hash node to implement local scope
+struct HASH_TABLE_NODE {
+    bool hash_table[HASH_TABLE_SIZE];
+    struct HASH_TABLE_NODE* parent;
+    struct HASH_TABLE_NODE** children;
+    int n_children;
+}
+typedef struct HASH_TABLE_NODE HASH_NODE;
+
 
 // debug flag
 // bool debug_sema = true;
@@ -11,9 +21,6 @@
 struct ARRAY_INFO {    
     int size;               // size of array
     // type info of array element
-    // for multi-dimentional array, ele_info->typeName equals "array", and ele_info->typeDetail->array_info->ele_info->typeName is still "array", by parity of reasoning
-    // struct TYPE_INFO* ele_info;     // type info of element (only type name)
-
     // to get detailed type info, use getTypeInfo(eleTypeName)
     char* eleTypeName;      // type name of element
 };
@@ -28,7 +35,6 @@ struct STRUCT_INFO {
 struct FUNC_INFO {
     int n_params;       // num of parameters
     struct VAR_INFO** params;     // parameters of function (var type and var name)
-    // struct TYPE_INFO* return_info;         // info of return value (only type name and type detail)
     char* returnTypeName;   // type name of return value
 };
 
@@ -42,7 +48,6 @@ struct FUNC_INFO {
 // A variable should be added to SYMBOL_LIST after it has been defined
 // A type should be added to TYPE_LIST after it has been defined
 
-// information of certain variable(varName != "") or constant (varName == "")
 struct VAR_INFO {
     char* varType;
     char* varName;
