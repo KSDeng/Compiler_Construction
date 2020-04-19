@@ -1068,13 +1068,24 @@ char* Exp(Node* exp){
                     printf("Error type 12 at Line %d: subscript is not an integer.\n", line);
                     return "";
                 }
-                TYPE_INFO* arrayInfo = getTypeInfo(type1);
-                if(strcmp(arrayInfo->typeCategory, "array") != 0){
-                    printf("Error type 10 at Line %d: illegal subscript with a non-array variable.\n", line);
+                // basic type
+                if(strcmp(type1,"int") == 0 || strcmp(type1, "float") == 0){
+                    printf("Error type 10 at Line %d: illegal subscript for a non-array variable.\n", line);
                     return "";
                 }
-                char* eleType = arrayInfo->typeDetail->array_info->eleTypeName;
-                return eleType;
+                // complex type
+                TYPE_INFO* arrayInfo = getTypeInfo(type1);
+                if(arrayInfo){
+                    if(strcmp(arrayInfo->typeCategory, "array") != 0){
+                        printf("Error type 10 at Line %d: illegal subscript with a non-array variable.\n", line);
+                        return "";
+                    }
+                    char* eleType = arrayInfo->typeDetail->array_info->eleTypeName;
+                    return eleType;
+                }else{
+                    printf("Erryr type 1 at Line %d: variable undefined.\n", line);
+                    return "";
+                }
             }else{
                 printf("Exp() case 4, error with unknown production\n");
                 return "";

@@ -372,7 +372,7 @@ int main(int argc, char** argv){
     if(debug) preOrderTraverse(root, 0);
     else{
         if(n_error == 0) {
-            // preOrderTraverse(root, 0);
+            preOrderTraverse(root, 0);
             Program(root);
         }
     }
