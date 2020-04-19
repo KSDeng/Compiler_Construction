@@ -2,7 +2,7 @@
 #define _SEMANTIC_H_
 
 #include "parseTree.h"
-#define HASH_TABLE_SIZE 769
+#define HASH_TABLE_SIZE 24593
 
 // Hash node to implement local scope
 struct HASH_TABLE_NODE {
@@ -10,9 +10,12 @@ struct HASH_TABLE_NODE {
     struct HASH_TABLE_NODE* parent;
     struct HASH_TABLE_NODE** children;
     int n_children;
-}
+};
 typedef struct HASH_TABLE_NODE HASH_NODE;
 
+HASH_NODE* createHashNode(HASH_NODE* parent);
+HASH_NODE* searchHashTableInNode(char* str, HASH_NODE* node);
+void insertIntoHashTableInNode(char* str, HASH_NODE** node);
 
 // debug flag
 // bool debug_sema = true;
@@ -51,6 +54,7 @@ struct FUNC_INFO {
 struct VAR_INFO {
     char* varType;
     char* varName;
+    bool ifArray;
 };
 // information of certain type
 // for basic type, the typeDetail pointer is NULL

@@ -9,6 +9,39 @@ SYMBOL_NODE* symbol_list_head = NULL;
 // the head node of list of current defined types
 TYPE_NODE* type_list_head = NULL;
 
+// global hash node
+HASH_NODE* root_hash_node = NULL;
+
+HASH_NODE* createHashNode(HASH_NODE* parent){
+    HASH_NODE* p = (HASH_NODE*)malloc(sizeof(HASH_NODE));
+    for(int i = 0; i < HASH_TABLE_SIZE; ++i) p->hash_table[i] = false;
+    p->parent = parent;
+    p->n_children = 0;
+    p->children = NULL;
+    return p;
+}
+
+// str: string to search
+// node: start node of searching
+// return value: found in which node, or not found (NULL)
+HASH_NODE* searchHashTableInNode(char* str, HASH_NODE* node){
+    unsigned int key = BKDRHash(str) % HASH_TABLE_SIZE;
+    HASH_NODE* tmpNode = node;
+    while(tmpNode){
+        if(node->hash_table[key]){
+            return node;
+        }else tmpNode = tmpNode->parent;
+    }
+    return NULL;
+}
+
+// str: string to insert
+// node: node to insert (2-d pointer)
+void insertIntoHashTableInNode(char* str, HASH_NODE** node){
+    unsigned int key = BKDRHash(str) % HASH_TABLE_SIZE;
+    (*node)->hash_table[key] = true;
+}
+
 unsigned int BKDRHash(char* str){
     unsigned int seed = 131;
     unsigned int hash = 0;
@@ -64,6 +97,7 @@ void insertSymbol(VAR_INFO* var_info){
         while(q->next) q = q->next;
         q->next = p;
     }      
+    if(debug_sema) showSymbolList();
 }    
 // search for varialbe info in symbol list according to variable name
 VAR_INFO* getSymbolInfo(char* varName){
@@ -102,10 +136,12 @@ VAR_INFO* copyVarInfo(VAR_INFO* src){
     p->varName = (char*)malloc(strlen(src->varName)+1);
     strcpy(p->varType, src->varType);
     strcpy(p->varName, src->varName);
+    p->ifArray = src->ifArray;
     return p;
 }
 // Semantic analysis
 void Program(Node* program){
+    root_hash_node = createHashNode(NULL);
     if(debug_sema) printf("Program()\n");
     if(!program) {
         if(debug_sema) printf("Program(), program node NULL\n");
@@ -121,6 +157,8 @@ void ExtDefList(Node* extdeflist){
     }
     if(extdeflist->n_children == 2){    // ExtDefList -> ExtDef ExtDefList
         ExtDef(extdeflist->children[0]);
+        //if(debug_sema) showSymbolList();
+        //if(debug_sema) showTypeList();
         ExtDefList(extdeflist->children[1]);
     }else if(extdeflist->n_children == 0){  // ExtDefList -> empty
         return;
@@ -162,6 +200,7 @@ void insertType(TYPE_INFO* typeInfo, const char* typeCategory){
         while(q->next) q = q->next;
         q->next = p;
     }
+    if(debug_sema) showTypeList();
 }
 FUNC_INFO* copyFuncInfo(FUNC_INFO* src){
     FUNC_INFO* p = (FUNC_INFO*)malloc(sizeof(FUNC_INFO));
@@ -175,6 +214,7 @@ FUNC_INFO* copyFuncInfo(FUNC_INFO* src){
         strcpy(p->params[i]->varName, src->params[i]->varName);
         p->params[i]->varType = (char*)malloc(strlen(src->params[i]->varType)+1);
         strcpy(p->params[i]->varType, src->params[i]->varType);
+        p->params[i]->ifArray = src->params[i]->ifArray;
     }
     return p;
 }
@@ -188,6 +228,7 @@ STRUCT_INFO* copyStructInfo(STRUCT_INFO* src){
         strcpy(p->fields[i]->varName, src->fields[i]->varName);
         p->fields[i]->varType = (char*)malloc(strlen(src->fields[i]->varType)+1);
         strcpy(p->fields[i]->varType, src->fields[i]->varType);
+        p->fields[i]->ifArray = src->fields[i]->ifArray;
     }
     return p;
 }
@@ -317,7 +358,8 @@ char* StructSpecifier(Node* structspecifier){
             while(tmpDeclist->n_children > 0){
                 Node* dec = tmpDeclist->children[0];
                 if(dec->n_children == 3){       // Dec -> VarDec ASSIGNOP Exp
-                    printf("Error, variable initialization is not allowed in struct definition.\n");
+                    int line = dec->first_line;
+                    printf("Error type 15 at Line %d: Initialize field when define a structure.\n", line);
                     return "";
                 }
                 Node* vardec = dec->children[0];    // Dec -> VarDec
@@ -326,10 +368,18 @@ char* StructSpecifier(Node* structspecifier){
                 VAR_INFO* fieldVarInfo = (VAR_INFO*)malloc(sizeof(VAR_INFO));
                 fieldVarInfo->varName = (char*)malloc(strlen(varName)+1);
                 strcpy(fieldVarInfo->varName, varName);
+                if(vardec->n_children == 1){    // VarDec -> ID
+                    fieldVarInfo->ifArray = false;
+                }else if(vardec->n_children == 4){  // VarDec -> VarDec LB INT RB
+                    fieldVarInfo->ifArray = true;
+                }
                 fieldVarInfo->varType = (char*)malloc(strlen(currentType)+1);
                 strcpy(fieldVarInfo->varType, currentType);
 
                 structInfo->fields[i] = copyVarInfo(fieldVarInfo);
+                
+                //VAR_INFO* fieldVarInfo = getSymbolInfo(varName);
+                //structInfo->fields[i] = copyVarInfo(fieldVarInfo);
                 ++i;
                 if(tmpDeclist->n_children == 3){        // DecList -> Dec COMMA DecList
                     tmpDeclist = tmpDeclist->children[2];
@@ -351,7 +401,7 @@ char* StructSpecifier(Node* structspecifier){
         }
         structTypeInfo->typeDetail->struct_info = copyStructInfo(structInfo);
         insertType(structTypeInfo, "struct");
-        if(debug_sema) showTypeList();
+        // if(debug_sema) showTypeList();
         return structName;
 
     }else if(structspecifier->n_children == 2){ // StructSpecifier -> STRUCT Tag
@@ -387,28 +437,6 @@ char* OptTag(Node* opttag){
         return "";
     }
 }
-/*
-char* Tag(Node* tag){
-    if(debug_sema) printf("Tag()\n");
-    if(!tag){
-        if(debug_sema) printf("Tag node NULL\n");
-        return "";
-    }
-    if(tag->n_children == 1){       // Tag -> ID
-        // use a structure that has already been defined
-        char* id = tag->children[0]->propertyValue;
-        bool searchRes = searchHashTable(id);
-        if(!searchRes){
-            printf("Error in Tag(), ID \"%s\" undefined\n", id);
-            return "";
-        }
-        return id;
-    }else{
-        printf("Tag(), error with unknown production\n");
-        return "";
-    }
-}
-*/
 // return variable name(ID), can be dropped if not need to use
 // return value used in FunDec and StructSpecifier
 char* VarDec(Node* vardec, char* typeName){
@@ -438,12 +466,13 @@ char* VarDec(Node* vardec, char* typeName){
         strcpy(p->varType, typeName);
         p->varName = (char*)malloc(strlen(id)+1);
         strcpy(p->varName, id);
+        p->ifArray = false;
         insertSymbol(p);
 
         // insert type
         // basic types don't need to insert type node
         // function type is handled in FunDec
-        // struct type is handled elsewhere TODO
+        // struct type is handled in StructSpecifier
 
         return id;
 
@@ -464,9 +493,12 @@ char* VarDec(Node* vardec, char* typeName){
             insertIntoHashTable(id);
             // insert symbol into symbol list
             VAR_INFO* p = (VAR_INFO*)malloc(sizeof(VAR_INFO));
-            p->varType = "array";
+            // p->varType = "array";
+            p->varType = (char*)malloc(strlen(typeName)+1);
+            strcpy(p->varType, typeName);
             p->varName = (char*)malloc(strlen(id)+1);
             strcpy(p->varName, id);
+            p->ifArray = true;
             insertSymbol(p);
 
             // array info
@@ -479,7 +511,7 @@ char* VarDec(Node* vardec, char* typeName){
             // type info
             TYPE_INFO* q = (TYPE_INFO*)malloc(sizeof(TYPE_INFO));
             q->typeCategory = "array";
-            q->typeName = (char*)malloc(sizeof(id)+1);  // use id as unique type name of complex type
+            q->typeName = (char*)malloc(strlen(id)+1);  // use id as unique type name of complex type
             strcpy(q->typeName, id);
             q->typeDetail = (TYPE_DETAIL*)malloc(sizeof(TYPE_DETAIL));
             q->typeDetail->array_info = copyArrayInfo(arrInfo);
@@ -504,9 +536,12 @@ char* VarDec(Node* vardec, char* typeName){
             }
             insertIntoHashTable(id);
             VAR_INFO* array2DVarInfo = (VAR_INFO*)malloc(sizeof(VAR_INFO));
-            array2DVarInfo->varName = (char*)malloc(sizeof(id)+1);
+            array2DVarInfo->varName = (char*)malloc(strlen(id)+1);
             strcpy(array2DVarInfo->varName, id);
-            array2DVarInfo->varType = "array";
+            //array2DVarInfo->varType = "array";
+            array2DVarInfo->varType = (char*)malloc(strlen(typeName)+1);
+            strcpy(array2DVarInfo->varType, typeName);
+            array2DVarInfo->ifArray = true;
             insertSymbol(array2DVarInfo);
             
             // typeName of internal array: "typeName" + "_array", eleType: "typeName"
@@ -632,6 +667,7 @@ void FunDec(Node* fundec, char* returnTypeName){
     funcSymbolInfo->varType = "function";
     funcSymbolInfo->varName = (char*)malloc(strlen(id)+1);
     strcpy(funcSymbolInfo->varName, id);
+    funcSymbolInfo->ifArray = false;
     insertSymbol(funcSymbolInfo);
 
 
@@ -643,7 +679,7 @@ void FunDec(Node* fundec, char* returnTypeName){
     funcTypeInfo->typeDetail = (TYPE_DETAIL*)malloc(sizeof(TYPE_DETAIL));
     funcTypeInfo->typeDetail->func_info = copyFuncInfo(funcInfo);
     insertType(funcTypeInfo, "function");
-    if(debug_sema) showTypeList();
+    // if(debug_sema) showTypeList();
 }
 void CompSt(Node* compst, char* returnType){
     if(debug_sema) printf("CompSt()\n");
@@ -653,7 +689,7 @@ void CompSt(Node* compst, char* returnType){
     }
     if(compst->n_children == 4){        // CompSt -> LC DefList StmtList RC
         DefList(compst->children[1]);
-        if(debug_sema) showSymbolList();
+        // if(debug_sema) showSymbolList();
         StmtList(compst->children[2], returnType);
         return;
     }else{
@@ -705,8 +741,8 @@ void Stmt(Node* stmt, char* returnType){
                 Exp(stmt->children[2]);
                 Stmt(stmt->children[4], returnType);
             }else if(strcmp(stmt->children[0]->name, "WHILE") == 0){ // Stmt -> WHILE LP Exp RP Stmt
-                Exp(stmt->children[2]);
-                Exp(stmt->children[4]);
+                char* expType = Exp(stmt->children[2]);
+                Stmt(stmt->children[4], returnType);
             }else{
                 printf("Stmt(), error with unknown production\n");
                 return;
@@ -782,8 +818,9 @@ void Dec(Node* dec, char* typeName){
         VarDec(dec->children[0], typeName);
     }else if(dec->n_children == 3){     // Dec -> VarDec ASSIGNOP Exp
         char* expType = Exp(dec->children[2]);
-        if(strcmp(typeName, expType)!=0){
-            printf("Type not compatible, with \"%s\" = \"%s\"\n", typeName, expType);
+        if(strcmp(typeName, "") != 0 && strcmp(expType, "") != 0 && strcmp(typeName, expType) != 0){
+            int line = dec->first_line;
+            printf("Error type 5 at Line %d: Type mismatched for assignment.\n", line);
             return;
         }
         VarDec(dec->children[0], typeName);
@@ -815,7 +852,8 @@ char* Exp(Node* exp){
                 else {
                     // complex type
                     TYPE_INFO* typeInfo;
-                    if(strcmp(varInfo->varType, "array") == 0 || strcmp(varInfo->varType, "function") == 0){
+                    //if(strcmp(varInfo->varType, "array") == 0 || strcmp(varInfo->varType, "function") == 0){
+                    if(varInfo->ifArray || strcmp(varInfo->varType, "function") == 0){
                         typeInfo = getTypeInfo(varInfo->varName);
                     }else{
                         // only structure is user-defined type
@@ -830,10 +868,8 @@ char* Exp(Node* exp){
                     return typeInfo->typeName;
                 }
             }else if(strcmp(exp->children[0]->name, "INT") == 0){  // Exp -> INT
-                // TODO
                 return "int";
             }else if(strcmp(exp->children[0]->name, "FLOAT") == 0){ // Exp -> FLOAT
-                // TODO
                 return "float";
             }else{
                 printf("Exp() case 1, error with unknown production\n");
@@ -874,7 +910,7 @@ char* Exp(Node* exp){
                     printf("Error type 5 at Line %d: Type mismatched for assignment.\n", line);
                     return "";
                 }
-                return type1;
+                return "assignment";
 
             }else if(strcmp(exp->children[1]->name, "AND") == 0){   // Exp -> Exp AND Exp
                 Exp(exp->children[0]);
@@ -889,12 +925,9 @@ char* Exp(Node* exp){
                 char* type1 = Exp(exp->children[0]);
                 char* type2 = Exp(exp->children[2]);
                 if(strcmp(type1, "") == 0 || strcmp(type2, "") == 0) return ""; // some error occurs in subtree
-                if((strcmp(type1, "int")!=0 && strcmp(type1, "float")!=0) ||
-                    (strcmp(type2, "float")!=0 && strcmp(type2, "float")!=0)){
-                    printf("Illegal type in Exp() RELOP, with \"%s\" RELOP \"%s\".\n", type1, type2);
-                    return "";
-                }
-                if(strcmp(type1, type2) != 0){
+                if((strcmp(type1, "int") != 0 && strcmp(type1, "float") != 0) ||
+                    (strcmp(type2, "int") != 0 && strcmp(type2, "float") != 0) ||
+                    strcmp(type1, type2) != 0){
                     int line = exp->first_line;
                     printf("Error type 7 at Line %d: Type mismatched for operands.\n", line);
                     return "";
@@ -944,25 +977,36 @@ char* Exp(Node* exp){
                 }
                 return type1;
             }else if(strcmp(exp->children[1]->name, "Exp") == 0){   // Exp -> LP Exp RP
-                //VAR_INFO* case3_exp1_info8 = Exp(exp->children[1]);
-                // TODO
                 char* type = Exp(exp->children[1]);
                 return type;
             }else if(strcmp(exp->children[1]->name, "LP") == 0){    // Exp -> ID LP RP
                 // call function
                 char* id = exp->children[0]->propertyValue;
-                bool searchRes = searchHashTable(id);
-                if(!searchRes){
-                    printf("Error in Exp() case 3, \"%s\" undefined\n", id);
+                int line = exp->first_line;
+                VAR_INFO* getVarInfo = getSymbolInfo(id);
+                // not a function
+                if(strcmp(getVarInfo->varType, "function") != 0){
+                    printf("Error type 11 at Line %d: \"%s\" is not a function.\n", line, id);
                     return "";
                 }
-                insertIntoHashTable(id);
-                char* type = getSymbolInfo(id)->varType;
-                char* returnType = getTypeInfo(type)->typeDetail->func_info->returnTypeName;
-                return returnType;
+                // function not defined
+                if(!searchHashTable(id)){
+                    printf("Error type 2 at Line %d: undefined function \"%s\".\n", line, id);
+                    return "";
+                }
+                TYPE_INFO* funcTypeInfo = getTypeInfo(id);
+                FUNC_INFO* funcInfo = funcTypeInfo->typeDetail->func_info;
+                // function call and argument don't match
+                if(funcInfo->n_params != 0){
+                    printf("Error type 9 at Line %d: Function call is not applicable for arguments.\n", line);
+                    return "";
+                }
+                return funcInfo->returnTypeName;
 
             }else if(strcmp(exp->children[1]->name, "DOT") == 0){   // Exp -> Exp DOT ID
                 char* expType = Exp(exp->children[0]);
+                // some error occurs in left-hand expression
+                if(strcmp(expType, "") == 0) return "";
                 char* id = exp->children[2]->propertyValue;
                 int line = exp->first_line;
                 // int or float
@@ -1011,16 +1055,18 @@ char* Exp(Node* exp){
             }else if(strcmp(exp->children[0]->name, "Exp") == 0){   // Exp -> Exp LB Exp RB
                 char* type1 = Exp(exp->children[0]);
                 char* type2 = Exp(exp->children[2]);
+                // some error occurs in sub-expression
+                if(strcmp(type1, "") == 0 || strcmp(type2, "") == 0) return "";
                 int line = exp->first_line;
                 if(strcmp(type2, "int") != 0){
                     printf("Error type 12 at Line %d: subscript is not an integer.\n", line);
                     return "";
                 }
-                if(strcmp(type1, "array") != 0){
+                TYPE_INFO* arrayInfo = getTypeInfo(type1);
+                if(strcmp(arrayInfo->typeCategory, "array") != 0){
                     printf("Error type 10 at Line %d: illegal subscript with a non-array variable.\n", line);
                     return "";
                 }
-                TYPE_INFO* arrayInfo = getTypeInfo(type1);
                 char* eleType = arrayInfo->typeDetail->array_info->eleTypeName;
                 return eleType;
             }else{
