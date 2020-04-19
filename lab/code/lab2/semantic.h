@@ -52,8 +52,9 @@ struct FUNC_INFO {
 // A type should be added to TYPE_LIST after it has been defined
 
 struct VAR_INFO {
-    char* varType;
+    char* varType;  // int->"int", float->"float", array->element type name, function->"function", stru->"struct"
     char* varName;
+    bool ifArray;   // array->true, non-array->false
 };
 // information of certain type
 // for basic type, the typeDetail pointer is NULL
@@ -144,7 +145,7 @@ void Def(Node* def);            // insert symbol or type: int/float/struct/array
 void DecList(Node* declist, char* typeName);        // insert symbol into symbol list
 void Dec(Node* dec, char* typeName);
 // Expressions
-char* Exp(Node* exp);           // return a string representing TYPE name
+VAR_INFO* Exp(Node* exp);           // return a string representing TYPE name
 char* Args(Node* args, char* funcName);     // return function return type name
 
 // utils
