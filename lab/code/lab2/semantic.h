@@ -54,7 +54,6 @@ struct FUNC_INFO {
 struct VAR_INFO {
     char* varType;
     char* varName;
-    bool ifArray;
 };
 // information of certain type
 // for basic type, the typeDetail pointer is NULL
@@ -97,6 +96,12 @@ typedef union TYPE_DETAIL TYPE_DETAIL;
 typedef struct SYMBOL_LIST_NODE SYMBOL_NODE;
 typedef struct TYPE_LIST_NODE TYPE_NODE;
 
+// hash table element
+struct HASH_ELE {
+    char* str;
+    bool status;
+};
+typedef struct HASH_ELE HASH_ELE;
 
 // hashing functions
 unsigned int BKDRHash(char* str);

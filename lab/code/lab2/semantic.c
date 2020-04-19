@@ -136,7 +136,7 @@ VAR_INFO* copyVarInfo(VAR_INFO* src){
     p->varName = (char*)malloc(strlen(src->varName)+1);
     strcpy(p->varType, src->varType);
     strcpy(p->varName, src->varName);
-    p->ifArray = src->ifArray;
+    // p->ifArray = src->ifArray;
     return p;
 }
 // Semantic analysis
@@ -214,7 +214,7 @@ FUNC_INFO* copyFuncInfo(FUNC_INFO* src){
         strcpy(p->params[i]->varName, src->params[i]->varName);
         p->params[i]->varType = (char*)malloc(strlen(src->params[i]->varType)+1);
         strcpy(p->params[i]->varType, src->params[i]->varType);
-        p->params[i]->ifArray = src->params[i]->ifArray;
+        // p->params[i]->ifArray = src->params[i]->ifArray;
     }
     return p;
 }
@@ -228,7 +228,7 @@ STRUCT_INFO* copyStructInfo(STRUCT_INFO* src){
         strcpy(p->fields[i]->varName, src->fields[i]->varName);
         p->fields[i]->varType = (char*)malloc(strlen(src->fields[i]->varType)+1);
         strcpy(p->fields[i]->varType, src->fields[i]->varType);
-        p->fields[i]->ifArray = src->fields[i]->ifArray;
+        // p->fields[i]->ifArray = src->fields[i]->ifArray;
     }
     return p;
 }
@@ -368,11 +368,11 @@ char* StructSpecifier(Node* structspecifier){
                 VAR_INFO* fieldVarInfo = (VAR_INFO*)malloc(sizeof(VAR_INFO));
                 fieldVarInfo->varName = (char*)malloc(strlen(varName)+1);
                 strcpy(fieldVarInfo->varName, varName);
-                if(vardec->n_children == 1){    // VarDec -> ID
-                    fieldVarInfo->ifArray = false;
-                }else if(vardec->n_children == 4){  // VarDec -> VarDec LB INT RB
-                    fieldVarInfo->ifArray = true;
-                }
+                // if(vardec->n_children == 1){    // VarDec -> ID
+                //    fieldVarInfo->ifArray = false;
+                //}else if(vardec->n_children == 4){  // VarDec -> VarDec LB INT RB
+                //    fieldVarInfo->ifArray = true;
+                //}
                 fieldVarInfo->varType = (char*)malloc(strlen(currentType)+1);
                 strcpy(fieldVarInfo->varType, currentType);
 
@@ -466,7 +466,7 @@ char* VarDec(Node* vardec, char* typeName){
         strcpy(p->varType, typeName);
         p->varName = (char*)malloc(strlen(id)+1);
         strcpy(p->varName, id);
-        p->ifArray = false;
+        // p->ifArray = false;
         insertSymbol(p);
 
         // insert type
@@ -493,12 +493,12 @@ char* VarDec(Node* vardec, char* typeName){
             insertIntoHashTable(id);
             // insert symbol into symbol list
             VAR_INFO* p = (VAR_INFO*)malloc(sizeof(VAR_INFO));
-            // p->varType = "array";
-            p->varType = (char*)malloc(strlen(typeName)+1);
-            strcpy(p->varType, typeName);
+            p->varType = "array";
+            // p->varType = (char*)malloc(strlen(typeName)+1);
+            // strcpy(p->varType, typeName);
             p->varName = (char*)malloc(strlen(id)+1);
             strcpy(p->varName, id);
-            p->ifArray = true;
+            // p->ifArray = true;
             insertSymbol(p);
 
             // array info
@@ -538,10 +538,10 @@ char* VarDec(Node* vardec, char* typeName){
             VAR_INFO* array2DVarInfo = (VAR_INFO*)malloc(sizeof(VAR_INFO));
             array2DVarInfo->varName = (char*)malloc(strlen(id)+1);
             strcpy(array2DVarInfo->varName, id);
-            //array2DVarInfo->varType = "array";
-            array2DVarInfo->varType = (char*)malloc(strlen(typeName)+1);
-            strcpy(array2DVarInfo->varType, typeName);
-            array2DVarInfo->ifArray = true;
+            array2DVarInfo->varType = "array";
+            //array2DVarInfo->varType = (char*)malloc(strlen(typeName)+1);
+            //strcpy(array2DVarInfo->varType, typeName);
+            //array2DVarInfo->ifArray = true;
             insertSymbol(array2DVarInfo);
             
             // typeName of internal array: "typeName" + "_array", eleType: "typeName"
@@ -603,17 +603,7 @@ void FunDec(Node* fundec, char* returnTypeName){
         return;
     }
     FUNC_INFO* funcInfo = (FUNC_INFO*)malloc(sizeof(FUNC_INFO));
-    funcInfo->returnTypeName = (char*)malloc(strlen(returnTypeName)+1);
-    strcpy(funcInfo->returnTypeName, returnTypeName);
-    // create function id
     char* id = fundec->children[0]->propertyValue;
-    bool searchRes = searchHashTable(id);
-    if(searchRes){
-        int line = fundec->first_line;
-        printf("Error type 4 at Line %d: Redefined function \"%s\".\n", line, id);
-        return;
-    }
-    insertIntoHashTable(id);
 
     if(fundec->n_children == 4){        // FunDec -> ID LP VarList RP
         // count number of parameters
@@ -662,14 +652,23 @@ void FunDec(Node* fundec, char* returnTypeName){
         printf("FunDec(), error with unknown production\n");
         return;
     }
+    funcInfo->returnTypeName = (char*)malloc(strlen(returnTypeName)+1);
+    strcpy(funcInfo->returnTypeName, returnTypeName);
+    // create function id
+    bool searchRes = searchHashTable(id);
+    if(searchRes){
+        int line = fundec->first_line;
+        printf("Error type 4 at Line %d: Redefined function \"%s\".\n", line, id);
+        return;
+    }
+    insertIntoHashTable(id);
     // insert symbol
     VAR_INFO* funcSymbolInfo = (VAR_INFO*)malloc(sizeof(FUNC_INFO));
     funcSymbolInfo->varType = "function";
     funcSymbolInfo->varName = (char*)malloc(strlen(id)+1);
     strcpy(funcSymbolInfo->varName, id);
-    funcSymbolInfo->ifArray = false;
+    // funcSymbolInfo->ifArray = false;
     insertSymbol(funcSymbolInfo);
-
 
     // insert type
     TYPE_INFO* funcTypeInfo = (TYPE_INFO*)malloc(sizeof(TYPE_INFO));
@@ -852,8 +851,8 @@ char* Exp(Node* exp){
                 else {
                     // complex type
                     TYPE_INFO* typeInfo;
-                    //if(strcmp(varInfo->varType, "array") == 0 || strcmp(varInfo->varType, "function") == 0){
-                    if(varInfo->ifArray || strcmp(varInfo->varType, "function") == 0){
+                    if(strcmp(varInfo->varType, "array") == 0 || strcmp(varInfo->varType, "function") == 0){
+                    //if(varInfo->ifArray || strcmp(varInfo->varType, "function") == 0){
                         typeInfo = getTypeInfo(varInfo->varName);
                     }else{
                         // only structure is user-defined type
@@ -910,15 +909,17 @@ char* Exp(Node* exp){
                     printf("Error type 5 at Line %d: Type mismatched for assignment.\n", line);
                     return "";
                 }
-                return "assignment";
+                return type1;
 
             }else if(strcmp(exp->children[1]->name, "AND") == 0){   // Exp -> Exp AND Exp
-                Exp(exp->children[0]);
-                Exp(exp->children[2]);
+                char* type1 = Exp(exp->children[0]);
+                char* type2 = Exp(exp->children[2]);
+                if(strcmp(type1, "") == 0 || strcmp(type2, "") == 0) return "";
                 return "bool";
             }else if(strcmp(exp->children[1]->name, "OR") == 0){    // Exp -> Exp OR Exp
-                Exp(exp->children[0]);
-                Exp(exp->children[2]);
+                char* type1 = Exp(exp->children[0]);
+                char* type2 = Exp(exp->children[2]);
+                if(strcmp(type1, "") == 0 || strcmp(type2, "") == 0) return "";
                 return "bool";
                 
             }else if(strcmp(exp->children[1]->name, "RELOP") == 0){ // Exp -> Exp RELOP Exp
@@ -937,8 +938,10 @@ char* Exp(Node* exp){
             }else if(strcmp(exp->children[1]->name, "PLUS") == 0){  // Exp -> Exp PLUS Exp
                 char* type1 = Exp(exp->children[0]);
                 char* type2 = Exp(exp->children[2]);
+                if(strcmp(type1, "") == 0 || strcmp(type2, "") == 0) return "";
                 if((strcmp(type1, "int")!=0 && strcmp(type1, "float")!=0) || (strcmp(type2, "int")!=0 && strcmp(type2, "float")!=0)){
-                    printf("Illegal type in Exp() PLUS, with \"%s\" + \"%s\"\n", type1, type2);
+                    int line = exp->first_line;
+                    printf("Error type 7 at Line %d: Type mismatched for operands.\n", line);
                     return "";
                 }
                 if(strcmp(type1, type2) != 0){
@@ -950,6 +953,7 @@ char* Exp(Node* exp){
             }else if(strcmp(exp->children[1]->name, "MINUS") == 0){ // Exp -> Exp MINUS Exp
                 char* type1 = Exp(exp->children[0]);
                 char* type2 = Exp(exp->children[2]);
+                if(strcmp(type1, "") == 0 || strcmp(type2, "") == 0) return "";
                 if(strcmp(type1, type2) != 0){
                     int line = exp->first_line;
                     printf("Error type 7 at Line %d: Type mismatched for operands.\n", line);
@@ -960,6 +964,7 @@ char* Exp(Node* exp){
             }else if(strcmp(exp->children[1]->name, "STAR") == 0){  // Exp -> Exp STAR Exp
                 char* type1 = Exp(exp->children[0]);
                 char* type2 = Exp(exp->children[2]);
+                if(strcmp(type1, "") == 0 || strcmp(type2, "") == 0) return "";
                 if(strcmp(type1, type2) != 0){
                     int line = exp->first_line;
                     printf("Error type 7 at Line %d: Type mismatched for operands.\n", line);
@@ -970,6 +975,7 @@ char* Exp(Node* exp){
             }else if(strcmp(exp->children[1]->name, "DIV") == 0){   // Exp -> Exp DIV Exp
                 char* type1 = Exp(exp->children[0]);
                 char* type2 = Exp(exp->children[2]);
+                if(strcmp(type1, "") == 0 || strcmp(type2, "") == 0) return "";
                 if(strcmp(type1, type2) != 0){
                     int line = exp->first_line;
                     printf("Error type 7 at Line %d: Type mismatched for operands.\n", line);
@@ -1144,6 +1150,7 @@ char* Args(Node* args, char* funcName){
             return "";
         }
         char* paramType = Exp(args->children[0]);
+        if(strcmp(paramType, "") == 0) return "";
         char* argType = params[0]->varType;
         if(strcmp(paramType, argType) != 0){
             printf("Error type 9 at Line %d: Function call is not applicable with arguments.\n", line);
