@@ -1,0 +1,148 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ARRAY_INFO	semantic.h	/^struct ARRAY_INFO {    $/;"	s
+ARRAY_INFO	semantic.h	/^typedef struct ARRAY_INFO ARRAY_INFO;$/;"	t	typeref:struct:ARRAY_INFO
+Args	semantic.c	/^char* Args(Node* args, char* funcName){$/;"	f
+Args	syntax.y	/^Args : Exp COMMA Args       { printDebug2("Args -> Exp COMMA Args", @$.first_line);$/;"	l
+BISON	Makefile	/^BISON = bison$/;"	m
+BKDRHash	semantic.c	/^unsigned int BKDRHash(char* str){$/;"	f
+Boolean	parseTree.h	/^typedef enum Boolean{$/;"	g
+CC	Makefile	/^CC = gcc -g$/;"	m
+CFILES	Makefile	/^CFILES = $(shell find .\/ -name "*.c")$/;"	m
+CFLAGS	Makefile	/^CFLAGS = -std=c99$/;"	m
+CompSt	semantic.c	/^void CompSt(Node* compst, char* returnType){$/;"	f
+CompSt	syntax.y	/^CompSt : LC DefList StmtList RC     { printDebug2("CompSt -> LC DefList StmtList RC", @$.first_line);  $/;"	l
+Dec	semantic.c	/^void Dec(Node* dec, char* typeName){$/;"	f
+Dec	syntax.y	/^Dec : VarDec        { printDebug2("Dec -> VarDec", @$.first_line); $/;"	l
+DecList	semantic.c	/^void DecList(Node* declist, char* typeName){$/;"	f
+DecList	syntax.y	/^DecList : Dec       { printDebug2("DecList -> Dec", @$.first_line);    $/;"	l
+Def	semantic.c	/^void Def(Node* def){$/;"	f
+Def	syntax.y	/^Def : Specifier DecList SEMI        { printDebug2("Def -> Specifier DecList SEMI", @$.first_line); $/;"	l
+DefList	semantic.c	/^void DefList(Node* deflist){$/;"	f
+DefList	syntax.y	/^DefList : Def DefList       { printDebug2("DefList -> Def DefList", @$.first_line);$/;"	l
+Exp	semantic.c	/^VAR_INFO* Exp(Node* exp){$/;"	f
+Exp	syntax.y	/^Exp : Exp ASSIGNOP Exp      { printDebug2("Exp -> Exp ASSIGNOP Exp", @$.first_line);$/;"	l
+ExtDecList	semantic.c	/^void ExtDecList(Node* extdeclist, char* typeName){$/;"	f
+ExtDecList	syntax.y	/^ExtDecList : VarDec     { printDebug2("ExtDecList -> VarDec", @$.first_line);  $/;"	l
+ExtDef	semantic.c	/^void ExtDef(Node* extdef){$/;"	f
+ExtDef	syntax.y	/^ExtDef : Specifier ExtDecList SEMI  { printDebug2("ExtDef -> Specifier ExtDecList SEMI", @$.first_line);$/;"	l
+ExtDefList	semantic.c	/^void ExtDefList(Node* extdeflist){$/;"	f
+ExtDefList	syntax.y	/^ExtDefList : ExtDef ExtDefList  { printDebug2("ExtDefList -> ExtDef ExtDefList", @$.first_line);$/;"	l
+FLEX	Makefile	/^FLEX = flex$/;"	m
+FUNC_INFO	semantic.h	/^struct FUNC_INFO {$/;"	s
+FUNC_INFO	semantic.h	/^typedef struct FUNC_INFO FUNC_INFO;$/;"	t	typeref:struct:FUNC_INFO
+FunDec	semantic.c	/^void FunDec(Node* fundec, char* returnTypeName){$/;"	f
+FunDec	syntax.y	/^FunDec : ID LP VarList RP   { printDebug2("FunDec -> ID LP VarList RP", @$.first_line);$/;"	l
+HASH_ELE	semantic.h	/^struct HASH_ELE {$/;"	s
+HASH_ELE	semantic.h	/^typedef struct HASH_ELE HASH_ELE;$/;"	t	typeref:struct:HASH_ELE
+HASH_NODE	semantic.h	/^typedef struct HASH_TABLE_NODE HASH_NODE;$/;"	t	typeref:struct:HASH_TABLE_NODE
+HASH_TABLE_NODE	semantic.h	/^struct HASH_TABLE_NODE {$/;"	s
+HASH_TABLE_SIZE	semantic.h	5;"	d
+LFC	Makefile	/^LFC = $(shell find .\/ -name "*.l" | sed s\/[^\/]*\\\\.l\/lex.yy.c\/)$/;"	m
+LFILE	Makefile	/^LFILE = $(shell find .\/ -name "*.l")$/;"	m
+LFO	Makefile	/^LFO = $(LFC:.c=.o)$/;"	m
+Node	parseTree.h	/^} Node;$/;"	t	typeref:struct:TreeNode
+OBJS	Makefile	/^OBJS = $(CFILES:.c=.o)$/;"	m
+OptTag	semantic.c	/^char* OptTag(Node* opttag){$/;"	f
+OptTag	syntax.y	/^OptTag : ID     { printDebug2("OptTag -> ID", @$.first_line);$/;"	l
+ParamDec	syntax.y	/^ParamDec : Specifier VarDec     { printDebug2("ParamDec -> Specifier VarDec", @$.first_line);$/;"	l
+Program	semantic.c	/^void Program(Node* program){$/;"	f
+Program	syntax.y	/^Program : ExtDefList        { printDebug2("Program -> ExtDefList", @$.first_line);$/;"	l
+STRUCT_INFO	semantic.h	/^struct STRUCT_INFO {$/;"	s
+STRUCT_INFO	semantic.h	/^typedef struct STRUCT_INFO STRUCT_INFO;$/;"	t	typeref:struct:STRUCT_INFO
+SYMBOL_LIST_NODE	semantic.h	/^struct SYMBOL_LIST_NODE {$/;"	s
+SYMBOL_NODE	semantic.h	/^typedef struct SYMBOL_LIST_NODE SYMBOL_NODE;$/;"	t	typeref:struct:SYMBOL_LIST_NODE
+Specifier	semantic.c	/^char* Specifier(Node* specifier){$/;"	f
+Specifier	syntax.y	/^Specifier : TYPE    { printDebug2("Specifier -> TYPE", @$.first_line); $/;"	l
+Stmt	semantic.c	/^void Stmt(Node* stmt, char* returnType){$/;"	f
+Stmt	syntax.y	/^Stmt : Exp SEMI     { printDebug2("Stmt -> Exp SEMI", @$.first_line);  $/;"	l
+StmtList	semantic.c	/^void StmtList(Node* stmtlist, char* returnType){$/;"	f
+StmtList	syntax.y	/^StmtList : Stmt StmtList    { printDebug2("StmtList -> Stmt StmtList", @$.first_line); $/;"	l
+StructSpecifier	semantic.c	/^char* StructSpecifier(Node* structspecifier){$/;"	f
+StructSpecifier	syntax.y	/^StructSpecifier : STRUCT OptTag LC DefList RC   { printDebug2("StructSpecifier -> STRUCT OptTag LC DefList RC", @$.first_line);   $/;"	l
+TYPE_DETAIL	semantic.h	/^typedef union TYPE_DETAIL TYPE_DETAIL;$/;"	t	typeref:union:TYPE_DETAIL
+TYPE_DETAIL	semantic.h	/^union TYPE_DETAIL {$/;"	u
+TYPE_INFO	semantic.h	/^struct TYPE_INFO {$/;"	s
+TYPE_INFO	semantic.h	/^typedef struct TYPE_INFO TYPE_INFO;$/;"	t	typeref:struct:TYPE_INFO
+TYPE_LIST_NODE	semantic.h	/^struct TYPE_LIST_NODE {$/;"	s
+TYPE_NODE	semantic.h	/^typedef struct TYPE_LIST_NODE TYPE_NODE;$/;"	t	typeref:struct:TYPE_LIST_NODE
+Tag	syntax.y	/^Tag : ID    { printDebug2("Tag -> ID", @$.first_line); $/;"	l
+TreeNode	parseTree.h	/^typedef struct TreeNode{$/;"	s
+VAR_INFO	semantic.h	/^struct VAR_INFO {$/;"	s
+VAR_INFO	semantic.h	/^typedef struct VAR_INFO VAR_INFO;$/;"	t	typeref:struct:VAR_INFO
+VarDec	semantic.c	/^char* VarDec(Node* vardec, char* typeName){$/;"	f
+VarDec	syntax.y	/^VarDec : ID    { printDebug2("VarDec -> ID", @$.first_line);$/;"	l
+VarList	syntax.y	/^VarList : ParamDec COMMA VarList    { printDebug2("VarList -> ParamDec COMMA VarList", @$.first_line);$/;"	l
+YFC	Makefile	/^YFC = $(shell find .\/ -name "*.y" | sed s\/[^\/]*\\\\.y\/syntax.tab.c\/)$/;"	m
+YFILE	Makefile	/^YFILE = $(shell find .\/ -name "*.y")$/;"	m
+YFO	Makefile	/^YFO = $(YFC:.c=.o)$/;"	m
+_PARSE_TREE_H_	parseTree.h	2;"	d
+_SEMANTIC_H_	semantic.h	2;"	d
+array_info	semantic.h	/^    struct ARRAY_INFO* array_info;$/;"	m	union:TYPE_DETAIL	typeref:struct:TYPE_DETAIL::ARRAY_INFO
+bool	parseTree.h	/^} bool;$/;"	t	typeref:enum:Boolean
+children	parseTree.h	/^    struct TreeNode** children;        \/\/ children of current node$/;"	m	struct:TreeNode	typeref:struct:TreeNode::TreeNode
+children	semantic.h	/^    struct HASH_TABLE_NODE** children;$/;"	m	struct:HASH_TABLE_NODE	typeref:struct:HASH_TABLE_NODE::HASH_TABLE_NODE
+constructTree	parseTree.c	/^void constructTree(Node* parent, int n_children, ...){$/;"	f
+copyArrayInfo	semantic.c	/^ARRAY_INFO* copyArrayInfo(ARRAY_INFO* src){$/;"	f
+copyFuncInfo	semantic.c	/^FUNC_INFO* copyFuncInfo(FUNC_INFO* src){$/;"	f
+copyStructInfo	semantic.c	/^STRUCT_INFO* copyStructInfo(STRUCT_INFO* src){$/;"	f
+copyTypeInfo	semantic.c	/^TYPE_INFO* copyTypeInfo(TYPE_INFO* src, const char* typeCategory){$/;"	f
+copyVarInfo	semantic.c	/^VAR_INFO* copyVarInfo(VAR_INFO* src){$/;"	f
+createHashNode	semantic.c	/^HASH_NODE* createHashNode(HASH_NODE* parent){$/;"	f
+createNode	parseTree.c	/^Node* createNode(char* name, char* propertyValue, int first_line){$/;"	f
+debug	parseTree.c	/^bool debug = false;      \/\/ set true to enter debug mode$/;"	v
+debug_sema	semantic.c	/^bool debug_sema = false;$/;"	v
+eleTypeName	semantic.h	/^    char* eleTypeName;      \/\/ type name of element$/;"	m	struct:ARRAY_INFO
+false	parseTree.h	/^    true = 1, false = 0$/;"	e	enum:Boolean
+fields	semantic.h	/^    struct VAR_INFO** fields;         \/\/ fields of struct (var type and var name)$/;"	m	struct:STRUCT_INFO	typeref:struct:STRUCT_INFO::VAR_INFO
+first_line	parseTree.h	/^    int first_line;         \/\/ first line number of current node$/;"	m	struct:TreeNode
+func_info	semantic.h	/^    struct FUNC_INFO* func_info;$/;"	m	union:TYPE_DETAIL	typeref:struct:TYPE_DETAIL::FUNC_INFO
+getSymbolInfo	semantic.c	/^VAR_INFO* getSymbolInfo(char* varName){$/;"	f
+getTypeInfo	semantic.c	/^TYPE_INFO* getTypeInfo(char* typeName){$/;"	f
+hash_table	semantic.c	/^bool hash_table[HASH_TABLE_SIZE];$/;"	v
+hash_table	semantic.h	/^    bool hash_table[HASH_TABLE_SIZE];$/;"	m	struct:HASH_TABLE_NODE
+ifArray	semantic.h	/^    bool ifArray;   \/\/ array->true, non-array->false$/;"	m	struct:VAR_INFO
+if_leaf	parseTree.h	/^    bool if_leaf;           \/\/ note if current node is leaf node$/;"	m	struct:TreeNode
+info	semantic.h	/^    struct TYPE_INFO* info;$/;"	m	struct:TYPE_LIST_NODE	typeref:struct:TYPE_LIST_NODE::TYPE_INFO
+info	semantic.h	/^    struct VAR_INFO* info;$/;"	m	struct:SYMBOL_LIST_NODE	typeref:struct:SYMBOL_LIST_NODE::VAR_INFO
+initHashTable	semantic.c	/^void initHashTable(){$/;"	f
+insertIntoHashTable	semantic.c	/^void insertIntoHashTable(char* str){$/;"	f
+insertIntoHashTableInNode	semantic.c	/^void insertIntoHashTableInNode(char* str, HASH_NODE** node){$/;"	f
+insertSymbol	semantic.c	/^void insertSymbol(VAR_INFO* var_info){$/;"	f
+insertType	semantic.c	/^void insertType(TYPE_INFO* typeInfo, const char* typeCategory){$/;"	f
+n_children	parseTree.h	/^    int n_children;         \/\/ number of children node$/;"	m	struct:TreeNode
+n_children	semantic.h	/^    int n_children;$/;"	m	struct:HASH_TABLE_NODE
+n_fields	semantic.h	/^    int n_fields;   \/\/ num of fields$/;"	m	struct:STRUCT_INFO
+n_params	semantic.h	/^    int n_params;       \/\/ num of parameters$/;"	m	struct:FUNC_INFO
+name	parseTree.h	/^    char* name;             \/\/ name of node, e.g. ID, LP, Stmt$/;"	m	struct:TreeNode
+next	semantic.h	/^    struct SYMBOL_LIST_NODE* next;$/;"	m	struct:SYMBOL_LIST_NODE	typeref:struct:SYMBOL_LIST_NODE::SYMBOL_LIST_NODE
+next	semantic.h	/^    struct TYPE_LIST_NODE* next;$/;"	m	struct:TYPE_LIST_NODE	typeref:struct:TYPE_LIST_NODE::TYPE_LIST_NODE
+params	semantic.h	/^    struct VAR_INFO** params;     \/\/ parameters of function (var type and var name)$/;"	m	struct:FUNC_INFO	typeref:struct:FUNC_INFO::VAR_INFO
+parent	parseTree.h	/^    struct TreeNode* parent;           \/\/ parent of current node$/;"	m	struct:TreeNode	typeref:struct:TreeNode::TreeNode
+parent	semantic.h	/^    struct HASH_TABLE_NODE* parent;$/;"	m	struct:HASH_TABLE_NODE	typeref:struct:HASH_TABLE_NODE::HASH_TABLE_NODE
+preOrderTraverse	parseTree.c	/^void preOrderTraverse(Node* root, int depth){$/;"	f
+printErrorTypeA	parseTree.c	/^void printErrorTypeA(char* msg, int lineno){$/;"	f
+printErrorTypeB	parseTree.c	/^void printErrorTypeB(char* msg, int lineno){$/;"	f
+propertyValue	parseTree.h	/^    char* propertyValue;    \/\/ property value of node, can be empty, e.g. myVar, int, float$/;"	m	struct:TreeNode
+returnTypeName	semantic.h	/^    char* returnTypeName;   \/\/ type name of return value$/;"	m	struct:FUNC_INFO
+root_hash_node	semantic.c	/^HASH_NODE* root_hash_node = NULL;$/;"	v
+searchHashTable	semantic.c	/^bool searchHashTable(char* str){$/;"	f
+searchHashTableInNode	semantic.c	/^HASH_NODE* searchHashTableInNode(char* str, HASH_NODE* node){$/;"	f
+showSymbolList	semantic.c	/^void showSymbolList(){$/;"	f
+showTypeList	semantic.c	/^void showTypeList(){$/;"	f
+size	semantic.h	/^    int size;               \/\/ size of array$/;"	m	struct:ARRAY_INFO
+status	semantic.h	/^    bool status;$/;"	m	struct:HASH_ELE
+str	semantic.h	/^    char* str;$/;"	m	struct:HASH_ELE
+struct_info	semantic.h	/^    struct STRUCT_INFO* struct_info;$/;"	m	union:TYPE_DETAIL	typeref:struct:TYPE_DETAIL::STRUCT_INFO
+symbol_list_head	semantic.c	/^SYMBOL_NODE* symbol_list_head = NULL;$/;"	v
+true	parseTree.h	/^    true = 1, false = 0$/;"	e	enum:Boolean
+typeCategory	semantic.h	/^    char* typeCategory;     \/\/ "array", "function" or "struct"$/;"	m	struct:TYPE_INFO
+typeDetail	semantic.h	/^    union TYPE_DETAIL* typeDetail;$/;"	m	struct:TYPE_INFO	typeref:union:TYPE_INFO::TYPE_DETAIL
+typeName	semantic.h	/^    char* typeName;$/;"	m	struct:TYPE_INFO
+type_list_head	semantic.c	/^TYPE_NODE* type_list_head = NULL;$/;"	v
+varName	semantic.h	/^    char* varName;$/;"	m	struct:VAR_INFO
+varType	semantic.h	/^    char* varType;  \/\/ int->"int", float->"float", array->element type name, function->"function", stru->"struct"$/;"	m	struct:VAR_INFO
