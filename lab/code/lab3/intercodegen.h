@@ -4,7 +4,7 @@
 #include "parseTree.h"
 
 // type of operand
-typedef enum OperandType {
+/*typedef enum OperandType {
     Variable,
     TempVariable,
     Constant,
@@ -14,7 +14,7 @@ typedef enum OperandType {
     Function,
     Debug
 } OperandType;
-
+*/
 // type of IR
 typedef enum IRType {
     Label_IR,               // label
@@ -35,17 +35,15 @@ typedef enum IRType {
     Call_IR,                // call function
     Param_IR,               // parameter declaration
     Read_IR,                // read from console
-    Write_IR                // write to console
+    Write_IR,               // write to console
 } IRType;
 
 // Operand
 typedef struct Operand {
-    OperandType type;
-    union {
-        int intValue;          // variable, temp, constant
-        char* strValue;         // function, label
-    }value;
+    // OperandType type;
+    char* value;
 }Operand;
+
 
 // IR
 typedef struct InterCode {
@@ -55,46 +53,85 @@ typedef struct InterCode {
         // 1 operand
         // label, function, goto, return, arg, param, read, write
         struct {
-            Operand op1;
+            Operand* op1;
         }o1;
         // 2 operands
         // assign, getAddr, readMem, writeMem, functionCall
         struct {
-            Operand op1;
-            Operand op2;
+            Operand* op1;
+            Operand* op2;
         }o2;
         // 3 operands
         // add, minus, multiply, divide
         struct {
-            Operand op1;
-            Operand op2;
-            Operand op3;
+            Operand* op1;
+            Operand* op2;
+            Operand* op3;
         }o3;
         // conditional jump
         struct {
-            Operand op1;
-            Operand op2;
-            Operand op3;
+            Operand* op1;
+            Operand* op2;
+            Operand* op3;
             char* relop;
         }conJump;
         // memory dec
         struct {
-            Operand op1;    // what does this operand do?
+            Operand* op1;    // owner of this declared space
             int size;
         }memDec;
     }ops;
 }InterCode;
 
 typedef struct InterCodeNode{
-    InterCode intercode;
+    InterCode* interCode;
     struct InterCodeNode* next;
-    struct InterCodeNode* prev;
+    // struct InterCodeNode* prev;
 }InterCodeNode;
 
+// variable name map of source code and intercode
+typedef struct NameMap{
+    char* varName;
+    char* interCodeVarName;
+}NameMap;
 
-//void initIRList();
-void insertInterCode(InterCode interCode);
-void processOperand(Operand operand);
-void genInterCodeTraverse(TreeNode* root);
+typedef struct NameMapNode{
+    NameMap nameMap;
+    struct NameMapNode* next;
+}NameMapNode;
+
+void insertInterCode(InterCode* interCode);
 void writeInterCode(char* fileName);
+void showAllInterCode();
+char* getFormatStr(const char* prefix, int num);
+
+void insertNameMap(char* varName, char* interCodeVarName);
+void showAllNameMap();
+char* getInterCodeVarName(char* varName);
+char* getSourceCodeVarName(char* interCodeVarName);
+
+// translate functions
+void translate_Exp(Node* exp, Operand* place);
+void translate_Stmt(Node* stmt);
+void translate_Cond(Node* exp, Operand* label_true, Operand* label_false);
+void translate_Args(Node* args);
+void translate_FunDec(Node* fundec);
+void translate_FunDecParam(char* paramName);
+void translate_Dec(Node* dec, char* varName);
+
+Operand* createLabel();
+void insertLabelInterCode(Operand* label);
+Operand* createTemp();
+
+typedef struct ArgListNode{
+    Operand* operand;
+    struct ArgListNode* next;
+}ArgListNode;
+
+void insertIntoArgList(Operand* operand);
+void clearArgList();
+
+Operand* copyOperand(Operand* src);
+InterCode* copyInterCode(InterCode* src);
+
 #endif

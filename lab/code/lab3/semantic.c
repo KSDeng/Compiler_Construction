@@ -1,4 +1,5 @@
 #include "semantic.h"
+#include "intercodegen.h"
 // debug flag
 bool debug_sema = false;
 // hash table
@@ -11,6 +12,12 @@ TYPE_NODE* type_list_head = NULL;
 
 // global hash node
 HASH_NODE* root_hash_node = NULL;
+
+// intercode var name count
+extern int labelCount;         // labelx
+extern int tempCount;          // tx
+extern int varCount;           // vx
+extern int funcCount;          // fx
 
 HASH_NODE* createHashNode(HASH_NODE* parent){
     HASH_NODE* p = (HASH_NODE*)malloc(sizeof(HASH_NODE));
@@ -139,9 +146,59 @@ VAR_INFO* copyVarInfo(VAR_INFO* src){
     p->ifArray = src->ifArray;
     return p;
 }
+
+// init read() and write() in symbol table
+void initReadWriteFunction(){
+    // int read();
+    FUNC_INFO* readFuncInfo = (FUNC_INFO*)malloc(sizeof(FUNC_INFO));
+    readFuncInfo->n_params = 0;
+    readFuncInfo->params = NULL;
+    readFuncInfo->returnTypeName = "int";
+
+    insertIntoHashTable("read");
+
+    VAR_INFO* readFuncSymbolInfo = (VAR_INFO*)malloc(sizeof(VAR_INFO));
+    readFuncSymbolInfo->varType = "function";
+    readFuncSymbolInfo->varName = "read";
+    insertSymbol(readFuncSymbolInfo);
+
+    TYPE_INFO* readFuncTypeInfo = (TYPE_INFO*)malloc(sizeof(TYPE_INFO));
+    readFuncTypeInfo->typeName = "read";
+    readFuncTypeInfo->typeCategory = "function";
+    readFuncTypeInfo->typeDetail = (TYPE_DETAIL*)malloc(sizeof(TYPE_DETAIL));
+    readFuncTypeInfo->typeDetail->func_info = copyFuncInfo(readFuncInfo);
+    insertType(readFuncTypeInfo, "function");
+
+    // void write(int);
+    FUNC_INFO* writeFuncInfo = (FUNC_INFO*)malloc(sizeof(FUNC_INFO));
+    writeFuncInfo->n_params = 1;
+    writeFuncInfo->params = (VAR_INFO**)malloc(sizeof(VAR_INFO*) * 1);
+    writeFuncInfo->params[0] = (VAR_INFO*)malloc(sizeof(VAR_INFO));
+    writeFuncInfo->params[0]->varType = "int";
+    writeFuncInfo->params[0]->varName = "";         // no specified name
+
+    writeFuncInfo->returnTypeName = "void";
+
+    insertIntoHashTable("write");
+
+    VAR_INFO* writeFuncSymbolInfo = (VAR_INFO*)malloc(sizeof(VAR_INFO));
+    writeFuncSymbolInfo->varType = "function";
+    writeFuncSymbolInfo->varName = "write";
+    insertSymbol(writeFuncSymbolInfo);
+
+    TYPE_INFO* writeFuncTypeInfo = (TYPE_INFO*)malloc(sizeof(TYPE_INFO));
+    writeFuncTypeInfo->typeName = "write";
+    writeFuncTypeInfo->typeCategory = "function";
+    writeFuncTypeInfo->typeDetail = (TYPE_DETAIL*)malloc(sizeof(TYPE_DETAIL));
+    writeFuncTypeInfo->typeDetail->func_info = copyFuncInfo(writeFuncInfo);
+    insertType(writeFuncTypeInfo, "function");
+
+}
+
 // Semantic analysis
 void Program(Node* program){
     root_hash_node = createHashNode(NULL);
+    initReadWriteFunction();
     if(debug_sema) printf("Program()\n");
     if(!program) {
         if(debug_sema) printf("Program(), program node NULL\n");
@@ -602,6 +659,7 @@ char* VarDec(Node* vardec, char* typeName){
     }
 }
 
+
 void FunDec(Node* fundec, char* returnTypeName){
     if(debug_sema) printf("FunDec()\n");
     if(!fundec){
@@ -610,6 +668,19 @@ void FunDec(Node* fundec, char* returnTypeName){
     }
     FUNC_INFO* funcInfo = (FUNC_INFO*)malloc(sizeof(FUNC_INFO));
     char* id = fundec->children[0]->propertyValue;
+
+    // inter code: Function dec
+    /*Operand* fundecOp = (Operand*)malloc(sizeof(Operand));
+    fundecOp->type = Function;
+    fundecOp->value.strValue = (char*)malloc(strlen(id)+1);
+    strcpy(fundecOp->value.strValue, id);
+
+    InterCode* fundecIR = (InterCode*)malloc(sizeof(InterCode));
+    fundecIR->type = Function_IR;
+    fundecIR->n_operand = 1;
+    fundecIR->ops.o1.op1 = *fundecOp;
+    insertInterCode(*fundecIR);*/
+    translate_FunDec(fundec);
 
     if(fundec->n_children == 4){        // FunDec -> ID LP VarList RP
         // count number of parameters
@@ -639,6 +710,20 @@ void FunDec(Node* fundec, char* returnTypeName){
             strcpy(funcInfo->params[i]->varType, paramType);
             funcInfo->params[i]->varName = (char*)malloc(strlen(paramName)+1);
             strcpy(funcInfo->params[i]->varName, paramName);
+
+            // intercode: Param dec
+            /*Operand* paramOperand = (Operand*)malloc(sizeof(Operand));
+            Operand->type = Variable;
+            Operand->value.strValue = (char*)malloc(strlen(paramName)+1);
+            strcpy(Operand->value.strValue, paramName);
+
+            InterCode* paramInterCode = (InterCode*)malloc(sizeof(InterCode));
+            paramInterCode->n_operand = 1;
+            paramInterCode->type = Param_IR;
+            paramInterCode->ops.o1.op1 = *paramOperand;
+            insertInterCode(*paramInterCode);*/
+            translate_FunDecParam(paramName);
+
             if(paramNodePointer2->n_children == 3){   // VarList->ParamDec COMMA VarList
                 // processing next parameter
                 paramNodePointer2 = paramNodePointer2->children[2];
@@ -673,7 +758,6 @@ void FunDec(Node* fundec, char* returnTypeName){
     funcSymbolInfo->varType = "function";
     funcSymbolInfo->varName = (char*)malloc(strlen(id)+1);
     strcpy(funcSymbolInfo->varName, id);
-    // funcSymbolInfo->ifArray = false;
     insertSymbol(funcSymbolInfo);
 
     // insert type
@@ -719,6 +803,7 @@ void StmtList(Node* stmtlist, char* returnType){
     }
 }
 void Stmt(Node* stmt, char* returnType){
+    translate_Stmt(stmt);
     if(debug_sema) printf("Stmt()\n");
     if(!stmt){
         if(debug_sema) printf("Stmt node NULL\n");
@@ -740,6 +825,21 @@ void Stmt(Node* stmt, char* returnType){
                 int line = stmt->first_line;
                 printf("Error type 8 at Line %d: Type mismatched for return.\n", line);
             }
+            // intercode: Return Stmt
+            /*Operand* returnOperand = (Operand*)malloc(sizeof(Operand));
+            if(strcmp(expInfo->varName, "") == 0){  // right side is constant
+                returnOperand->type = Constant;
+                returnOperand->value.intValue = atoi(stmt->children[1]->children[0]->propertyValue);
+            }else{
+                returnOperand->type = TempVariable;
+            }
+
+            InterCode* returnInterCode = (InterCode*)malloc(sizeof(InterCOde));
+            returnInterCode->n_operand = 1;
+            returnInterCode->type = Return_IR;
+            returnInterCode->ops.o1.op1 = *returnOperand;
+            insertInterCode(*returnInterCode);*/
+
             break;
         }
         case 5:{        
@@ -749,6 +849,29 @@ void Stmt(Node* stmt, char* returnType){
             }else if(strcmp(stmt->children[0]->name, "WHILE") == 0){ // Stmt -> WHILE LP Exp RP Stmt
                 Exp(stmt->children[2]);
                 Stmt(stmt->children[4], returnType);
+                // intercode: WHILE stmt
+                /*Operand* labelOperand1 = (Operand*)malloc(sizeof(Operand));
+                labelOperand1->type = Label;
+                // TODO: use label number
+                labelOperand1->value.intValue = 1;
+                InterCode* labelInterCode1 = (InterCode*)malloc(sizeof(InterCode));
+                labelInterCode1->n_operand = 1;
+                labelInterCode1->type = Label_IR;
+                labelInterCode1->ops.o1.op1 = *labelOperand1;
+                insertInterCode(labelInterCode1);
+
+                Operand* labelOperand2 = (Operand*)malloc(sizeof(Operand));
+                labelOperand2->type = Label;
+                // TODO: use label number
+                labelOperand2->value.intValue = 2;
+                InterCode* labelInterCode2 = (InterCode*)malloc(sizeof(InterCode));
+                labelInterCode2->n_operand = 1;
+                labelInterCode2->type = Label_IR;
+                labelInterCode2->ops.o1.op1 = *labelOperand2;
+                insertInterCode(labelInterCode2);*/
+
+
+
             }else{
                 printf("Stmt(), error with unknown production\n");
                 return;
@@ -821,7 +944,9 @@ void Dec(Node* dec, char* typeName){
         return;
     }
     if(dec->n_children == 1){           // Dec -> VarDec
-        VarDec(dec->children[0], typeName);
+        char* varName = VarDec(dec->children[0], typeName);
+        translate_Dec(dec, varName);
+
     }else if(dec->n_children == 3){     // Dec -> VarDec ASSIGNOP Exp
         VAR_INFO* expInfo = Exp(dec->children[2]);
         if(expInfo){
@@ -832,7 +957,9 @@ void Dec(Node* dec, char* typeName){
                 return;
             }
         }
-        VarDec(dec->children[0], typeName);
+        char* varName = VarDec(dec->children[0], typeName);
+
+        translate_Dec(dec, varName);
     }
     else{
         printf("Dec(), error with unknwon production\n");
@@ -840,6 +967,10 @@ void Dec(Node* dec, char* typeName){
     }
 }
 VAR_INFO* Exp(Node* exp){
+    // translate Exp
+    Operand* place = createTemp();
+    translate_Exp(exp, place);
+
     if(debug_sema) printf("Exp()\n");
     if(!exp){
         if(debug_sema) printf("Exp node NULL\n");
@@ -856,12 +987,14 @@ VAR_INFO* Exp(Node* exp){
                     return NULL;
                 }
                 VAR_INFO* varInfo = getSymbolInfo(id);
+
                 return varInfo;
             }else if(strcmp(exp->children[0]->name, "INT") == 0){  // Exp -> INT
                 VAR_INFO* varInfo = (VAR_INFO*)malloc(sizeof(VAR_INFO));
                 varInfo->varType = "int";
                 varInfo->varName = "";      // varName == "" means constant or right-side value
                 varInfo->ifArray = false;
+                
                 return varInfo;
             }else if(strcmp(exp->children[0]->name, "FLOAT") == 0){ // Exp -> FLOAT
                 VAR_INFO* varInfo = (VAR_INFO*)malloc(sizeof(VAR_INFO));
@@ -1026,14 +1159,14 @@ VAR_INFO* Exp(Node* exp){
                 char* id = exp->children[0]->propertyValue;
                 int line = exp->first_line;
                 VAR_INFO* getVarInfo = getSymbolInfo(id);
+                // function not defined
+                if(!getVarInfo || !searchHashTable(id)){
+                    printf("Error type 2 at Line %d: undefined function \"%s\".\n", line, id);
+                    return NULL;
+                }
                 // not a function
                 if(strcmp(getVarInfo->varType, "function") != 0){
                     printf("Error type 11 at Line %d: \"%s\" is not a function.\n", line, id);
-                    return NULL;
-                }
-                // function not defined
-                if(!searchHashTable(id)){
-                    printf("Error type 2 at Line %d: undefined function \"%s\".\n", line, id);
                     return NULL;
                 }
                 TYPE_INFO* funcTypeInfo = getTypeInfo(id);

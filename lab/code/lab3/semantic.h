@@ -38,7 +38,7 @@ struct STRUCT_INFO {
 struct FUNC_INFO {
     int n_params;       // num of parameters
     struct VAR_INFO** params;     // parameters of function (var type and var name)
-    char* returnTypeName;   // type name of return value
+    char* returnTypeName;   // type name of return value ("void" for void)
 };
 
 
