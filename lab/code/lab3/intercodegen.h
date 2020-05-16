@@ -1,7 +1,7 @@
 #ifndef _INTERCODEGEN_H_
 #define _INTERCODEGEN_H_
 
-#include "parseTree.h"
+#include "semantic.h"
 
 // type of operand
 /*typedef enum OperandType {
@@ -102,6 +102,7 @@ typedef struct NameMapNode{
 
 void insertInterCode(InterCode* interCode);
 void writeInterCode(char* fileName);
+void printInterCode();
 void showAllInterCode();
 char* getFormatStr(const char* prefix, int num);
 
@@ -111,13 +112,28 @@ char* getInterCodeVarName(char* varName);
 char* getSourceCodeVarName(char* interCodeVarName);
 
 // translate functions
-void translate_Exp(Node* exp, Operand* place);
+void translate_Program(Node* program);
+void translate_ExtDefList(Node* extdeflist);
+void translate_ExtDef(Node* extdef);
+void translate_ExtDecList(Node* extdeclist);
+void translate_Specifier(Node* specifier);
+void translate_OptTag(Node* opttag);
+void translate_VarDec(Node* vardec);
+void translate_FunDec(Node* fundec);
+void translate_VarList(Node* varlist);
+void translate_ParamDec(Node* paramdec);
+void translate_CompSt(Node* compst);
+void translate_StmtList(Node* stmtlist);
 void translate_Stmt(Node* stmt);
+void translate_DefList(Node* deflist);
+void translate_Def(Node* def);
+void translate_DecList(Node* declist);
+void translate_Dec(Node* dec, char* varName);
+
+void translate_Exp(Node* exp, Operand* place);
 void translate_Cond(Node* exp, Operand* label_true, Operand* label_false);
 void translate_Args(Node* args);
-void translate_FunDec(Node* fundec);
 void translate_FunDecParam(char* paramName);
-void translate_Dec(Node* dec, char* varName);
 
 Operand* createLabel();
 void insertLabelInterCode(Operand* label);
@@ -134,4 +150,6 @@ void clearArgList();
 Operand* copyOperand(Operand* src);
 InterCode* copyInterCode(InterCode* src);
 
+char* getDecName(Node* dec);
+char* getVarDecName(Node* vardec);
 #endif

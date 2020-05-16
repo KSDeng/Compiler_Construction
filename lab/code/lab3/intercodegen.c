@@ -68,6 +68,7 @@ void insertInterCode(InterCode* interCode){
         //p->prev = q;
         q->next = p;
     }
+    // writeInterCode("stdout");
 }
 
 void showAllInterCode(){
@@ -206,10 +207,103 @@ void writeInterCode(char* fileName){
     }
     fclose(fp);
 }
+void printInterCode(){
+    InterCodeNode* p = interCodeListHead;
+    while(p){
+        InterCode* ic = p->interCode;
+        switch(ic->type){
+            case Label_IR:
+                assert(ic->n_operand == 1);
+                printf("LABEL %s :\n", ic->ops.o1.op1->value);
+                break;
+            case Function_IR:
+                assert(ic->n_operand == 1);
+                printf("FUNCTION %s :\n", ic->ops.o1.op1->value);
+                break;
+            case Assign_IR:
+                assert(ic->n_operand == 2);
+                printf("%s := %s\n", ic->ops.o2.op1->value, ic->ops.o2.op2->value);
+                break;
+            case Plus_IR:
+                assert(ic->n_operand == 3);
+                printf("%s := %s + %s\n", ic->ops.o3.op1->value, ic->ops.o3.op2->value, ic->ops.o3.op3->value);
+                break;
+            case Minus_IR:
+                assert(ic->n_operand == 3);
+                printf("%s := %s - %s\n", ic->ops.o3.op1->value, ic->ops.o3.op2->value, ic->ops.o3.op3->value);
+                break;
+            case Multiply_IR:
+                assert(ic->n_operand == 3);
+                printf("%s := %s * %s\n", ic->ops.o3.op1->value, ic->ops.o3.op2->value, ic->ops.o3.op3->value);
+                break;
+            case Divide_IR:
+                assert(ic->n_operand == 3);
+                printf("%s := %s / %s\n", ic->ops.o3.op1->value, ic->ops.o3.op2->value, ic->ops.o3.op3->value);
+                break;
+            case Address_IR:
+                assert(ic->n_operand == 2);
+                printf("%s := &%s\n", ic->ops.o2.op1->value, ic->ops.o2.op2->value);
+                break;
+            case ReadMemory_IR:
+                assert(ic->n_operand == 2);
+                printf("%s := *%s\n", ic->ops.o2.op1->value, ic->ops.o2.op2->value);
+                break;
+            case WriteMemory_IR:
+                assert(ic->n_operand == 2);
+                printf("*%s := %s\n", ic->ops.o2.op1->value, ic->ops.o2.op2->value);
+                break;
+            case Goto_IR:
+                assert(ic->n_operand == 1);
+                printf("GOTO %s\n", ic->ops.o1.op1->value);
+                break;
+            case ConJump_IR:{
+                assert(ic->n_operand == 3);
+                char* s1 = ic->ops.conJump.op1->value;
+                char* relop = ic->ops.conJump.relop;
+                char* s2 = ic->ops.conJump.op2->value;
+                char* s3 = ic->ops.conJump.op3->value;
+                printf("IF %s %s %s GOTO %s\n", s1, relop, s2, s3);
+                break;}
+            case Return_IR:
+                assert(ic->n_operand == 1);
+                printf("RETURN %s\n", ic->ops.o1.op1->value);
+                break;
+            case DecMemory_IR:{
+                assert(ic->n_operand == 1);
+                char* s1 = ic->ops.memDec.op1->value;
+                int size = ic->ops.memDec.size;
+                printf("DEC %s %d\n", s1, size);
+                break;}
+            case Arg_IR:
+                assert(ic->n_operand == 1);
+                printf("ARG %s\n", ic->ops.o1.op1->value);
+                break;
+            case Call_IR:{
+                assert(ic->n_operand == 2);
+                char* s1 = ic->ops.o2.op1->value;
+                char* s2 = ic->ops.o2.op2->value;
+                printf("%s := CALL %s\n", s1, s2);
+                break;}
+            case Param_IR:
+                assert(ic->n_operand == 1);
+                printf("PARAM %s\n", ic->ops.o1.op1->value);
+                break;
+            case Read_IR:
+                assert(ic->n_operand == 1);
+                printf("READ %s\n", ic->ops.o1.op1->value);
+                break;
+            case Write_IR:
+                assert(ic->n_operand == 1);
+                printf("WRITE %s\n", ic->ops.o1.op1->value);
+                break;
+            default: assert(0);
+        }
+        p = p->next;
+    }
+}
 
 char* getFormatStr(const char* prefix, int num){
-    char tmp[30];
-    memset(tmp, 0, sizeof(tmp));
+    char* tmp = (char*)malloc(30);
     sprintf(tmp, "%s%d", prefix, num);
     return tmp;
 }
@@ -267,6 +361,136 @@ char* getSourceCodeVarName(char* interCodeVarName){
     }
 }
 
+// Translate Functions
+
+void translate_Program(Node* program){
+    translate_ExtDefList(program->children[0]);
+    return;
+}
+void translate_ExtDefList(Node* extdeflist){
+    if(!extdeflist){
+        return;
+    }else if(extdeflist->n_children == 2){
+        translate_ExtDef(extdeflist->children[0]);
+        translate_ExtDefList(extdeflist->children[1]);
+        return;
+    }else{
+        assert(0);
+    }
+}
+void translate_ExtDef(Node* extdef){
+    if(extdef->n_children == 3){
+        if(strcmp(extdef->children[1]->name, "ExtDecList") == 0){   // ExtDef -> Specifier ExtDecList SEMI
+            translate_Specifier(extdef->children[0]);
+            translate_ExtDecList(extdef->children[1]);
+        }else if(strcmp(extdef->children[1]->name, "FunDec") == 0){ // ExtDef -> Specifier FunDec CompSt
+            translate_Specifier(extdef->children[0]);
+            translate_FunDec(extdef->children[1]);
+            translate_CompSt(extdef->children[2]);
+        }else{
+            assert(0);
+        }
+    }else if(extdef->n_children == 2){  // ExtDef -> Specifier SEMI
+        translate_Specifier(extdef->children[0]);
+    }else{
+        assert(0);
+    }
+}
+void translate_ExtDecList(Node* extdeclist){
+    if(extdeclist->n_children == 1){
+        translate_VarDec(extdeclist->children[0]);
+    }else if(extdeclist->n_children == 3){
+        translate_VarDec(extdeclist->children[0]);
+        translate_ExtDecList(extdeclist->children[2]);
+    }else{
+        assert(0);
+    }
+}
+void translate_Specifier(Node* specifier){
+
+}
+void translate_OptTag(Node* opttag){
+
+}
+void translate_VarDec(Node* vardec){
+
+}
+void translate_VarList(Node* varlist){
+
+}
+
+void translate_ParamDec(Node* paramdec){
+
+}
+
+void translate_CompSt(Node* compst){
+    // CompSt -> LC DefList StmtList RC
+    translate_DefList(compst->children[1]);
+    translate_StmtList(compst->children[2]);
+}
+
+void translate_StmtList(Node* stmtlist){
+    if(!stmtlist){
+        return;
+    }else if(stmtlist->n_children == 2){
+        translate_Stmt(stmtlist->children[0]);
+        translate_StmtList(stmtlist->children[1]);
+    }else{
+        assert(0);
+    }
+}
+
+void translate_DefList(Node* deflist){
+    if(!deflist){       // DefList -> empty
+        return;
+    }else if(deflist->n_children == 2){   // DefList -> Def DefList
+        translate_Def(deflist->children[0]);
+        translate_DefList(deflist->children[1]);
+    }else{
+        assert(0);
+    }
+}
+
+void translate_Def(Node* def){
+    // Def -> Specifier DecList SEMI
+    translate_Specifier(def->children[0]);
+    translate_DecList(def->children[1]);
+}
+
+char* getDecName(Node* dec){
+    if(dec->n_children == 1){
+        return getVarDecName(dec->children[0]);
+    }else if(dec->n_children == 3){
+        return getVarDecName(dec->children[0]);
+    }else{
+        assert(0);
+    }
+}
+char* getVarDecName(Node* vardec){
+    if(vardec->n_children == 1){    // VarDec -> ID
+        char* varName = vardec->children[0]->propertyValue;
+        return varName;
+    }else if(vardec->n_children == 4){  // VarDec -> VarDec LB INT RB
+        return getVarDecName(vardec->children[0]);
+    }else{
+        assert(0);
+    }
+}
+
+void translate_DecList(Node* declist){
+    if(declist->n_children == 1){   // DecList -> Dec
+        Node* dec = declist->children[0];
+        char* varName = getDecName(dec);
+        translate_Dec(declist->children[0], varName);
+    }else if(declist->n_children == 3){ // DecList -> Dec COMMA DecList
+        char* varName = getDecName(declist->children[0]);
+        translate_Dec(declist->children[0], varName);
+        translate_DecList(declist->children[2]);
+    }else{
+        assert(0);
+    }
+}
+
 void translate_Exp(Node* exp, Operand* placeOperand){
     switch(exp->n_children){
         case 1:{
@@ -276,16 +500,17 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                 char* id = exp->children[0]->propertyValue;
 
                 // id should be added into sym_table in variable declaration
-                char* interCodeVarName = getInterCodeVarName(id);
+                /*char* interCodeVarName = getInterCodeVarName(id);
                 if(interCodeVarName == NULL){
                     char* varName = getFormatStr("v", varCount++);
                     interCodeVarName = (char*)malloc(strlen(varName)+1);
                     strcpy(interCodeVarName, varName);
-                }
+                }*/
                 
                 Operand* varOperand = (Operand*)malloc(sizeof(Operand));
-                varOperand->value = (char*)malloc(strlen(interCodeVarName)+1);
-                strcpy(varOperand->value, interCodeVarName);
+                varOperand->value = (char*)malloc(strlen(id)+1);
+                //strcpy(varOperand->value, interCodeVarName);
+                strcpy(varOperand->value, id);
 
                 InterCode* expID = (InterCode*)malloc(sizeof(InterCode));
                 expID->n_operand = 2;
@@ -382,9 +607,8 @@ void translate_Exp(Node* exp, Operand* placeOperand){
         case 3:{
             if(strcmp(exp->children[1]->name, "ASSIGNOP") == 0){    // Exp -> Exp ASSIGNOP Exp
                 // TODO: struct and array
-                assert(strcmp(exp->children[0]->name, "ID") == 0);
-                char* id = exp->children[0]->propertyValue;
-                char* interCodeVarName = getInterCodeVarName(id);
+                char* id = exp->children[0]->children[0]->propertyValue;
+                //char* interCodeVarName = getInterCodeVarName(id);
 
                 Operand* temp = createTemp();
 
@@ -403,17 +627,17 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                 ic1->ops.o2.op2 = temp;
                 insertInterCode(ic1);
 
-                InterCode* ic2 = (InterCode*)malloc(sizeof(InterCode));
-                ic2->n_operand = 2;
-                ic2->type = Assign_IR;
-                ic2->ops.o2.op1 = placeOperand;
-                ic2->ops.o2.op2 = varOperand;
-                insertInterCode(ic2);
+                //InterCode* ic2 = (InterCode*)malloc(sizeof(InterCode));
+                //ic2->n_operand = 2;
+                //ic2->type = Assign_IR;
+                //ic2->ops.o2.op1 = placeOperand;
+                //ic2->ops.o2.op2 = varOperand;
+                //insertInterCode(ic2);
                 return;
 
             }else if(strcmp(exp->children[1]->name, "AND") == 0 ||      // Exp -> Exp AND Exp
-                     strcmp(exp->children[1]->name, "OR" == 0) ||        // Exp -> Exp OR Exp
-                     strcmp(exp->children[1]->name, "RELOP")){          // Exp -> Exp RELOP Exp
+                     strcmp(exp->children[1]->name, "OR") == 0 ||        // Exp -> Exp OR Exp
+                     strcmp(exp->children[1]->name, "RELOP") == 0){          // Exp -> Exp RELOP Exp
                      
                  Operand* label1 = createLabel();
                  Operand* label2 = createLabel();
@@ -565,6 +789,7 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                     writeIR->type = Write_IR;
                     writeIR->ops.o1.op1 = writeFuncParam;
                     insertInterCode(writeIR);
+                    return;
                 }else{
                     ArgListNode* p = argListHead;
                     while(p){
@@ -577,19 +802,19 @@ void translate_Exp(Node* exp, Operand* placeOperand){
 
                         p = p->next;
                     }
+                    Operand* funcOp = (Operand*)malloc(sizeof(Operand));
+                    funcOp->value = (char*)malloc(strlen(id)+1);
+                    strcpy(funcOp->value, id);
 
+                    InterCode* callIR = (InterCode*)malloc(sizeof(InterCode));
+                    callIR->n_operand = 2;
+                    callIR->type = Call_IR;
+                    callIR->ops.o2.op1 = placeOperand;
+                    callIR->ops.o2.op2 = funcOp;
+                    insertInterCode(callIR);
+                    return;
                 }
 
-                Operand* funcOp = (Operand*)malloc(sizeof(Operand));
-                funcOp->value = (char*)malloc(strlen(id)+1);
-                strcpy(funcOp->value, id);
-
-                InterCode* callIR = (InterCode*)malloc(sizeof(InterCode));
-                callIR->n_operand = 1;
-                callIR->type = Call_IR;
-                callIR->ops.o1.op1 = funcOp;
-                insertInterCode(callIR);
-                return;
             }else if(strcmp(exp->children[0]->name, "Exp") == 0){   // Exp -> Exp LB Exp RB
                 return;
             }else{
@@ -686,15 +911,21 @@ void translate_Cond(Node* exp, Operand* label_true, Operand* label_false){
 
 void translate_Stmt(Node* stmt){
     if(stmt->n_children == 1){  // Stmt -> CompSt
-        return; // processed
+        translate_CompSt(stmt->children[0]);
+        return; 
     }else if(stmt->n_children == 2){    // Stmt -> Exp SEMI
-        translate_Exp(stmt->children[0], NULL);
+        Operand* temp = createTemp();
+        translate_Exp(stmt->children[0], temp);
+        return;
     }else if(stmt->n_children == 3){        // Stmt -> RETURN Exp SEMI
         
+        Operand* temp = createTemp();
+        translate_Exp(stmt->children[1], temp);
+
         InterCode* returnIR = (InterCode*)malloc(sizeof(InterCode));
         returnIR->n_operand = 1;
         returnIR->type = Return_IR;
-        returnIR->ops.o1.op1 = NULL;        // TODO how to get info about Exp here
+        returnIR->ops.o1.op1 = temp;
         insertInterCode(returnIR);
         return;
     }else if(stmt->n_children == 5){
@@ -787,16 +1018,23 @@ void translate_Args(Node* args){
 }
 
 void translate_FunDec(Node* fundec){
-    Operand* funcOp = (Operand*)malloc(sizeof(Operand));
-    char* funcName = getFormatStr("f", funcCount++);
-    funcOp->value = (char*)malloc(strlen(funcName)+1);
-    strcpy(funcOp->value, funcName);
+    if(fundec->n_children == 3){    // FunDec -> ID LP RP
+        Operand* funcOp = (Operand*)malloc(sizeof(Operand));
+        char* funcName = fundec->children[0]->propertyValue;
+        funcOp->value = (char*)malloc(strlen(funcName)+1);
+        strcpy(funcOp->value, funcName);
 
-    InterCode* fundecIR = (InterCode*)malloc(sizeof(InterCode));
-    fundecIR->type = Function_IR;
-    fundecIR->n_operand = 1;
-    fundecIR->ops.o1.op1 = funcOp;
-    insertInterCode(fundecIR);
+        InterCode* fundecIR = (InterCode*)malloc(sizeof(InterCode));
+        fundecIR->type = Function_IR;
+        fundecIR->n_operand = 1;
+        fundecIR->ops.o1.op1 = funcOp;
+        insertInterCode(fundecIR);
+
+    }else if(fundec->n_children == 4){  // FunDec -> ID LP VarList RP
+        // TODO
+    }else{
+        assert(0);
+    }
 
 }
 

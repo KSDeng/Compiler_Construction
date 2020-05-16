@@ -1,5 +1,5 @@
+#include <assert.h>
 #include "semantic.h"
-#include "intercodegen.h"
 // debug flag
 bool debug_sema = false;
 // hash table
@@ -13,11 +13,6 @@ TYPE_NODE* type_list_head = NULL;
 // global hash node
 HASH_NODE* root_hash_node = NULL;
 
-// intercode var name count
-extern int labelCount;         // labelx
-extern int tempCount;          // tx
-extern int varCount;           // vx
-extern int funcCount;          // fx
 
 HASH_NODE* createHashNode(HASH_NODE* parent){
     HASH_NODE* p = (HASH_NODE*)malloc(sizeof(HASH_NODE));
@@ -669,19 +664,6 @@ void FunDec(Node* fundec, char* returnTypeName){
     FUNC_INFO* funcInfo = (FUNC_INFO*)malloc(sizeof(FUNC_INFO));
     char* id = fundec->children[0]->propertyValue;
 
-    // inter code: Function dec
-    /*Operand* fundecOp = (Operand*)malloc(sizeof(Operand));
-    fundecOp->type = Function;
-    fundecOp->value.strValue = (char*)malloc(strlen(id)+1);
-    strcpy(fundecOp->value.strValue, id);
-
-    InterCode* fundecIR = (InterCode*)malloc(sizeof(InterCode));
-    fundecIR->type = Function_IR;
-    fundecIR->n_operand = 1;
-    fundecIR->ops.o1.op1 = *fundecOp;
-    insertInterCode(*fundecIR);*/
-    translate_FunDec(fundec);
-
     if(fundec->n_children == 4){        // FunDec -> ID LP VarList RP
         // count number of parameters
         int n_params = 1;
@@ -710,19 +692,6 @@ void FunDec(Node* fundec, char* returnTypeName){
             strcpy(funcInfo->params[i]->varType, paramType);
             funcInfo->params[i]->varName = (char*)malloc(strlen(paramName)+1);
             strcpy(funcInfo->params[i]->varName, paramName);
-
-            // intercode: Param dec
-            /*Operand* paramOperand = (Operand*)malloc(sizeof(Operand));
-            Operand->type = Variable;
-            Operand->value.strValue = (char*)malloc(strlen(paramName)+1);
-            strcpy(Operand->value.strValue, paramName);
-
-            InterCode* paramInterCode = (InterCode*)malloc(sizeof(InterCode));
-            paramInterCode->n_operand = 1;
-            paramInterCode->type = Param_IR;
-            paramInterCode->ops.o1.op1 = *paramOperand;
-            insertInterCode(*paramInterCode);*/
-            translate_FunDecParam(paramName);
 
             if(paramNodePointer2->n_children == 3){   // VarList->ParamDec COMMA VarList
                 // processing next parameter
@@ -803,10 +772,10 @@ void StmtList(Node* stmtlist, char* returnType){
     }
 }
 void Stmt(Node* stmt, char* returnType){
-    translate_Stmt(stmt);
     if(debug_sema) printf("Stmt()\n");
     if(!stmt){
         if(debug_sema) printf("Stmt node NULL\n");
+        assert(0);
         return;
     }
     switch(stmt->n_children){
@@ -825,21 +794,6 @@ void Stmt(Node* stmt, char* returnType){
                 int line = stmt->first_line;
                 printf("Error type 8 at Line %d: Type mismatched for return.\n", line);
             }
-            // intercode: Return Stmt
-            /*Operand* returnOperand = (Operand*)malloc(sizeof(Operand));
-            if(strcmp(expInfo->varName, "") == 0){  // right side is constant
-                returnOperand->type = Constant;
-                returnOperand->value.intValue = atoi(stmt->children[1]->children[0]->propertyValue);
-            }else{
-                returnOperand->type = TempVariable;
-            }
-
-            InterCode* returnInterCode = (InterCode*)malloc(sizeof(InterCOde));
-            returnInterCode->n_operand = 1;
-            returnInterCode->type = Return_IR;
-            returnInterCode->ops.o1.op1 = *returnOperand;
-            insertInterCode(*returnInterCode);*/
-
             break;
         }
         case 5:{        
@@ -849,29 +803,6 @@ void Stmt(Node* stmt, char* returnType){
             }else if(strcmp(stmt->children[0]->name, "WHILE") == 0){ // Stmt -> WHILE LP Exp RP Stmt
                 Exp(stmt->children[2]);
                 Stmt(stmt->children[4], returnType);
-                // intercode: WHILE stmt
-                /*Operand* labelOperand1 = (Operand*)malloc(sizeof(Operand));
-                labelOperand1->type = Label;
-                // TODO: use label number
-                labelOperand1->value.intValue = 1;
-                InterCode* labelInterCode1 = (InterCode*)malloc(sizeof(InterCode));
-                labelInterCode1->n_operand = 1;
-                labelInterCode1->type = Label_IR;
-                labelInterCode1->ops.o1.op1 = *labelOperand1;
-                insertInterCode(labelInterCode1);
-
-                Operand* labelOperand2 = (Operand*)malloc(sizeof(Operand));
-                labelOperand2->type = Label;
-                // TODO: use label number
-                labelOperand2->value.intValue = 2;
-                InterCode* labelInterCode2 = (InterCode*)malloc(sizeof(InterCode));
-                labelInterCode2->n_operand = 1;
-                labelInterCode2->type = Label_IR;
-                labelInterCode2->ops.o1.op1 = *labelOperand2;
-                insertInterCode(labelInterCode2);*/
-
-
-
             }else{
                 printf("Stmt(), error with unknown production\n");
                 return;
@@ -886,6 +817,7 @@ void Stmt(Node* stmt, char* returnType){
         }
         default:{
             printf("Stmt(), error with unknown production\n");
+            assert(0);
             return;
         }
     }
@@ -945,7 +877,7 @@ void Dec(Node* dec, char* typeName){
     }
     if(dec->n_children == 1){           // Dec -> VarDec
         char* varName = VarDec(dec->children[0], typeName);
-        translate_Dec(dec, varName);
+        return;
 
     }else if(dec->n_children == 3){     // Dec -> VarDec ASSIGNOP Exp
         VAR_INFO* expInfo = Exp(dec->children[2]);
@@ -959,7 +891,6 @@ void Dec(Node* dec, char* typeName){
         }
         char* varName = VarDec(dec->children[0], typeName);
 
-        translate_Dec(dec, varName);
     }
     else{
         printf("Dec(), error with unknwon production\n");
@@ -967,9 +898,6 @@ void Dec(Node* dec, char* typeName){
     }
 }
 VAR_INFO* Exp(Node* exp){
-    // translate Exp
-    Operand* place = createTemp();
-    translate_Exp(exp, place);
 
     if(debug_sema) printf("Exp()\n");
     if(!exp){

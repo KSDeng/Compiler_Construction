@@ -1,5 +1,5 @@
 #include "parseTree.h"
-bool debug = true;      // set true to enter debug mode
+bool debug = false;      // set true to enter debug mode
 // Create a node
 // Set first_line to -1 if not need to print out
 Node* createNode(char* name, char* propertyValue, int first_line){
