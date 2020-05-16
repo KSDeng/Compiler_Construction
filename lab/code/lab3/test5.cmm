@@ -1,0 +1,11 @@
+int main(){
+    int a[5], t;
+    t = 0;
+    while(t < 5) {
+        a[t] = read();
+        t = t + 1;
+    }
+    int res = a[0] + a[1];
+    write(res);
+    return 0;
+}

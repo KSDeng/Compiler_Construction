@@ -416,11 +416,28 @@ void translate_VarDec(Node* vardec){
 
 }
 void translate_VarList(Node* varlist){
-
+    if(varlist->n_children == 3){   // VarList -> ParamDec COMMA VarList
+        translate_ParamDec(varlist->children[0]);
+        translate_VarList(varlist->children[2]);
+    }else if(varlist->n_children == 1){ // VarList -> ParamDec
+        translate_ParamDec(varlist->children[0]);
+    }else{
+        assert(0);
+    }
 }
 
 void translate_ParamDec(Node* paramdec){
+    // ParamDec -> Specifier VarDec
+    char* varName = getVarDecName(paramdec->children[1]);
+    Operand* paramOp = (Operand*)malloc(sizeof(Operand));
+    paramOp->value = (char*)malloc(strlen(varName)+1);
+    strcpy(paramOp->value, varName);
 
+    InterCode* paramIR = (InterCode*)malloc(sizeof(InterCode));
+    paramIR->n_operand = 1;
+    paramIR->type = Param_IR;
+    paramIR->ops.o1.op1 = paramOp;
+    insertInterCode(paramIR);
 }
 
 void translate_CompSt(Node* compst){
@@ -980,20 +997,26 @@ void translate_Stmt(Node* stmt){
         translate_Cond(stmt->children[2], label1, label2);
         insertLabelInterCode(label1);
         // code2
-        translate_Stmt(stmt->children[4]);
+        Node* stmt1 = stmt->children[4];
+        translate_Stmt(stmt1);
 
-        InterCode* ir_goto = (InterCode*)malloc(sizeof(InterCode));
-        ir_goto->n_operand = 1;
-        ir_goto->type = Goto_IR;
-        ir_goto->ops.o1.op1 = label3;
-        insertInterCode(ir_goto);
+        if(strcmp(stmt1->children[0]->name,"RETURN") != 0){
+            InterCode* ir_goto = (InterCode*)malloc(sizeof(InterCode));
+            ir_goto->n_operand = 1;
+            ir_goto->type = Goto_IR;
+            ir_goto->ops.o1.op1 = label3;
+            insertInterCode(ir_goto);
+        }
 
         insertLabelInterCode(label2);
 
         // code3
-        translate_Stmt(stmt->children[6]);
+        Node* stmt2 = stmt->children[6];
+        translate_Stmt(stmt2);
 
-        insertLabelInterCode(label3);
+        if(strcmp(stmt2->children[0]->name,"RETURN") != 0){
+            insertLabelInterCode(label3);
+        }
         return;
     }else{
         printf("Unhandled stmt in translate_Stmt.\n");
@@ -1018,37 +1041,24 @@ void translate_Args(Node* args){
 }
 
 void translate_FunDec(Node* fundec){
+    Operand* funcOp = (Operand*)malloc(sizeof(Operand));
+    char* funcName = fundec->children[0]->propertyValue;
+    funcOp->value = (char*)malloc(strlen(funcName)+1);
+    strcpy(funcOp->value, funcName);
+
+    InterCode* fundecIR = (InterCode*)malloc(sizeof(InterCode));
+    fundecIR->type = Function_IR;
+    fundecIR->n_operand = 1;
+    fundecIR->ops.o1.op1 = funcOp;
+    insertInterCode(fundecIR);
     if(fundec->n_children == 3){    // FunDec -> ID LP RP
-        Operand* funcOp = (Operand*)malloc(sizeof(Operand));
-        char* funcName = fundec->children[0]->propertyValue;
-        funcOp->value = (char*)malloc(strlen(funcName)+1);
-        strcpy(funcOp->value, funcName);
-
-        InterCode* fundecIR = (InterCode*)malloc(sizeof(InterCode));
-        fundecIR->type = Function_IR;
-        fundecIR->n_operand = 1;
-        fundecIR->ops.o1.op1 = funcOp;
-        insertInterCode(fundecIR);
-
+        return;
     }else if(fundec->n_children == 4){  // FunDec -> ID LP VarList RP
-        // TODO
+        translate_VarList(fundec->children[2]);
     }else{
         assert(0);
     }
 
-}
-
-void translate_FunDecParam(char* paramName){
-    Operand* paramOperand = (Operand*)malloc(sizeof(Operand));
-    char* pName = getFormatStr("p", paramCount++);
-    paramOperand->value = (char*)malloc(strlen(pName)+1);
-    strcpy(paramOperand->value, pName);
-
-    InterCode* paramIR = (InterCode*)malloc(sizeof(InterCode));
-    paramIR->n_operand = 1;
-    paramIR->type = Param_IR;
-    paramIR->ops.o1.op1 = paramOperand;
-    insertInterCode(paramIR);
 }
 
 void translate_Dec(Node* dec, char* varName){

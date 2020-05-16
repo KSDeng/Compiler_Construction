@@ -133,7 +133,6 @@ void translate_Dec(Node* dec, char* varName);
 void translate_Exp(Node* exp, Operand* place);
 void translate_Cond(Node* exp, Operand* label_true, Operand* label_false);
 void translate_Args(Node* args);
-void translate_FunDecParam(char* paramName);
 
 Operand* createLabel();
 void insertLabelInterCode(Operand* label);
