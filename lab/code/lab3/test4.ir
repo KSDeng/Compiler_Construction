@@ -1,0 +1,34 @@
+FUNCTION compare :
+PARAM a
+PARAM b
+t0 := a
+t1 := b
+IF t0 > t1 GOTO label0
+GOTO label1
+LABEL label0 :
+t2 := a
+RETURN t2
+LABEL label1 :
+t3 := b
+t4 := a
+IF t3 > t4 GOTO label2
+GOTO label3
+LABEL label2 :
+t5 := b
+RETURN t5
+LABEL label3 :
+t6 := #0
+RETURN t6
+FUNCTION main :
+READ t7
+m := t7
+READ t8
+n := t8
+t11 := m
+t12 := n
+ARG t12
+ARG t11
+t10 := CALL compare
+WRITE t10
+t13 := #0
+RETURN t13

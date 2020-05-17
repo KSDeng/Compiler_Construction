@@ -397,11 +397,14 @@ flex_uint8_t	lex.yy.c	/^typedef uint8_t flex_uint8_t;$/;"	t	file:
 flex_uint8_t	lex.yy.c	/^typedef unsigned char flex_uint8_t; $/;"	t	file:
 funcCount	intercodegen.c	/^int funcCount = 0;      \/\/ fx$/;"	v
 func_info	semantic.h	/^    struct FUNC_INFO* func_info;$/;"	m	union:TYPE_DETAIL	typeref:struct:TYPE_DETAIL::FUNC_INFO
+getArraySize	intercodegen.c	/^int getArraySize(Node* vardec){$/;"	f
+getDecName	intercodegen.c	/^char* getDecName(Node* dec){$/;"	f
 getFormatStr	intercodegen.c	/^char* getFormatStr(const char* prefix, int num){$/;"	f
 getInterCodeVarName	intercodegen.c	/^char* getInterCodeVarName(char* varName){$/;"	f
 getSourceCodeVarName	intercodegen.c	/^char* getSourceCodeVarName(char* interCodeVarName){$/;"	f
 getSymbolInfo	semantic.c	/^VAR_INFO* getSymbolInfo(char* varName){$/;"	f
 getTypeInfo	semantic.c	/^TYPE_INFO* getTypeInfo(char* typeName){$/;"	f
+getVarDecName	intercodegen.c	/^char* getVarDecName(Node* vardec){$/;"	f
 hash_table	semantic.c	/^bool hash_table[HASH_TABLE_SIZE];$/;"	v
 hash_table	semantic.h	/^    bool hash_table[HASH_TABLE_SIZE];$/;"	m	struct:HASH_TABLE_NODE
 ifArray	semantic.h	/^    bool ifArray;   \/\/ array->true, non-array->false$/;"	m	struct:VAR_INFO
@@ -503,7 +506,6 @@ translate_ExtDecList	intercodegen.c	/^void translate_ExtDecList(Node* extdeclist
 translate_ExtDef	intercodegen.c	/^void translate_ExtDef(Node* extdef){$/;"	f
 translate_ExtDefList	intercodegen.c	/^void translate_ExtDefList(Node* extdeflist){$/;"	f
 translate_FunDec	intercodegen.c	/^void translate_FunDec(Node* fundec){$/;"	f
-translate_FunDecParam	intercodegen.c	/^void translate_FunDecParam(char* paramName){$/;"	f
 translate_OptTag	intercodegen.c	/^void translate_OptTag(Node* opttag){$/;"	f
 translate_ParamDec	intercodegen.c	/^void translate_ParamDec(Node* paramdec){$/;"	f
 translate_Program	intercodegen.c	/^void translate_Program(Node* program){$/;"	f

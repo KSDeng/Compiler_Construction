@@ -370,18 +370,18 @@ int main(int argc, char** argv){
     if(nb > 0) printErrorTypeB("Brackets not match, missing \"]\"", line_b);
     if(nc > 0) printErrorTypeB("Brackets not match, missing \"}\"", line_c);
 
-    if(debug)
-        preOrderTraverse(root, 0);
-    else{
+    //if(debug)
+    //    preOrderTraverse(root, 0);
+    //else{
         if(n_error == 0) {
-            // preOrderTraverse(root, 0);
+            //preOrderTraverse(root, 0);
             Program(root);
             translate_Program(root);
             if(argc == 2) writeInterCode("stdout");
             else if(argc == 3) writeInterCode(argv[2]);
             else printf("Wrong number of params for main().\n");
         }
-    }
+    //}
     return 0;
 }
 

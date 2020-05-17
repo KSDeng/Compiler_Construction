@@ -134,6 +134,8 @@ void translate_Exp(Node* exp, Operand* place);
 void translate_Cond(Node* exp, Operand* label_true, Operand* label_false);
 void translate_Args(Node* args);
 
+void translate_ArrayAddr(Node* exp, Operand* place);
+
 Operand* createLabel();
 void insertLabelInterCode(Operand* label);
 Operand* createTemp();
@@ -151,4 +153,5 @@ InterCode* copyInterCode(InterCode* src);
 
 char* getDecName(Node* dec);
 char* getVarDecName(Node* vardec);
+char* getArrayExpName(Node* exp);
 #endif
