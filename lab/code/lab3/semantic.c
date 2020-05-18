@@ -602,12 +602,14 @@ char* VarDec(Node* vardec, char* typeName){
             array2DVarInfo->ifArray = true;
             insertSymbol(array2DVarInfo);
             
-            // typeName of internal array: "typeName" + "_array", eleType: "typeName"
+            // typeName of internal array: "id" + "_typeName" + "_array", eleType: "typeName"
             // typeName of external array: "id", eleType: "typeName" + "_array"
 
-            // "typeName" + "_array"
+            // "id" + "typeName" + "_array"
             char* arrayConst = "_array";
-            char* arrayTypeName = (char*)malloc(strlen(typeName)+strlen(arrayConst)+1);
+            char* arrayTypeName = (char*)malloc(strlen(id)+1+strlen(typeName)+strlen(arrayConst)+1);
+            strcat(arrayTypeName, id);
+            strcat(arrayTypeName, "_");
             strcat(arrayTypeName, typeName);
             strcat(arrayTypeName, arrayConst);
 
@@ -1170,44 +1172,85 @@ VAR_INFO* Exp(Node* exp){
                 returnInfo->ifArray = false;
                 return returnInfo;
             }else if(strcmp(exp->children[0]->name, "Exp") == 0){   // Exp -> Exp LB Exp RB
-                VAR_INFO* expInfo1 = Exp(exp->children[0]);
-                VAR_INFO* expInfo2 = Exp(exp->children[2]);
-                // some error occurs in sub-expression
-                if((!expInfo1) || (!expInfo2)) return NULL;
-                char *type1 = expInfo1->varType, *type2 = expInfo2->varType;
-                int line = exp->first_line;
-                if(strcmp(type2, "int") != 0){
-                    printf("Error type 12 at Line %d: subscript is not an integer.\n", line);
-                    return NULL;
+                int d_count = 1;
+                Node* subExp = exp->children[0];
+                while(subExp->n_children == 4 && strcmp(subExp->children[0]->name, "Exp")==0){
+                    d_count++;
+                    subExp = subExp->children[0];
                 }
-                
-                // basic type
-                /*
-                if(strcmp(type1,"int") == 0 || strcmp(type1, "float") == 0){
-                    printf("Error type 10 at Line %d: illegal subscript for a non-array variable.\n", line);
-                    return NULL;
-                }
-                */
-                if(!expInfo1->ifArray){
-                    printf("Error type 10 at Line %d: illegal subscript with a non-array variable.\n", line);
-                    return NULL;
-                }
+
+                if(d_count == 1){       // 1-dimensional array
+                    VAR_INFO* expInfo1 = Exp(exp->children[0]);
+                    VAR_INFO* expInfo2 = Exp(exp->children[2]);
+                    // some error occurs in sub-expression
+                    if((!expInfo1) || (!expInfo2)) return NULL;
+                    char *type1 = expInfo1->varType, *type2 = expInfo2->varType;
+                    int line = exp->first_line;
+                    if(strcmp(type2, "int") != 0){
+                        printf("Error type 12 at Line %d: subscript is not an integer.\n", line);
+                        return NULL;
+                    }
                     
-                TYPE_INFO* arrayInfo = getTypeInfo(expInfo1->varName);
-                char* eleType = arrayInfo->typeDetail->array_info->eleTypeName;
-                VAR_INFO* returnInfo = (VAR_INFO*)malloc(sizeof(VAR_INFO));
-                if(strcmp(eleType, "int") == 0 || strcmp(eleType, "float") == 0){
+                    if(!expInfo1->ifArray){
+                        printf("Error type 10 at Line %d: illegal subscript with a non-array variable.\n", line);
+                        return NULL;
+                    }
+                        
+                    TYPE_INFO* arrayInfo = getTypeInfo(expInfo1->varName);
+                    char* eleType = arrayInfo->typeDetail->array_info->eleTypeName;
+                    VAR_INFO* returnInfo = (VAR_INFO*)malloc(sizeof(VAR_INFO));
+                    if(strcmp(eleType, "int") == 0 || strcmp(eleType, "float") == 0){
+                        returnInfo->ifArray = false;
+                    }else{
+                        TYPE_INFO* tInfo = getTypeInfo(eleType);
+                        if(strcmp(tInfo->typeCategory, "array") == 0) returnInfo->ifArray = true;
+                        else returnInfo->ifArray = false;
+                    }
+                    // returnInfo->ifArray = false;
+                    returnInfo->varName = "arrayElem";      // non-empty
+                    returnInfo->varType = (char*)malloc(strlen(type1)+1);
+                    strcpy(returnInfo->varType, type1);
+                    return returnInfo;
+
+                }else if(d_count == 2){     // 2-dimensional array
+                    // Exp -> Exp1 LB Exp2 RB
+                    // Exp1 -> Exp3 LB Exp4 RB
+                    Node* exp1 = exp->children[0];
+                    Node* exp2 = exp->children[2];
+                    Node* exp3 = exp1->children[0];
+                    Node* exp4 = exp1->children[2];
+
+                    VAR_INFO* expInfo2 = Exp(exp2);
+                    VAR_INFO* expInfo4 = Exp(exp4);
+                    if(!expInfo2 || !expInfo4) return NULL;
+                    char* type2 = expInfo2->varType, *type4 = expInfo4->varType;
+                    int line = exp->first_line;
+                    if(strcmp(type2, "int") != 0 || strcmp(type4, "int") != 0){
+                        printf("Error type 12 at Line %d: subscript is not an integer.\n", line);
+                        return NULL;
+                    }
+                    VAR_INFO* expInfo1 = Exp(exp1);
+                    VAR_INFO* expInfo3 = Exp(exp3);
+                    if(!expInfo1 || !expInfo3) return NULL;
+                    char* type1 = expInfo1->varType, *type3 = expInfo3->varType;
+                    if(!expInfo1->ifArray || !expInfo3->ifArray){
+                        printf("Error type 10 at Line %d: illegal subscript with a non-array variable.\n", line);
+                        return NULL;
+                    }
+                    TYPE_INFO* arrayInfo = getTypeInfo(expInfo3->varName);
+                    char* eleType = arrayInfo->typeDetail->array_info->eleTypeName;
+                    VAR_INFO* returnInfo = (VAR_INFO*)malloc(sizeof(VAR_INFO));
                     returnInfo->ifArray = false;
+                    returnInfo->varName = "arrayElem";
+                    returnInfo->varType = (char*)malloc(strlen(type1)+1);
+                    strcpy(returnInfo->varType, type1);
+                    return returnInfo;
+
                 }else{
-                    TYPE_INFO* tInfo = getTypeInfo(eleType);
-                    if(strcmp(tInfo->typeCategory, "array") == 0) returnInfo->ifArray = true;
-                    else returnInfo->ifArray = false;
+                    printf("Error: can not compile array of more than 2 dimension.\n");
+                    assert(0);
                 }
-                // returnInfo->ifArray = false;
-                returnInfo->varName = "arrayElem";      // non-empty
-                returnInfo->varType = (char*)malloc(strlen(type1)+1);
-                strcpy(returnInfo->varType, type1);
-                return returnInfo;
+
             }else{
                 printf("Exp() case 4, error with unknown production\n");
                 return NULL;

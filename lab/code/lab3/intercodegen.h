@@ -100,6 +100,20 @@ typedef struct NameMapNode{
     struct NameMapNode* next;
 }NameMapNode;
 
+typedef struct Array2DInfo{
+    char* arrayName;
+    int dim1;
+    int dim2;
+}Array2DInfo;
+
+typedef struct Array2DInfoNode{
+    Array2DInfo* arrayInfo;
+    struct Array2DInfoNode* next;
+}Array2DInfoNode;
+
+void insertArray2DInfo(char* arrayName, int dim1, int dim2);
+Array2DInfo* getArray2DInfo(char* arrayName);
+
 void insertInterCode(InterCode* interCode);
 void writeInterCode(char* fileName);
 void printInterCode();
@@ -139,6 +153,7 @@ void translate_ArrayAddr(Node* exp, Operand* place);
 Operand* createLabel();
 void insertLabelInterCode(Operand* label);
 Operand* createTemp();
+Operand* createNumber(int n);
 
 typedef struct ArgListNode{
     Operand* operand;
