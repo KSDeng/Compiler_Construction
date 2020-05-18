@@ -10,8 +10,10 @@ InterCodeNode* interCodeListHead = NULL;
 NameMapNode* nameMapListHead = NULL;
 // args list head
 ArgListNode* argListHead = NULL;
-// 2D array info list head
-Array2DInfo* array2DInfoListHead = NULL;
+// array description list head
+ArrayDescNode* arrayDescListHead = NULL;
+// special param list head
+SpecialParamNode* specialParamListHead = NULL;
 
 // intercode var name count
 int labelCount = 0;     // labelx
@@ -20,35 +22,67 @@ int varCount = 0;       // vx
 int funcCount = 0;      // fx
 int paramCount = 0;     // px
 
-void insertArray2DInfo(char* arrayName, int dim1, int dim2){
-    Array2DInfo* info = (Array2DInfo*)malloc(sizeof(Array2DInfo));
-    info->arrayName = (char*)malloc(strlen(arrayName)+1);
-    strcpy(info->arrayName, arrayName);
-    info->dim1 = dim1;
-    info->dim2 = dim2;
+void insertSpecialParam(char* name, bool ifAddr){
+    SpecialParam* param = (SpecialParam*)malloc(sizeof(SpecialParam));
+    param->name = (char*)malloc(strlen(name)+1);
+    strcpy(param->name, name);
+    param->ifAddr = ifAddr;
 
-    Array2DInfoNode* p = (Array2DInfoNode*)malloc(sizeof(Array2DInfoNode));
-    p->arrayInfo = info;
+    SpecialParamNode* p = (SpecialParamNode*)malloc(sizeof(SpecialParamNode));
+    p->param = param;
     p->next = NULL;
-    if(array2DInfoListHead == NULL){
-        array2DInfoListHead = p;
+
+    if(specialParamListHead == NULL){
+        specialParamListHead = p;
     }else{
-        Array2DInfoNode* q = array2DInfoListHead;
+        SpecialParamNode* q = specialParamListHead;
         while(q->next) q = q->next;
         q->next = p;
     }
 }
 
-Array2DInfo* getArray2DInfo(char* arrayName){
-    Array2DInfoNode* p = array2DInfoListHead;
+SpecialParam* getSpecialParam(char* name){
+    SpecialParamNode* p = specialParamListHead;
     while(p){
-        Array2DInfo* info = p->arrayInfo;
-        if(strcmp(info->arrayName, arrayName) == 0){
-            return info;
+        SpecialParam* param = p->param;
+        if(strcmp(param->name, name) == 0){
+            return param;
         }
         p = p->next;
     }
-    assert(0);
+    return NULL;
+}
+
+void insertArrayDesc(char* arrayName, int n_dim, int dim1, int dim2){
+    ArrayDesc* desc = (ArrayDesc*)malloc(sizeof(ArrayDesc));
+    desc->arrayName = (char*)malloc(strlen(arrayName)+1);
+    strcpy(desc->arrayName, arrayName);
+    desc->n_dim = n_dim;
+    desc->dim1 = dim1;
+    desc->dim2 = dim2;
+
+    ArrayDescNode* p = (ArrayDescNode*)malloc(sizeof(ArrayDescNode));
+    p->arrayDesc = desc;
+    p->next = NULL;
+    if(arrayDescListHead == NULL){
+        arrayDescListHead = p;
+    }else{
+        ArrayDescNode* q = arrayDescListHead;
+        while(q->next) q = q->next;
+        q->next = p;
+    }
+}
+
+ArrayDesc* getArrayDesc(char* arrayName){
+    ArrayDescNode* p = arrayDescListHead;
+    while(p){
+        ArrayDesc* desc = p->arrayDesc;
+        if(strcmp(desc->arrayName, arrayName) == 0){
+            return desc;
+        }
+        p = p->next;
+    }
+    return NULL;
 }
 
 Operand* copyOperand(Operand* src){
@@ -470,6 +504,7 @@ void translate_VarDec(Node* vardec){
             subVardec = subVardec->children[0];
         }
         if(n_count == 1){       // 1-dimensional array
+            insertArrayDesc(varName, 1, -1, dim2);
             int size = getArraySize(vardec);
             Operand* varOperand = (Operand*)malloc(sizeof(Operand));
             varOperand->value = (char*)malloc(strlen(varName)+1);
@@ -483,7 +518,7 @@ void translate_VarDec(Node* vardec){
             insertInterCode(decIR);
 
         }else if(n_count == 2){ // 2-dimensional array
-            insertArray2DInfo(varName, dim1, dim2);
+            insertArrayDesc(varName, 2, dim1, dim2);
             int size = getArraySize(vardec);
             Operand* varOperand = (Operand*)malloc(sizeof(Operand));
             varOperand->value = (char*)malloc(strlen(varName)+1);
@@ -525,6 +560,9 @@ void translate_ParamDec(Node* paramdec){
     paramIR->type = Param_IR;
     paramIR->ops.o1.op1 = paramOp;
     insertInterCode(paramIR);
+    if(paramdec->children[1]->n_children == 4){ // array param
+        insertSpecialParam(varName, true);
+    }
 }
 
 void translate_CompSt(Node* compst){
@@ -999,13 +1037,22 @@ void translate_ArrayAddr(Node* exp, Operand* place){    // Exp -> Exp LB Exp RB
         Operand* arrayOp = (Operand*)malloc(sizeof(Operand));
         arrayOp->value = (char*)malloc(strlen(arrayName)+1);
         strcpy(arrayOp->value, arrayName);
-
         InterCode* startAddrIR = (InterCode*)malloc(sizeof(InterCode));
-        startAddrIR->type = Address_IR;
-        startAddrIR->n_operand = 2;
-        startAddrIR->ops.o2.op1 = startAddr;
-        startAddrIR->ops.o2.op2 = arrayOp;
-        insertInterCode(startAddrIR);
+
+        SpecialParam* spParam = getSpecialParam(arrayName);
+        if(spParam != NULL && spParam->ifAddr){
+            startAddrIR->type = Assign_IR;
+            startAddrIR->n_operand = 2;
+            startAddrIR->ops.o2.op1 = startAddr;
+            startAddrIR->ops.o2.op2 = arrayOp;
+            insertInterCode(startAddrIR);
+        }else{
+            startAddrIR->type = Address_IR;
+            startAddrIR->n_operand = 2;
+            startAddrIR->ops.o2.op1 = startAddr;
+            startAddrIR->ops.o2.op2 = arrayOp;
+            insertInterCode(startAddrIR);
+        }
 
         // calculate target addr
 
@@ -1033,7 +1080,7 @@ void translate_ArrayAddr(Node* exp, Operand* place){    // Exp -> Exp LB Exp RB
 
         // calculate offset
         char* arrayName = getArrayExpName(exp);
-        Array2DInfo* arrayInfo = getArray2DInfo(arrayName);
+        ArrayDesc* arrayInfo = getArrayDesc(arrayName);
         int dim2 = arrayInfo->dim2;
 
         Operand* dim2Op = createNumber(dim2);
@@ -1073,11 +1120,20 @@ void translate_ArrayAddr(Node* exp, Operand* place){    // Exp -> Exp LB Exp RB
         strcpy(arrayOp->value, arrayName);
 
         InterCode* startAddrIR = (InterCode*)malloc(sizeof(InterCode));
-        startAddrIR->type = Address_IR;
-        startAddrIR->n_operand = 2;
-        startAddrIR->ops.o2.op1 = startAddr;
-        startAddrIR->ops.o2.op2 = arrayOp;
-        insertInterCode(startAddrIR);
+        SpecialParam* spParam = getSpecialParam(arrayName);
+        if(spParam != NULL && spParam->ifAddr){
+            startAddrIR->type = Assign_IR;
+            startAddrIR->n_operand = 2;
+            startAddrIR->ops.o2.op1 = startAddr;
+            startAddrIR->ops.o2.op2 = arrayOp;
+            insertInterCode(startAddrIR);
+        }else{
+            startAddrIR->type = Address_IR;
+            startAddrIR->n_operand = 2;
+            startAddrIR->ops.o2.op1 = startAddr;
+            startAddrIR->ops.o2.op2 = arrayOp;
+            insertInterCode(startAddrIR);
+        }
 
         // calculate target addr
         InterCode* targetAddrIR = (InterCode*)malloc(sizeof(InterCode));
@@ -1272,21 +1328,70 @@ void translate_Stmt(Node* stmt){
     }
 }
 
+char* ifExpIsArrayName(Node* exp){
+    if(exp->n_children == 1 && strcmp(exp->children[0]->name, "ID")==0){
+        char* id = exp->children[0]->propertyValue;
+        ArrayDesc* arrayDesc = getArrayDesc(id);
+        if(arrayDesc != NULL) return id;
+        else return NULL;
+    }
+    return NULL;
+}
+
 void translate_Args(Node* args){
     if(args->n_children == 1){  // Args -> Exp
-        Operand* t1 = createTemp();
-        // code1
-        translate_Exp(args->children[0], t1);
-        insertIntoArgList(t1);
+        char* arrName = ifExpIsArrayName(args->children[0]);
+        if(arrName != NULL){
+            translate_ArrayArg(arrName);
+        }else{
+            Operand* t1 = createTemp();
+            // code1
+            translate_Exp(args->children[0], t1);
+            insertIntoArgList(t1);
+        }
+
     }else if(args->n_children == 3){    // Args -> Exp COMMA Args
-        Operand* t1 = createTemp();
-        //code1
-        translate_Exp(args->children[0], t1);
-        insertIntoArgList(t1);
-        //code2
-        translate_Args(args->children[2]);
+        char* arrName = ifExpIsArrayName(args->children[0]);
+        if(arrName != NULL){
+            translate_ArrayArg(arrName);
+            translate_Args(args->children[2]);
+        }else{
+            Operand* t1 = createTemp();
+            //code1
+            translate_Exp(args->children[0], t1);
+            insertIntoArgList(t1);
+            //code2
+            translate_Args(args->children[2]);
+        }
     }
 }
+
+void translate_ArrayArg(char* arrayName){
+    // use array name as parameter
+    /*
+    Operand* addr = createTemp();
+    Operand* arr = (Operand*)malloc(sizeof(Operand));
+    arr->value = (char*)malloc(strlen(arrayName)+1);
+    strcpy(arr->value, arrayName);
+
+    InterCode* getAddr = (InterCode*)malloc(sizeof(InterCode));
+    getAddr->type = Address_IR;
+    getAddr->n_operand = 2;
+    getAddr->ops.o2.op1 = addr;
+    getAddr->ops.o2.op2 = arr;
+    insertInterCode(getAddr);
+    insertIntoArgList(addr);
+    return;
+    */
+
+    Operand* arrAddr = (Operand*)malloc(sizeof(Operand));
+    char* addrValue = (char*)malloc(20);
+    sprintf(addrValue, "&%s", arrayName);
+    arrAddr->value = (char*)malloc(strlen(addrValue)+1);
+    strcpy(arrAddr->value, addrValue);
+    insertIntoArgList(arrAddr);
+}
+
 
 void translate_FunDec(Node* fundec){
     Operand* funcOp = (Operand*)malloc(sizeof(Operand));

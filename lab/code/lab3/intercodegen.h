@@ -100,19 +100,33 @@ typedef struct NameMapNode{
     struct NameMapNode* next;
 }NameMapNode;
 
-typedef struct Array2DInfo{
+typedef struct ArrayDesc{
     char* arrayName;
+    int n_dim;
     int dim1;
     int dim2;
-}Array2DInfo;
+}ArrayDesc;
 
-typedef struct Array2DInfoNode{
-    Array2DInfo* arrayInfo;
-    struct Array2DInfoNode* next;
-}Array2DInfoNode;
+typedef struct ArrayDescNode{
+    ArrayDesc* arrayDesc;
+    struct ArrayDescNode* next;
+}ArrayDescNode;
 
-void insertArray2DInfo(char* arrayName, int dim1, int dim2);
-Array2DInfo* getArray2DInfo(char* arrayName);
+typedef struct SpecialParam{
+    char* name;
+    bool ifAddr;
+}SpecialParam;
+
+typedef struct SpecialParamNode{
+    SpecialParam* param;
+    struct SpecialParamNode* next;
+}SpecialParamNode;
+
+void insertSpecialParam(char* name, bool ifAddr);
+SpecialParam* getSpecialParam(char* name);
+
+void insertArrayDesc(char* arrayName, int n_dim, int dim1, int dim2);
+ArrayDesc* getArrayDesc(char* arrayName);
 
 void insertInterCode(InterCode* interCode);
 void writeInterCode(char* fileName);
@@ -147,6 +161,8 @@ void translate_Dec(Node* dec, char* varName);
 void translate_Exp(Node* exp, Operand* place);
 void translate_Cond(Node* exp, Operand* label_true, Operand* label_false);
 void translate_Args(Node* args);
+
+void translate_ArrayArg(char* arrayName);
 
 void translate_ArrayAddr(Node* exp, Operand* place);
 

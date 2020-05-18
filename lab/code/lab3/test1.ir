@@ -1,5 +1,0 @@
-FUNCTION main :
-t1 := #1
-n := t1
-t2 := #0
-RETURN t2

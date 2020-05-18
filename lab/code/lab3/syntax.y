@@ -374,7 +374,7 @@ int main(int argc, char** argv){
     //    preOrderTraverse(root, 0);
     //else{
         if(n_error == 0) {
-            preOrderTraverse(root, 0);
+            // preOrderTraverse(root, 0);
             Program(root);
             translate_Program(root);
             if(argc == 2) writeInterCode("stdout");
