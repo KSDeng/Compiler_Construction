@@ -473,7 +473,12 @@ void translate_ExtDecList(Node* extdeclist){
     }
 }
 void translate_Specifier(Node* specifier){
-
+    if(strcmp(specifier->children[0]->name, "TYPE") == 0){
+        return;
+    }else if(strcmp(specifier->children[0]->name, "StructSpecifier")==0){
+        printf("Cannot translate: Code contains varialbes or parameters of structure type.\n");
+        exit(0);
+    }
 }
 void translate_OptTag(Node* opttag){
 
@@ -795,8 +800,8 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                     insertInterCode(writeMemIR);
 
                 }else{
-                    // TODO: struct
-                    assert(0);
+                    printf("Cannot translate: Code contains variables or parameters of structure type.\n");
+                    exit(0);
                 }
 
                 return;
@@ -1146,7 +1151,7 @@ void translate_ArrayAddr(Node* exp, Operand* place){    // Exp -> Exp LB Exp RB
         return;
     }else{
         printf("Cannot translate, code contains array variable of more than 2 dimensions.\n");
-        return;
+        exit(0);
     }
     
 }

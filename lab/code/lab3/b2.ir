@@ -1,0 +1,159 @@
+FUNCTION main :
+t0 := #10
+N := t0
+DEC heap 40
+t1 := #0
+i := t1
+t2 := #0
+stop := t2
+LABEL label0 :
+t3 := i
+t4 := #10
+IF t3 < t4 GOTO label1
+GOTO label2
+LABEL label1 :
+READ t6
+t8 := i
+t9 := t8 * #4
+t10 := &heap
+t7 := t10 + t9
+*t7 := t6
+t13 := i
+t14 := #1
+t12 := t13 + t14
+i := t12
+GOTO label0
+LABEL label2 :
+t17 := N
+t18 := #2
+t16 := t17 / t18
+start := t16
+LABEL label3 :
+t19 := start
+t20 := #0
+IF t19 >= t20 GOTO label4
+GOTO label5
+LABEL label4 :
+t22 := #0
+stop := t22
+t24 := start
+i := t24
+LABEL label6 :
+t25 := stop
+t26 := #0
+IF t25 == t26 GOTO label7
+GOTO label8
+LABEL label7 :
+t28 := #1
+stop := t28
+t33 := i
+t34 := #2
+t31 := t33 * t34
+t32 := #1
+t30 := t31 + t32
+j := t30
+t39 := i
+t40 := #2
+t37 := t39 * t40
+t38 := #2
+t36 := t37 + t38
+k := t36
+t41 := j
+t42 := N
+IF t41 < t42 GOTO label9
+GOTO label10
+LABEL label9 :
+t46 := j
+t47 := t46 * #4
+t48 := &heap
+t45 := t48 + t47
+t44 := *t45
+tem1 := t44
+t49 := k
+t50 := N
+IF t49 < t50 GOTO label13
+GOTO label12
+LABEL label13 :
+t54 := k
+t55 := t54 * #4
+t56 := &heap
+t53 := t56 + t55
+t51 := *t53
+t58 := j
+t59 := t58 * #4
+t60 := &heap
+t57 := t60 + t59
+t52 := *t57
+IF t51 < t52 GOTO label11
+GOTO label12
+LABEL label11 :
+t64 := k
+t65 := t64 * #4
+t66 := &heap
+t63 := t66 + t65
+t62 := *t63
+tem1 := t62
+t68 := k
+j := t68
+LABEL label12 :
+t72 := i
+t73 := t72 * #4
+t74 := &heap
+t71 := t74 + t73
+t69 := *t71
+t70 := tem1
+IF t69 > t70 GOTO label14
+GOTO label15
+LABEL label14 :
+t76 := #0
+stop := t76
+t80 := i
+t81 := t80 * #4
+t82 := &heap
+t79 := t82 + t81
+t78 := *t79
+t84 := j
+t85 := t84 * #4
+t86 := &heap
+t83 := t86 + t85
+*t83 := t78
+t88 := tem1
+t90 := i
+t91 := t90 * #4
+t92 := &heap
+t89 := t92 + t91
+*t89 := t88
+t94 := j
+i := t94
+LABEL label15 :
+LABEL label10 :
+GOTO label6
+LABEL label8 :
+t97 := start
+t98 := #1
+t96 := t97 - t98
+start := t96
+GOTO label3
+LABEL label5 :
+t100 := #0
+i := t100
+LABEL label16 :
+t101 := i
+t102 := N
+IF t101 < t102 GOTO label17
+GOTO label18
+LABEL label17 :
+t106 := i
+t107 := t106 * #4
+t108 := &heap
+t105 := t108 + t107
+t104 := *t105
+WRITE t104
+t111 := i
+t112 := #1
+t110 := t111 + t112
+i := t110
+GOTO label16
+LABEL label18 :
+t113 := #0
+RETURN t113

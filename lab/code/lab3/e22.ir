@@ -1,0 +1,98 @@
+FUNCTION print :
+PARAM array
+t0 := #0
+ii := t0
+LABEL label0 :
+t1 := ii
+t2 := #4
+IF t1 < t2 GOTO label1
+GOTO label2
+LABEL label1 :
+t6 := ii
+t7 := t6 * #4
+t8 := array
+t5 := t8 + t7
+t4 := *t5
+WRITE t4
+t11 := ii
+t12 := #1
+t10 := t11 + t12
+ii := t10
+GOTO label0
+LABEL label2 :
+t13 := #0
+RETURN t13
+FUNCTION product :
+PARAM a
+PARAM b
+t14 := #0
+result := t14
+t15 := #0
+i := t15
+LABEL label3 :
+t16 := i
+t17 := #4
+IF t16 < t17 GOTO label4
+GOTO label5
+LABEL label4 :
+t20 := result
+t25 := i
+t26 := t25 * #4
+t27 := a
+t24 := t27 + t26
+t22 := *t24
+t29 := i
+t30 := t29 * #4
+t31 := b
+t28 := t31 + t30
+t23 := *t28
+t21 := t22 * t23
+t19 := t20 + t21
+result := t19
+t34 := i
+t35 := #1
+t33 := t34 + t35
+i := t33
+GOTO label3
+LABEL label5 :
+t36 := result
+RETURN t36
+FUNCTION main :
+DEC p 16
+DEC pp 16
+t37 := #0
+j := t37
+LABEL label6 :
+t38 := j
+t39 := #4
+IF t38 < t39 GOTO label7
+GOTO label8
+LABEL label7 :
+READ t41
+t43 := j
+t44 := t43 * #4
+t45 := &p
+t42 := t45 + t44
+*t42 := t41
+READ t47
+t49 := j
+t50 := t49 * #4
+t51 := &pp
+t48 := t51 + t50
+*t48 := t47
+t54 := j
+t55 := #1
+t53 := t54 + t55
+j := t53
+GOTO label6
+LABEL label8 :
+t57 := #0
+j := t57
+ARG &p
+t58 := CALL print
+ARG &pp
+ARG &p
+t60 := CALL product
+WRITE t60
+t61 := #0
+RETURN t61

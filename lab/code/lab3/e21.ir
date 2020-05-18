@@ -1,0 +1,119 @@
+FUNCTION main :
+DEC map 400
+DEC t 40
+t0 := #0
+i := t0
+t1 := #0
+j := t1
+LABEL label0 :
+t2 := i
+t3 := #10
+IF t2 < t3 GOTO label1
+GOTO label2
+LABEL label1 :
+t5 := #0
+j := t5
+LABEL label3 :
+t6 := j
+t7 := #10
+IF t6 < t7 GOTO label4
+GOTO label5
+LABEL label4 :
+t10 := i
+t11 := j
+t9 := t10 + t11
+t13 := j
+t14 := i
+t15 := t14 * #10
+t16 := t15 + t13
+t17 := t16 * #4
+t18 := &map
+t12 := t18 + t17
+*t12 := t9
+t21 := j
+t22 := #1
+t20 := t21 + t22
+j := t20
+GOTO label3
+LABEL label5 :
+t25 := i
+t26 := #1
+t24 := t25 + t26
+i := t24
+GOTO label0
+LABEL label2 :
+t28 := #0
+i := t28
+LABEL label6 :
+t29 := i
+t30 := #10
+IF t29 < t30 GOTO label7
+GOTO label8
+LABEL label7 :
+t32 := #0
+j := t32
+t34 := #0
+t36 := i
+t37 := t36 * #4
+t38 := &t
+t35 := t38 + t37
+*t35 := t34
+LABEL label9 :
+t39 := j
+t40 := #10
+IF t39 < t40 GOTO label10
+GOTO label11
+LABEL label10 :
+t46 := i
+t47 := t46 * #4
+t48 := &t
+t45 := t48 + t47
+t43 := *t45
+t50 := j
+t51 := i
+t52 := t51 * #10
+t53 := t52 + t50
+t54 := t53 * #4
+t55 := &map
+t49 := t55 + t54
+t44 := *t49
+t42 := t43 + t44
+t57 := i
+t58 := t57 * #4
+t59 := &t
+t56 := t59 + t58
+*t56 := t42
+t62 := j
+t63 := #1
+t61 := t62 + t63
+j := t61
+GOTO label9
+LABEL label11 :
+t66 := i
+t67 := #1
+t65 := t66 + t67
+i := t65
+GOTO label6
+LABEL label8 :
+t69 := #0
+i := t69
+LABEL label12 :
+t70 := i
+t71 := #10
+IF t70 < t71 GOTO label13
+GOTO label14
+LABEL label13 :
+t75 := i
+t76 := t75 * #4
+t77 := &t
+t74 := t77 + t76
+t73 := *t74
+WRITE t73
+t80 := i
+t81 := #1
+t79 := t80 + t81
+i := t79
+GOTO label12
+LABEL label14 :
+t82 := #0
+RETURN t82
