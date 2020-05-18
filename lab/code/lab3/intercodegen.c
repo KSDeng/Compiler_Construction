@@ -10,7 +10,8 @@ InterCodeNode* interCodeListHead = NULL;
 NameMapNode* nameMapListHead = NULL;
 // args list head
 ArgListNode* argListHead = NULL;
-
+// 2D array info list head
+Array2DInfo* array2DInfoListHead = NULL;
 
 // intercode var name count
 int labelCount = 0;     // labelx
@@ -18,6 +19,37 @@ int tempCount = 0;      // tx
 int varCount = 0;       // vx
 int funcCount = 0;      // fx
 int paramCount = 0;     // px
+
+void insertArray2DInfo(char* arrayName, int dim1, int dim2){
+    Array2DInfo* info = (Array2DInfo*)malloc(sizeof(Array2DInfo));
+    info->arrayName = (char*)malloc(strlen(arrayName)+1);
+    strcpy(info->arrayName, arrayName);
+    info->dim1 = dim1;
+    info->dim2 = dim2;
+
+    Array2DInfoNode* p = (Array2DInfoNode*)malloc(sizeof(Array2DInfoNode));
+    p->arrayInfo = info;
+    p->next = NULL;
+    if(array2DInfoListHead == NULL){
+        array2DInfoListHead = p;
+    }else{
+        Array2DInfoNode* q = array2DInfoListHead;
+        while(q->next) q = q->next;
+        q->next = p;
+    }
+}
+
+Array2DInfo* getArray2DInfo(char* arrayName){
+    Array2DInfoNode* p = array2DInfoListHead;
+    while(p){
+        Array2DInfo* info = p->arrayInfo;
+        if(strcmp(info->arrayName, arrayName) == 0){
+            return info;
+        }
+        p = p->next;
+    }
+    assert(0);
+}
 
 Operand* copyOperand(Operand* src){
     Operand* res = (Operand*)malloc(sizeof(Operand));
@@ -428,9 +460,13 @@ void translate_VarDec(Node* vardec){
     }else if(vardec->n_children == 4){  // VarDec -> VarDec LB INT RB
         char* varName = getVarDecName(vardec);
         int n_count = 1;
+        int dim1 = 0, dim2 = 0;
+        dim2 = atoi(vardec->children[2]->propertyValue);
+
         Node* subVardec = vardec->children[0];
         while(subVardec->n_children == 4){
             n_count++;
+            dim1 = atoi(subVardec->children[2]->propertyValue);
             subVardec = subVardec->children[0];
         }
         if(n_count == 1){       // 1-dimensional array
@@ -447,7 +483,18 @@ void translate_VarDec(Node* vardec){
             insertInterCode(decIR);
 
         }else if(n_count == 2){ // 2-dimensional array
+            insertArray2DInfo(varName, dim1, dim2);
+            int size = getArraySize(vardec);
+            Operand* varOperand = (Operand*)malloc(sizeof(Operand));
+            varOperand->value = (char*)malloc(strlen(varName)+1);
+            strcpy(varOperand->value, varName);
 
+            InterCode* decIR = (InterCode*)malloc(sizeof(InterCode));
+            decIR->n_operand = 1;
+            decIR->type = DecMemory_IR;
+            decIR->ops.memDec.op1 = varOperand;
+            decIR->ops.memDec.size = size;
+            insertInterCode(decIR);
         }else{          // 3 or more dimensional array
             assert(0);
         }
@@ -924,12 +971,17 @@ void translate_Exp(Node* exp, Operand* placeOperand){
 
 // Set target address of array to place
 void translate_ArrayAddr(Node* exp, Operand* place){    // Exp -> Exp LB Exp RB
-    Operand* subScriptValue = createTemp();
-    translate_Exp(exp->children[2], subScriptValue);
-
-    if(strcmp(exp->children[0]->children[0]->name, "ID")==0){   // 1-dimensional array
-        Operand* four = (Operand*)malloc(sizeof(Operand));
-        four->value = "#4";
+    int n_count = 1;
+    Node* subExp = exp->children[0];
+    while(subExp->n_children == 4 && strcmp(subExp->children[0]->name, "Exp")==0){
+        n_count++;
+        subExp = subExp->children[0];
+    }
+    if(n_count == 1){       // 1-d array
+        Operand* subScriptValue = createTemp();
+        translate_Exp(exp->children[2], subScriptValue);
+        
+        Operand* four = createNumber(4);
         Operand* offsetTemp = createTemp();
 
         // calculate offset
@@ -964,9 +1016,83 @@ void translate_ArrayAddr(Node* exp, Operand* place){    // Exp -> Exp LB Exp RB
         targetAddrIR->ops.o3.op2 = startAddr;
         targetAddrIR->ops.o3.op3 = offsetTemp;
         insertInterCode(targetAddrIR);
-    }else{      // multi-dimensional array
-        // TODO
+
+    }else if(n_count == 2){ // 2-d array
+        // Exp -> Exp1 LB Exp2 RB
+        // Exp1 -> Exp3 LB Exp4 RB
+        Node* exp1 = exp->children[0];
+        Node* exp2 = exp->children[2];
+        Node* exp3 = exp1->children[0];
+        Node* exp4 = exp1->children[2];
+
+        // process subscript
+        Operand* subSubScript = createTemp();
+        Operand* subScript = createTemp();
+        translate_Exp(exp2, subSubScript);
+        translate_Exp(exp4, subScript);
+
+        // calculate offset
+        char* arrayName = getArrayExpName(exp);
+        Array2DInfo* arrayInfo = getArray2DInfo(arrayName);
+        int dim2 = arrayInfo->dim2;
+
+        Operand* dim2Op = createNumber(dim2);
+        
+        Operand* mulTemp1 = createTemp();
+        InterCode* mul1 = (InterCode*)malloc(sizeof(InterCode));
+        mul1->type = Multiply_IR;
+        mul1->n_operand = 3;
+        mul1->ops.o3.op1 = mulTemp1;
+        mul1->ops.o3.op2 = subScript;
+        mul1->ops.o3.op3 = dim2Op;
+        insertInterCode(mul1);
+
+        Operand* addTemp1 = createTemp();
+        InterCode* add1 = (InterCode*)malloc(sizeof(InterCode));
+        add1->type = Plus_IR;
+        add1->n_operand = 3;
+        add1->ops.o3.op1 = addTemp1;
+        add1->ops.o3.op2 = mulTemp1;
+        add1->ops.o3.op3 = subSubScript;
+        insertInterCode(add1);
+
+        Operand* four = createNumber(4);
+        Operand* mulTemp2 = createTemp();
+        InterCode* mul2 = (InterCode*)malloc(sizeof(InterCode));
+        mul2->type = Multiply_IR;
+        mul2->n_operand = 3;
+        mul2->ops.o3.op1 = mulTemp2;
+        mul2->ops.o3.op2 = addTemp1;
+        mul2->ops.o3.op3 = four;
+        insertInterCode(mul2);
+
+        // get start address
+        Operand* startAddr = createTemp();
+        Operand* arrayOp = (Operand*)malloc(sizeof(Operand));
+        arrayOp->value = (char*)malloc(strlen(arrayName)+1);
+        strcpy(arrayOp->value, arrayName);
+
+        InterCode* startAddrIR = (InterCode*)malloc(sizeof(InterCode));
+        startAddrIR->type = Address_IR;
+        startAddrIR->n_operand = 2;
+        startAddrIR->ops.o2.op1 = startAddr;
+        startAddrIR->ops.o2.op2 = arrayOp;
+        insertInterCode(startAddrIR);
+
+        // calculate target addr
+        InterCode* targetAddrIR = (InterCode*)malloc(sizeof(InterCode));
+        targetAddrIR->type = Plus_IR;
+        targetAddrIR->n_operand = 3;
+        targetAddrIR->ops.o3.op1 = place;
+        targetAddrIR->ops.o3.op2 = startAddr;
+        targetAddrIR->ops.o3.op3 = mulTemp2;
+        insertInterCode(targetAddrIR);
+        return;
+    }else{
+        printf("Cannot translate, code contains array variable of more than 2 dimensions.\n");
+        return;
     }
+    
 }
 
 void translate_Cond(Node* exp, Operand* label_true, Operand* label_false){
@@ -1231,4 +1357,13 @@ Operand* createTemp(){
     temp->value = (char*)malloc(strlen(tempName)+1);
     strcpy(temp->value, tempName);
     return temp;
+}
+
+Operand* createNumber(int n){
+    char* str = (char*)malloc(10);
+    sprintf(str, "#%d", n);
+    Operand* res = (Operand*)malloc(sizeof(Operand));
+    res->value = (char*)malloc(strlen(str)+1);
+    strcpy(res->value, str);
+    return res;
 }
