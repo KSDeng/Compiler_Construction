@@ -122,6 +122,8 @@ typedef struct SpecialParamNode{
     struct SpecialParamNode* next;
 }SpecialParamNode;
 
+void insertArithmic(Operand* place, Operand* o1, Operand* o2, char* type);
+
 void insertSpecialParam(char* name, bool ifAddr);
 SpecialParam* getSpecialParam(char* name);
 
@@ -170,6 +172,7 @@ Operand* createLabel();
 void insertLabelInterCode(Operand* label);
 Operand* createTemp();
 Operand* createNumber(int n);
+Operand* createVar(char* id);
 
 typedef struct ArgListNode{
     Operand* operand;
@@ -185,4 +188,6 @@ InterCode* copyInterCode(InterCode* src);
 char* getDecName(Node* dec);
 char* getVarDecName(Node* vardec);
 char* getArrayExpName(Node* exp);
+
+void optimize();
 #endif

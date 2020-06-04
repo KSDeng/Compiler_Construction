@@ -149,6 +149,72 @@ void showAllInterCode(){
     }
     printf("%d intercode in total.\n", count);
 }
+void replaceLabel(char* oldLabel, char* newLabel){
+    InterCodeNode* p = interCodeListHead;
+    while(p){
+        InterCode* ir = p->interCode;
+        if(ir->type == Label_IR){
+            Operand* op = ir->ops.o1.op1;
+            if(strcmp(op->value, oldLabel)==0){
+                p->interCode->ops.o1.op1->value = (char*)malloc(strlen(newLabel)+1);
+                strcpy(p->interCode->ops.o1.op1->value, newLabel);
+            }
+        }else if(ir->type == Goto_IR){
+            Operand* op = ir->ops.o1.op1;
+            if(strcmp(op->value, oldLabel)==0){
+                p->interCode->ops.o1.op1->value = (char*)malloc(strlen(newLabel)+1);
+                strcpy(p->interCode->ops.o1.op1->value, newLabel);
+            }
+        }else if(ir->type == ConJump_IR){
+            Operand* op = ir->ops.conJump.op3;
+            if(strcmp(op->value, oldLabel)==0){
+                p->interCode->ops.conJump.op3->value = (char*)malloc(strlen(newLabel)+1);
+                strcpy(p->interCode->ops.conJump.op3->value, newLabel);
+            }
+        }
+        p=p->next;
+    }
+}
+
+void optimize(){
+    InterCodeNode* p = interCodeListHead;
+    while(p){
+        // redundant label
+        // Label label1:
+        // Label label2:
+        if(p->next && p->interCode->type == Label_IR && p->next->interCode->type == Label_IR){
+            Operand* opLabel1 = p->interCode->ops.o1.op1;
+            char* remainLabel = opLabel1->value;
+            Operand* opLabel2 = p->next->interCode->ops.o1.op1;
+            char* deleteLabel = opLabel2->value;
+
+            InterCodeNode* tmp = p->next;
+            p->next = p->next->next;
+            free(tmp);
+            replaceLabel(deleteLabel, remainLabel);
+            continue;
+        }
+
+        // label with goto
+        // Label label1:
+        // Goto label2
+        if(p->next && p->next->next && p->next->interCode->type == Label_IR && p->next->next->interCode->type == Goto_IR){
+            Operand* opLabel1 = p->next->interCode->ops.o1.op1;
+            char* deleteLabel = opLabel1->value;
+            Operand* opLabel2 = p->next->next->interCode->ops.o1.op1;
+            char* remainLabel = opLabel2->value;
+
+            InterCodeNode* tmp = p->next;
+            p->next = p->next->next;
+            free(tmp);
+            replaceLabel(deleteLabel, remainLabel);
+            continue;
+        }
+
+        p=p->next;
+    }
+
+}
 
 void writeInterCode(char* fileName){
     FILE* fp;
@@ -158,6 +224,8 @@ void writeInterCode(char* fileName){
         fp = fopen(fileName, "w");
     }
     assert(fp);
+
+    optimize();
     InterCodeNode* p = interCodeListHead;
     char content[100];
     memset(content, 0, sizeof(content));
@@ -720,8 +788,6 @@ void translate_Exp(Node* exp, Operand* placeOperand){
 
                  // code0
                  Operand* zero = createNumber(0);
-                 //Operand* zero = (Operand*)malloc(sizeof(Operand));
-                 //zero->value = "#0";
 
                  InterCode* code0 = (InterCode*)malloc(sizeof(InterCode));
                  code0->type = Assign_IR;
@@ -737,8 +803,6 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                  insertLabelInterCode(label1);
 
                  Operand* one = createNumber(1);
-                 //Operand* one = (Operand*)malloc(sizeof(Operand));
-                 //one->value = "#1";
                  InterCode* code2_2 = (InterCode*)malloc(sizeof(InterCode));
                  code2_2->type = Assign_IR;
                  code2_2->n_operand = 2;
@@ -759,24 +823,43 @@ void translate_Exp(Node* exp, Operand* placeOperand){
             if(strcmp(exp->children[1]->name, "ASSIGNOP") == 0){    // Exp -> Exp ASSIGNOP Exp
                 Node* leftExp = exp->children[0];
                 if(leftExp->n_children == 1 && strcmp(leftExp->children[0]->name, "ID")==0){    //left side: Exp -> ID
-                    char* id = leftExp->children[0]->propertyValue;
-                    Operand* temp = createTemp();
+                    if(strcmp(exp->children[2]->name, "INT")==0){   // optimize
+                        char* id = leftExp->children[0]->propertyValue;
+                        Operand* varOperand = (Operand*)malloc(sizeof(Operand));
+                        varOperand->value = (char*)malloc(strlen(id)+1);
+                        strcpy(varOperand->value, id);
+                        varOperand->type = Variable;
 
-                    // code1
-                    translate_Exp(exp->children[2], temp);
+                        int intValue = atoi(exp->children[2]->propertyValue);
+                        Operand* intOperand = createNumber(intValue);
 
-                    // code2
-                    Operand* varOperand = (Operand*)malloc(sizeof(Operand));
-                    varOperand->value = (char*)malloc(strlen(id)+1);
-                    strcpy(varOperand->value, id);
-                    varOperand->type = Variable;
+                        InterCode* ic1 = (InterCode*)malloc(sizeof(InterCode));
+                        ic1->n_operand = 2;
+                        ic1->type = Assign_IR;
+                        ic1->ops.o2.op1 = varOperand;
+                        ic1->ops.o2.op2 = intOperand;
+                        insertInterCode(ic1);
 
-                    InterCode* ic1 = (InterCode*)malloc(sizeof(InterCode));
-                    ic1->n_operand = 2;
-                    ic1->type = Assign_IR;
-                    ic1->ops.o2.op1 = varOperand;
-                    ic1->ops.o2.op2 = temp;
-                    insertInterCode(ic1);
+                    }else{ 
+                        char* id = leftExp->children[0]->propertyValue;
+                        Operand* temp = createTemp();
+
+                        // code1
+                        translate_Exp(exp->children[2], temp);
+
+                        // code2
+                        Operand* varOperand = (Operand*)malloc(sizeof(Operand));
+                        varOperand->value = (char*)malloc(strlen(id)+1);
+                        strcpy(varOperand->value, id);
+                        varOperand->type = Variable;
+
+                        InterCode* ic1 = (InterCode*)malloc(sizeof(InterCode));
+                        ic1->n_operand = 2;
+                        ic1->type = Assign_IR;
+                        ic1->ops.o2.op1 = varOperand;
+                        ic1->ops.o2.op2 = temp;
+                        insertInterCode(ic1);
+                    }
                 }else if(leftExp->n_children == 4 && strcmp(leftExp->children[1]->name, "LB")==0){  // left side: Exp -> Exp LB Exp RB
                     Operand* rightSideTemp = createTemp();
                     // code1
@@ -838,77 +921,40 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                  insertLabelInterCode(label2);
                  return;
 
-            }else if(strcmp(exp->children[1]->name, "PLUS") == 0){  // Exp -> Exp PLUS Exp
-                Operand* t1 = createTemp();
-                Operand* t2 = createTemp();
+            }else if(strcmp(exp->children[1]->name, "PLUS")==0 ||       // Exp -> Exp PLUS Exp
+                    strcmp(exp->children[1]->name, "MINUS")==0 ||       // Exp -> Exp MINUS Exp
+                    strcmp(exp->children[1]->name, "STAR")==0 ||        // Exp -> Exp STAR Exp
+                    strcmp(exp->children[1]->name, "DIV")==0){          // Exp -> Exp DIV Exp
+                // optimize
+                Node* firstExp = exp->children[0];
+                Node* secondExp = exp->children[2];
+                
+                bool firstIsID = firstExp->n_children==1 && strcmp(firstExp->children[0]->name, "ID")==0;
+                bool firstIsINT = firstExp->n_children==1 && strcmp(firstExp->children[0]->name, "INT")==0;
+                bool secondIsID = secondExp->n_children==1 && strcmp(secondExp->children[0]->name, "ID")==0;
+                bool secondIsINT = secondExp->n_children==1 && strcmp(secondExp->children[0]->name, "INT")==0;
+                char* type = exp->children[1]->name;
+                Operand *first, *second;
+                if(firstIsID){
+                    first = createVar(firstExp->children[0]->propertyValue);
+                }else if(firstIsINT){
+                    first = createNumber(atoi(firstExp->children[0]->propertyValue));
+                }else{
+                    first = createTemp();
+                    translate_Exp(exp->children[0], first);
+                }
 
-                // code1
-                translate_Exp(exp->children[0], t1);
-                // code2
-                translate_Exp(exp->children[2], t2);
-
-                InterCode* plusIR = (InterCode*)malloc(sizeof(InterCode));
-                plusIR->n_operand = 3;
-                plusIR->type = Plus_IR;
-                plusIR->ops.o3.op1 = placeOperand;
-                plusIR->ops.o3.op2 = t1;
-                plusIR->ops.o3.op3 = t2;
-                insertInterCode(plusIR);
+                if(secondIsID){
+                    second = createVar(secondExp->children[0]->propertyValue);
+                }else if(secondIsINT){
+                    second = createNumber(atoi(secondExp->children[0]->propertyValue));
+                }else{
+                    second = createTemp();
+                    translate_Exp(exp->children[2], second);
+                }
+                insertArithmic(placeOperand, first, second, type);
                 return;
 
-            }else if(strcmp(exp->children[1]->name, "MINUS") == 0){ // Exp -> Exp MINUS Exp
-                Operand* t1 = createTemp();
-                Operand* t2 = createTemp();
-
-                // code1
-                translate_Exp(exp->children[0], t1);
-                // code2
-                translate_Exp(exp->children[2], t2);
-
-                InterCode* minusIR = (InterCode*)malloc(sizeof(InterCode));
-                minusIR->n_operand = 3;
-                minusIR->type = Minus_IR;
-                minusIR->ops.o3.op1 = placeOperand;
-                minusIR->ops.o3.op2 = t1;
-                minusIR->ops.o3.op3 = t2;
-                insertInterCode(minusIR);
-                return;
-
-            }else if(strcmp(exp->children[1]->name, "STAR") == 0){  // Exp -> Exp STAR Exp
-                Operand* t1 = createTemp();
-                Operand* t2 = createTemp();
-
-                // code1
-                translate_Exp(exp->children[0], t1);
-                // code2
-                translate_Exp(exp->children[2], t2);
-
-                InterCode* multiplyIR = (InterCode*)malloc(sizeof(InterCode));
-                multiplyIR->n_operand = 3;
-                multiplyIR->type = Multiply_IR;
-                multiplyIR->ops.o3.op1 = placeOperand;
-                multiplyIR->ops.o3.op2 = t1;
-                multiplyIR->ops.o3.op3 = t2;
-                insertInterCode(multiplyIR);
-                return;
-
-            }else if(strcmp(exp->children[1]->name, "DIV") == 0){   // Exp -> Exp DIV Exp
-                Operand* t1 = createTemp();
-                Operand* t2 = createTemp();
-
-                // code1
-                translate_Exp(exp->children[0], t1);
-                // code2
-                translate_Exp(exp->children[2], t2);
-
-                InterCode* divideIR = (InterCode*)malloc(sizeof(InterCode));
-                divideIR->n_operand = 3;
-                divideIR->type = Divide_IR;
-                divideIR->ops.o3.op1 = placeOperand;
-                divideIR->ops.o3.op2 = t1;
-                divideIR->ops.o3.op3 = t2;
-                insertInterCode(divideIR);
-                return;
             }else if(strcmp(exp->children[1]->name, "Exp") == 0){   // Exp -> LP Exp RP
                 translate_Exp(exp->children[1], placeOperand);
                 return;
@@ -1008,6 +1054,27 @@ void translate_Exp(Node* exp, Operand* placeOperand){
             return;
         }
     }
+}
+
+void insertArithmic(Operand* place, Operand* o1, Operand* o2, char* type){
+    InterCode* ir = (InterCode*)malloc(sizeof(InterCode));
+    ir->n_operand = 3;
+    ir->ops.o3.op1 = place;
+    ir->ops.o3.op2 = o1;
+    ir->ops.o3.op3 = o2;
+
+    if(strcmp(type, "PLUS")==0){
+        ir->type = Plus_IR;
+    }else if(strcmp(type, "MINUS")==0){
+        ir->type = Minus_IR;
+    }else if(strcmp(type, "STAR")==0){
+        ir->type = Multiply_IR;
+    }else if(strcmp(type, "DIV")==0){
+        ir->type = Divide_IR;
+    }else{
+        assert(0);
+    }
+    insertInterCode(ir);
 }
 
 // Set target address of array to place
@@ -1161,22 +1228,42 @@ void translate_Cond(Node* exp, Operand* label_true, Operand* label_false){
     if(exp->n_children == 2 && strcmp(exp->children[0]->name, "NOT")==0){   // Exp->NOT Exp
         translate_Cond(exp->children[1], label_false, label_true);
     }else if(exp->n_children == 3 && strcmp(exp->children[1]->name, "RELOP") == 0){   // Exp->Exp RELOP Exp
+        // optimize
+        Node* firstExp = exp->children[0];
+        Node* secondExp = exp->children[2];
+        bool firstIsID = firstExp->n_children==1 && strcmp(firstExp->children[0]->name,"ID")==0;
+        bool firstIsINT = firstExp->n_children==1 && strcmp(firstExp->children[0]->name,"INT")==0;
+        bool secondIsID = secondExp->n_children==1 && strcmp(secondExp->children[0]->name,"ID")==0;
+        bool secondIsINT = secondExp->n_children==1 && strcmp(secondExp->children[0]->name, "INT")==0;
         
-        Operand* temp1 = createTemp();
-        Operand* temp2 = createTemp();
-
+        Operand *first, *second;
         // code1
-        translate_Exp(exp->children[0], temp1);
+        if(firstIsID){
+            first = createVar(firstExp->children[0]->propertyValue);
+        }else if(firstIsINT){
+            first = createNumber(atoi(firstExp->children[0]->propertyValue));
+        }else{
+            first = createTemp();
+            translate_Exp(exp->children[0], first);
+        }
+
         // code2
-        translate_Exp(exp->children[2], temp2);
+        if(secondIsID){
+            second = createVar(secondExp->children[0]->propertyValue);
+        }else if(secondIsINT){
+            second = createNumber(atoi(secondExp->children[0]->propertyValue));
+        }else{
+            second = createTemp();
+            translate_Exp(exp->children[2], second);
+        }
 
         char* relop = exp->children[1]->propertyValue;
         // code3
         InterCode* ifGoto = (InterCode*)malloc(sizeof(InterCode));
         ifGoto->type = ConJump_IR;
         ifGoto->n_operand = 3;
-        ifGoto->ops.conJump.op1 = temp1;
-        ifGoto->ops.conJump.op2 = temp2;
+        ifGoto->ops.conJump.op1 = first;
+        ifGoto->ops.conJump.op2 = second;
         ifGoto->ops.conJump.relop = (char*)malloc(strlen(relop)+1);
         strcpy(ifGoto->ops.conJump.relop, relop);
         ifGoto->ops.conJump.op3 = label_true;
@@ -1219,8 +1306,6 @@ void translate_Cond(Node* exp, Operand* label_true, Operand* label_false){
         translate_Exp(exp, temp1);
         //code2
         Operand* zero = createNumber(0);
-        //Operand* zero = (Operand*)malloc(sizeof(Operand));
-        //zero->value = "#0";
 
         InterCode* ifGoto = (InterCode*)malloc(sizeof(InterCode));
         ifGoto->type = ConJump_IR;
@@ -1414,22 +1499,41 @@ void translate_Dec(Node* dec, char* varName){
         translate_VarDec(dec->children[0]);
         
     }else if(dec->n_children == 3){ // Dec -> VarDec ASSIGNOP Exp
-        Operand* temp = createTemp();
-        translate_Exp(dec->children[2], temp);
+        if(dec->children[2]->n_children==1 && strcmp(dec->children[2]->children[0]->name,"INT")==0){
+            int intValue = atoi(dec->children[2]->children[0]->propertyValue);
+            Operand* intOperand = createNumber(intValue);
 
-        //char* vName = getFormatStr("v", varCount++);
-        //insertNameMap(varName, vName);
-        Operand* varOperand = (Operand*)malloc(sizeof(Operand));
-        varOperand->value = (char*)malloc(strlen(varName)+1);
-        strcpy(varOperand->value, varName);
-        varOperand->type = Variable;
+            Operand* varOperand = (Operand*)malloc(sizeof(Operand));
+            varOperand->value = (char*)malloc(strlen(varName)+1);
+            strcpy(varOperand->value, varName);
+            varOperand->type = Variable;
 
-        InterCode* decIR = (InterCode*)malloc(sizeof(InterCode));
-        decIR->type = Assign_IR;
-        decIR->n_operand = 2;
-        decIR->ops.o2.op1 = varOperand;
-        decIR->ops.o2.op2 = temp;
-        insertInterCode(decIR);
+
+            InterCode* decIR = (InterCode*)malloc(sizeof(InterCode));
+            decIR->type = Assign_IR;
+            decIR->n_operand = 2;
+            decIR->ops.o2.op1 = varOperand;
+            decIR->ops.o2.op2 = intOperand;
+            insertInterCode(decIR);
+        }else{
+        
+            Operand* temp = createTemp();
+            translate_Exp(dec->children[2], temp);
+
+            //char* vName = getFormatStr("v", varCount++);
+            //insertNameMap(varName, vName);
+            Operand* varOperand = (Operand*)malloc(sizeof(Operand));
+            varOperand->value = (char*)malloc(strlen(varName)+1);
+            strcpy(varOperand->value, varName);
+            varOperand->type = Variable;
+
+            InterCode* decIR = (InterCode*)malloc(sizeof(InterCode));
+            decIR->type = Assign_IR;
+            decIR->n_operand = 2;
+            decIR->ops.o2.op1 = varOperand;
+            decIR->ops.o2.op2 = temp;
+            insertInterCode(decIR);
+        }
     }
 
 }
@@ -1469,3 +1573,13 @@ Operand* createNumber(int n){
     res->type = Constant;
     return res;
 }
+
+Operand* createVar(char* id){
+    Operand* res = (Operand*)malloc(sizeof(Operand));
+    res->value = (char*)malloc(strlen(id)+1);
+    strcpy(res->value, id);
+    res->type = Variable;
+    return res;
+}
+
+

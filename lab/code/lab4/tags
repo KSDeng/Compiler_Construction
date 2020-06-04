@@ -394,6 +394,7 @@ createLabel	intercodegen.c	/^Operand* createLabel(){$/;"	f
 createNode	parseTree.c	/^Node* createNode(char* name, char* propertyValue, int first_line){$/;"	f
 createNumber	intercodegen.c	/^Operand* createNumber(int n){$/;"	f
 createTemp	intercodegen.c	/^Operand* createTemp(){$/;"	f
+createVar	intercodegen.c	/^Operand* createVar(char* id){$/;"	f
 debug	parseTree.c	/^bool debug = false;      \/\/ set true to enter debug mode$/;"	v
 debug_intercode	intercodegen.c	/^bool debug_intercode = true;$/;"	v
 debug_sema	semantic.c	/^bool debug_sema = false;$/;"	v
@@ -442,6 +443,7 @@ info	semantic.h	/^    struct TYPE_INFO* info;$/;"	m	struct:TYPE_LIST_NODE	typere
 info	semantic.h	/^    struct VAR_INFO* info;$/;"	m	struct:SYMBOL_LIST_NODE	typeref:struct:SYMBOL_LIST_NODE::VAR_INFO
 initHashTable	semantic.c	/^void initHashTable(){$/;"	f
 initReadWriteFunction	semantic.c	/^void initReadWriteFunction(){$/;"	f
+insertArithmic	intercodegen.c	/^void insertArithmic(Operand* place, Operand* o1, Operand* o2, char* type){$/;"	f
 insertArrayDesc	intercodegen.c	/^void insertArrayDesc(char* arrayName, int n_dim, int dim1, int dim2){$/;"	f
 insertInterCode	intercodegen.c	/^void insertInterCode(InterCode* interCode){$/;"	f
 insertIntoArgList	intercodegen.c	/^void insertIntoArgList(Operand* operand){$/;"	f
@@ -501,6 +503,7 @@ op3	intercodegen.h	/^            Operand* op3;$/;"	m	struct:InterCode::__anon1::
 op3	intercodegen.h	/^            Operand* op3;$/;"	m	struct:InterCode::__anon1::__anon5
 operand	intercodegen.h	/^    Operand* operand;$/;"	m	struct:ArgListNode
 ops	intercodegen.h	/^    }ops;$/;"	m	struct:InterCode	typeref:union:InterCode::__anon1
+optimize	intercodegen.c	/^void optimize(){$/;"	f
 param	intercodegen.h	/^    SpecialParam* param;$/;"	m	struct:SpecialParamNode
 paramCount	intercodegen.c	/^int paramCount = 0;     \/\/ px$/;"	v
 params	semantic.h	/^    struct VAR_INFO** params;     \/\/ parameters of function (var type and var name)$/;"	m	struct:FUNC_INFO	typeref:struct:FUNC_INFO::VAR_INFO
@@ -513,6 +516,7 @@ printErrorTypeB	parseTree.c	/^void printErrorTypeB(char* msg, int lineno){$/;"	f
 printInterCode	intercodegen.c	/^void printInterCode(){$/;"	f
 propertyValue	parseTree.h	/^    char* propertyValue;    \/\/ property value of node, can be empty, e.g. myVar, int, float$/;"	m	struct:TreeNode
 relop	intercodegen.h	/^            char* relop;$/;"	m	struct:InterCode::__anon1::__anon5
+replaceLabel	intercodegen.c	/^void replaceLabel(char* oldLabel, char* newLabel){$/;"	f
 returnTypeName	semantic.h	/^    char* returnTypeName;   \/\/ type name of return value ("void" for void)$/;"	m	struct:FUNC_INFO
 root	syntax.tab.c	/^    Node* root;$/;"	v
 root_hash_node	semantic.c	/^HASH_NODE* root_hash_node = NULL;$/;"	v
