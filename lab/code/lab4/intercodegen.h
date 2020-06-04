@@ -4,17 +4,17 @@
 #include "semantic.h"
 
 // type of operand
-/*typedef enum OperandType {
+typedef enum OperandType {
     Variable,
-    TempVariable,
+    Param,
+    Temp,
     Constant,
     Address,
-    TempAddress,
     Label,
     Function,
-    Debug
+    Array
 } OperandType;
-*/
+
 // type of IR
 typedef enum IRType {
     Label_IR,               // label
@@ -40,7 +40,7 @@ typedef enum IRType {
 
 // Operand
 typedef struct Operand {
-    // OperandType type;
+    OperandType type;
     char* value;
 }Operand;
 

@@ -89,6 +89,7 @@ Operand* copyOperand(Operand* src){
     Operand* res = (Operand*)malloc(sizeof(Operand));
     res->value = (char*)malloc(strlen(src->value)+1);
     strcpy(res->value, src->value);
+    res->type = src->type;
     return res;
 }
 
@@ -514,6 +515,7 @@ void translate_VarDec(Node* vardec){
             Operand* varOperand = (Operand*)malloc(sizeof(Operand));
             varOperand->value = (char*)malloc(strlen(varName)+1);
             strcpy(varOperand->value, varName);
+            varOperand->type = Array;
 
             InterCode* decIR = (InterCode*)malloc(sizeof(InterCode));
             decIR->n_operand = 1;
@@ -528,6 +530,7 @@ void translate_VarDec(Node* vardec){
             Operand* varOperand = (Operand*)malloc(sizeof(Operand));
             varOperand->value = (char*)malloc(strlen(varName)+1);
             strcpy(varOperand->value, varName);
+            varOperand->type = Array;
 
             InterCode* decIR = (InterCode*)malloc(sizeof(InterCode));
             decIR->n_operand = 1;
@@ -559,6 +562,7 @@ void translate_ParamDec(Node* paramdec){
     Operand* paramOp = (Operand*)malloc(sizeof(Operand));
     paramOp->value = (char*)malloc(strlen(varName)+1);
     strcpy(paramOp->value, varName);
+    paramOp->type = Param;
 
     InterCode* paramIR = (InterCode*)malloc(sizeof(InterCode));
     paramIR->n_operand = 1;
@@ -657,18 +661,10 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                 // intercode
                 char* id = exp->children[0]->propertyValue;
 
-                // id should be added into sym_table in variable declaration
-                /*char* interCodeVarName = getInterCodeVarName(id);
-                if(interCodeVarName == NULL){
-                    char* varName = getFormatStr("v", varCount++);
-                    interCodeVarName = (char*)malloc(strlen(varName)+1);
-                    strcpy(interCodeVarName, varName);
-                }*/
-                
                 Operand* varOperand = (Operand*)malloc(sizeof(Operand));
                 varOperand->value = (char*)malloc(strlen(id)+1);
-                //strcpy(varOperand->value, interCodeVarName);
                 strcpy(varOperand->value, id);
+                varOperand->type = Variable;
 
                 InterCode* expID = (InterCode*)malloc(sizeof(InterCode));
                 expID->n_operand = 2;
@@ -680,12 +676,8 @@ void translate_Exp(Node* exp, Operand* placeOperand){
             }else if(strcmp(exp->children[0]->name, "INT") == 0){  // Exp -> INT
                 
                 // intercode 
-                Operand* intOperand = (Operand*)malloc(sizeof(Operand));
-                // Operand->type = Constant;
                 int intValue = atoi(exp->children[0]->propertyValue);
-                char* intName = getFormatStr("#", intValue);
-                intOperand->value = (char*)malloc(strlen(intName)+1);
-                strcpy(intOperand->value, intName);
+                Operand* intOperand = createNumber(intValue);
 
                 InterCode* intIR = (InterCode*)malloc(sizeof(InterCode));
                 intIR->n_operand = 2;
@@ -711,8 +703,7 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                 // code1
                 translate_Exp(exp->children[1], t1);
                 // code2
-                Operand* zero = (Operand*)malloc(sizeof(Operand));
-                zero->value = "#0";
+                Operand* zero = createNumber(0);
 
                 InterCode* minusIR = (InterCode*)malloc(sizeof(InterCode));
                 minusIR->type = Minus_IR;
@@ -728,8 +719,9 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                  Operand* label2 = createLabel();
 
                  // code0
-                 Operand* zero = (Operand*)malloc(sizeof(Operand));
-                 zero->value = "#0";
+                 Operand* zero = createNumber(0);
+                 //Operand* zero = (Operand*)malloc(sizeof(Operand));
+                 //zero->value = "#0";
 
                  InterCode* code0 = (InterCode*)malloc(sizeof(InterCode));
                  code0->type = Assign_IR;
@@ -744,8 +736,9 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                  // code2
                  insertLabelInterCode(label1);
 
-                 Operand* one = (Operand*)malloc(sizeof(Operand));
-                 one->value = "#1";
+                 Operand* one = createNumber(1);
+                 //Operand* one = (Operand*)malloc(sizeof(Operand));
+                 //one->value = "#1";
                  InterCode* code2_2 = (InterCode*)malloc(sizeof(InterCode));
                  code2_2->type = Assign_IR;
                  code2_2->n_operand = 2;
@@ -776,6 +769,7 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                     Operand* varOperand = (Operand*)malloc(sizeof(Operand));
                     varOperand->value = (char*)malloc(strlen(id)+1);
                     strcpy(varOperand->value, id);
+                    varOperand->type = Variable;
 
                     InterCode* ic1 = (InterCode*)malloc(sizeof(InterCode));
                     ic1->n_operand = 2;
@@ -814,8 +808,9 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                  Operand* label2 = createLabel();
 
                  // code0
-                 Operand* zero = (Operand*)malloc(sizeof(Operand));
-                 zero->value = "#0";
+                 Operand* zero = createNumber(0);
+                 //Operand* zero = (Operand*)malloc(sizeof(Operand));
+                 //zero->value = "#0";
 
                  InterCode* code0 = (InterCode*)malloc(sizeof(InterCode));
                  code0->type = Assign_IR;
@@ -830,8 +825,9 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                  // code2
                  insertLabelInterCode(label1);
 
-                 Operand* one = (Operand*)malloc(sizeof(Operand));
-                 one->value = "#1";
+                 Operand* one = createNumber(1);
+                 //Operand* one = (Operand*)malloc(sizeof(Operand));
+                 //one->value = "#1";
                  InterCode* code2_2 = (InterCode*)malloc(sizeof(InterCode));
                  code2_2->type = Assign_IR;
                  code2_2->n_operand = 2;
@@ -930,6 +926,7 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                     Operand* funcOperand = (Operand*)malloc(sizeof(Operand));
                     funcOperand->value = (char*)malloc(strlen(id)+1);
                     strcpy(funcOperand->value,id);
+                    funcOperand->type = Function;
 
                     InterCode* callIR = (InterCode*)malloc(sizeof(InterCode));
                     callIR->n_operand = 1;
@@ -976,6 +973,7 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                     Operand* funcOp = (Operand*)malloc(sizeof(Operand));
                     funcOp->value = (char*)malloc(strlen(id)+1);
                     strcpy(funcOp->value, id);
+                    funcOp->type = Function;
 
                     InterCode* callIR = (InterCode*)malloc(sizeof(InterCode));
                     callIR->n_operand = 2;
@@ -1042,6 +1040,7 @@ void translate_ArrayAddr(Node* exp, Operand* place){    // Exp -> Exp LB Exp RB
         Operand* arrayOp = (Operand*)malloc(sizeof(Operand));
         arrayOp->value = (char*)malloc(strlen(arrayName)+1);
         strcpy(arrayOp->value, arrayName);
+        arrayOp->type = Array;
         InterCode* startAddrIR = (InterCode*)malloc(sizeof(InterCode));
 
         SpecialParam* spParam = getSpecialParam(arrayName);
@@ -1123,6 +1122,7 @@ void translate_ArrayAddr(Node* exp, Operand* place){    // Exp -> Exp LB Exp RB
         Operand* arrayOp = (Operand*)malloc(sizeof(Operand));
         arrayOp->value = (char*)malloc(strlen(arrayName)+1);
         strcpy(arrayOp->value, arrayName);
+        arrayOp->type = Array;
 
         InterCode* startAddrIR = (InterCode*)malloc(sizeof(InterCode));
         SpecialParam* spParam = getSpecialParam(arrayName);
@@ -1218,8 +1218,9 @@ void translate_Cond(Node* exp, Operand* label_true, Operand* label_false){
         //code1
         translate_Exp(exp, temp1);
         //code2
-        Operand* zero = (Operand*)malloc(sizeof(Operand));
-        zero->value = "#0";
+        Operand* zero = createNumber(0);
+        //Operand* zero = (Operand*)malloc(sizeof(Operand));
+        //zero->value = "#0";
 
         InterCode* ifGoto = (InterCode*)malloc(sizeof(InterCode));
         ifGoto->type = ConJump_IR;
@@ -1379,6 +1380,7 @@ void translate_ArrayArg(char* arrayName){
     sprintf(addrValue, "&%s", arrayName);
     arrAddr->value = (char*)malloc(strlen(addrValue)+1);
     strcpy(arrAddr->value, addrValue);
+    arrAddr->type = Address;
     insertIntoArgList(arrAddr);
 }
 
@@ -1388,6 +1390,7 @@ void translate_FunDec(Node* fundec){
     char* funcName = fundec->children[0]->propertyValue;
     funcOp->value = (char*)malloc(strlen(funcName)+1);
     strcpy(funcOp->value, funcName);
+    funcOp->type = Function;
 
     InterCode* fundecIR = (InterCode*)malloc(sizeof(InterCode));
     fundecIR->type = Function_IR;
@@ -1419,6 +1422,7 @@ void translate_Dec(Node* dec, char* varName){
         Operand* varOperand = (Operand*)malloc(sizeof(Operand));
         varOperand->value = (char*)malloc(strlen(varName)+1);
         strcpy(varOperand->value, varName);
+        varOperand->type = Variable;
 
         InterCode* decIR = (InterCode*)malloc(sizeof(InterCode));
         decIR->type = Assign_IR;
@@ -1435,6 +1439,7 @@ Operand* createLabel(){
     char* labelName = getFormatStr("label", labelCount++);
     label->value = (char*)malloc(strlen(labelName)+1);
     strcpy(label->value, labelName);
+    label->type = Label;
     return label;
 }
 
@@ -1451,6 +1456,7 @@ Operand* createTemp(){
     char* tempName = getFormatStr("t", tempCount++);
     temp->value = (char*)malloc(strlen(tempName)+1);
     strcpy(temp->value, tempName);
+    temp->type = Temp;
     return temp;
 }
 
@@ -1460,5 +1466,6 @@ Operand* createNumber(int n){
     Operand* res = (Operand*)malloc(sizeof(Operand));
     res->value = (char*)malloc(strlen(str)+1);
     strcpy(res->value, str);
+    res->type = Constant;
     return res;
 }
