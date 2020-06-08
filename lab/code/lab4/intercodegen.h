@@ -41,6 +41,10 @@ typedef enum IRType {
 // Operand
 typedef struct Operand {
     OperandType type;
+    /*union{
+        char* strValue;     // Variable, Param, Address, Function, Array
+        int intValue;       // Constant, Label, Temp
+    }value;*/
     char* value;
 }Operand;
 
@@ -183,7 +187,6 @@ void insertIntoArgList(Operand* operand);
 void clearArgList();
 
 Operand* copyOperand(Operand* src);
-InterCode* copyInterCode(InterCode* src);
 
 char* getDecName(Node* dec);
 char* getVarDecName(Node* vardec);

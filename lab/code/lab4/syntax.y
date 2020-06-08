@@ -2,6 +2,7 @@
     #include "parseTree.h"
     #include "semantic.h"
     #include "intercodegen.h"
+    #include "objectcodegen.h"
     #include "lex.yy.c"
     Node* root;
     extern int np, nb, nc;
@@ -377,9 +378,16 @@ int main(int argc, char** argv){
             // preOrderTraverse(root, 0);
             Program(root);
             translate_Program(root);
-            if(argc == 2) writeInterCode("stdout");
-            else if(argc == 3) writeInterCode(argv[2]);
-            else printf("Wrong number of params for main().\n");
+            if(argc == 2) {
+                writeInterCode("stdout");
+                writeAssemblyCode("stdout");
+            }else if(argc == 3) {
+                writeInterCode(argv[2]);
+                writeAssemblyCode("stdout");
+            }else if(argc == 4){
+                writeInterCode(argv[2]);
+                writeAssemblyCode(argv[3]);
+            }else printf("Wrong number of params for main().\n");
         }
     //}
     return 0;

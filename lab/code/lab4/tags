@@ -57,8 +57,8 @@ ELSE	syntax.tab.h	/^    ELSE = 283,$/;"	e	enum:yytokentype
 EOB_ACT_CONTINUE_SCAN	lex.yy.c	174;"	d	file:
 EOB_ACT_END_OF_FILE	lex.yy.c	175;"	d	file:
 EOB_ACT_LAST_MATCH	lex.yy.c	176;"	d	file:
-EXIT_SUCCESS	syntax.tab.c	321;"	d	file:
-EXIT_SUCCESS	syntax.tab.c	349;"	d	file:
+EXIT_SUCCESS	syntax.tab.c	322;"	d	file:
+EXIT_SUCCESS	syntax.tab.c	350;"	d	file:
 Exp	semantic.c	/^VAR_INFO* Exp(Node* exp){$/;"	f
 Exp	syntax.y	/^Exp : Exp ASSIGNOP Exp      { printDebug2("Exp -> Exp ASSIGNOP Exp", @$.first_line);$/;"	l
 ExtDecList	semantic.c	/^void ExtDecList(Node* extdeclist, char* typeName){$/;"	f
@@ -160,11 +160,14 @@ RP	syntax.tab.c	/^    RP = 275,$/;"	e	enum:yytokentype	file:
 RP	syntax.tab.h	/^    RP = 275,$/;"	e	enum:yytokentype
 ReadMemory_IR	intercodegen.h	/^    ReadMemory_IR,          \/\/ read memory (x := *y)$/;"	e	enum:IRType
 Read_IR	intercodegen.h	/^    Read_IR,                \/\/ read from console$/;"	e	enum:IRType
+Register	objectcodegen.h	/^typedef struct Register{$/;"	s
+Register	objectcodegen.h	/^}Register;$/;"	t	typeref:struct:Register
 Return_IR	intercodegen.h	/^    Return_IR,              \/\/ return statement$/;"	e	enum:IRType
 SEMI	syntax.tab.c	/^    SEMI = 261,$/;"	e	enum:yytokentype	file:
 SEMI	syntax.tab.h	/^    SEMI = 261,$/;"	e	enum:yytokentype
 STAR	syntax.tab.c	/^    STAR = 267,$/;"	e	enum:yytokentype	file:
 STAR	syntax.tab.h	/^    STAR = 267,$/;"	e	enum:yytokentype
+STK_SIZE	objectcodegen.h	6;"	d
 STRUCT	syntax.tab.c	/^    STRUCT = 280,$/;"	e	enum:yytokentype	file:
 STRUCT	syntax.tab.h	/^    STRUCT = 280,$/;"	e	enum:yytokentype
 STRUCT_INFO	semantic.h	/^struct STRUCT_INFO {$/;"	s
@@ -177,6 +180,8 @@ SpecialParamNode	intercodegen.h	/^typedef struct SpecialParamNode{$/;"	s
 SpecialParamNode	intercodegen.h	/^}SpecialParamNode;$/;"	t	typeref:struct:SpecialParamNode
 Specifier	semantic.c	/^char* Specifier(Node* specifier){$/;"	f
 Specifier	syntax.y	/^Specifier : TYPE    { printDebug2("Specifier -> TYPE", @$.first_line); $/;"	l
+StackDesc	objectcodegen.h	/^typedef struct StackDesc{$/;"	s
+StackDesc	objectcodegen.h	/^}StackDesc;$/;"	t	typeref:struct:StackDesc
 Stmt	semantic.c	/^void Stmt(Node* stmt, char* returnType){$/;"	f
 Stmt	syntax.y	/^Stmt : Exp SEMI     { printDebug2("Stmt -> Exp SEMI", @$.first_line);  $/;"	l
 StmtList	semantic.c	/^void StmtList(Node* stmtlist, char* returnType){$/;"	f
@@ -201,6 +206,8 @@ VAR_INFO	semantic.h	/^struct VAR_INFO {$/;"	s
 VAR_INFO	semantic.h	/^typedef struct VAR_INFO VAR_INFO;$/;"	t	typeref:struct:VAR_INFO
 VarDec	semantic.c	/^char* VarDec(Node* vardec, char* typeName){$/;"	f
 VarDec	syntax.y	/^VarDec : ID    { printDebug2("VarDec -> ID", @$.first_line);$/;"	l
+VarDesc	objectcodegen.h	/^typedef struct VarDesc{$/;"	s
+VarDesc	objectcodegen.h	/^}VarDesc;$/;"	t	typeref:struct:VarDesc
 VarList	syntax.y	/^VarList : ParamDec COMMA VarList    { printDebug2("VarList -> ParamDec COMMA VarList", @$.first_line);$/;"	l
 Variable	intercodegen.h	/^    Variable,$/;"	e	enum:OperandType
 WHILE	syntax.tab.c	/^    WHILE = 284,$/;"	e	enum:yytokentype	file:
@@ -210,96 +217,96 @@ Write_IR	intercodegen.h	/^    Write_IR,               \/\/ write to console$/;"	
 YFC	Makefile	/^YFC = $(shell find .\/ -name "*.y" | sed s\/[^\/]*\\\\.y\/syntax.tab.c\/)$/;"	m
 YFILE	Makefile	/^YFILE = $(shell find .\/ -name "*.y")$/;"	m
 YFO	Makefile	/^YFO = $(YFC:.c=.o)$/;"	m
-YYABORT	syntax.tab.c	741;"	d	file:
-YYACCEPT	syntax.tab.c	740;"	d	file:
-YYBACKUP	syntax.tab.c	747;"	d	file:
+YYABORT	syntax.tab.c	742;"	d	file:
+YYACCEPT	syntax.tab.c	741;"	d	file:
+YYBACKUP	syntax.tab.c	748;"	d	file:
 YYBISON	syntax.tab.c	44;"	d	file:
 YYBISON_VERSION	syntax.tab.c	47;"	d	file:
-YYCASE_	syntax.tab.c	1156;"	d	file:
-YYCASE_	syntax.tab.c	1166;"	d	file:
-YYCOPY	syntax.tab.c	415;"	d	file:
-YYCOPY	syntax.tab.c	418;"	d	file:
-YYCOPY_NEEDED	syntax.tab.c	390;"	d	file:
-YYDEBUG	syntax.tab.c	104;"	d	file:
+YYCASE_	syntax.tab.c	1157;"	d	file:
+YYCASE_	syntax.tab.c	1167;"	d	file:
+YYCOPY	syntax.tab.c	416;"	d	file:
+YYCOPY	syntax.tab.c	419;"	d	file:
+YYCOPY_NEEDED	syntax.tab.c	391;"	d	file:
+YYDEBUG	syntax.tab.c	105;"	d	file:
 YYDEBUG	syntax.tab.h	37;"	d
-YYDPRINTF	syntax.tab.c	804;"	d	file:
-YYDPRINTF	syntax.tab.c	961;"	d	file:
-YYEMPTY	syntax.tab.c	737;"	d	file:
-YYEOF	syntax.tab.c	738;"	d	file:
-YYERRCODE	syntax.tab.c	766;"	d	file:
-YYERROR	syntax.tab.c	742;"	d	file:
-YYERROR_VERBOSE	syntax.tab.c	92;"	d	file:
+YYDPRINTF	syntax.tab.c	805;"	d	file:
+YYDPRINTF	syntax.tab.c	962;"	d	file:
+YYEMPTY	syntax.tab.c	738;"	d	file:
+YYEOF	syntax.tab.c	739;"	d	file:
+YYERRCODE	syntax.tab.c	767;"	d	file:
+YYERROR	syntax.tab.c	743;"	d	file:
 YYERROR_VERBOSE	syntax.tab.c	93;"	d	file:
-YYERROR_VERBOSE	syntax.tab.c	95;"	d	file:
-YYFINAL	syntax.tab.c	431;"	d	file:
-YYFPRINTF	syntax.tab.c	801;"	d	file:
-YYFREE	syntax.tab.c	359;"	d	file:
-YYINITDEPTH	syntax.tab.c	970;"	d	file:
-YYLAST	syntax.tab.c	433;"	d	file:
-YYLLOC_DEFAULT	syntax.tab.c	774;"	d	file:
+YYERROR_VERBOSE	syntax.tab.c	94;"	d	file:
+YYERROR_VERBOSE	syntax.tab.c	96;"	d	file:
+YYFINAL	syntax.tab.c	432;"	d	file:
+YYFPRINTF	syntax.tab.c	802;"	d	file:
+YYFREE	syntax.tab.c	360;"	d	file:
+YYINITDEPTH	syntax.tab.c	971;"	d	file:
+YYLAST	syntax.tab.c	434;"	d	file:
+YYLLOC_DEFAULT	syntax.tab.c	775;"	d	file:
 YYLTYPE	syntax.tab.c	/^struct YYLTYPE$/;"	s	file:
 YYLTYPE	syntax.tab.c	/^typedef struct YYLTYPE YYLTYPE;$/;"	t	typeref:struct:YYLTYPE	file:
 YYLTYPE	syntax.tab.h	/^struct YYLTYPE$/;"	s
 YYLTYPE	syntax.tab.h	/^typedef struct YYLTYPE YYLTYPE;$/;"	t	typeref:struct:YYLTYPE
-YYLTYPE_IS_DECLARED	syntax.tab.c	176;"	d	file:
+YYLTYPE_IS_DECLARED	syntax.tab.c	177;"	d	file:
 YYLTYPE_IS_DECLARED	syntax.tab.h	109;"	d
-YYLTYPE_IS_TRIVIAL	syntax.tab.c	177;"	d	file:
+YYLTYPE_IS_TRIVIAL	syntax.tab.c	178;"	d	file:
 YYLTYPE_IS_TRIVIAL	syntax.tab.h	110;"	d
-YYMALLOC	syntax.tab.c	353;"	d	file:
-YYMAXDEPTH	syntax.tab.c	981;"	d	file:
-YYMAXUTOK	syntax.tab.c	447;"	d	file:
-YYNNTS	syntax.tab.c	438;"	d	file:
-YYNRULES	syntax.tab.c	440;"	d	file:
-YYNSTATES	syntax.tab.c	442;"	d	file:
-YYNTOKENS	syntax.tab.c	436;"	d	file:
-YYPACT_NINF	syntax.tab.c	529;"	d	file:
-YYPOPSTACK	syntax.tab.c	1298;"	d	file:
+YYMALLOC	syntax.tab.c	354;"	d	file:
+YYMAXDEPTH	syntax.tab.c	982;"	d	file:
+YYMAXUTOK	syntax.tab.c	448;"	d	file:
+YYNNTS	syntax.tab.c	439;"	d	file:
+YYNRULES	syntax.tab.c	441;"	d	file:
+YYNSTATES	syntax.tab.c	443;"	d	file:
+YYNTOKENS	syntax.tab.c	437;"	d	file:
+YYPACT_NINF	syntax.tab.c	530;"	d	file:
+YYPOPSTACK	syntax.tab.c	1299;"	d	file:
 YYPULL	syntax.tab.c	59;"	d	file:
 YYPURE	syntax.tab.c	53;"	d	file:
 YYPUSH	syntax.tab.c	56;"	d	file:
-YYRECOVERING	syntax.tab.c	745;"	d	file:
-YYRHSLOC	syntax.tab.c	793;"	d	file:
-YYSIZE_MAXIMUM	syntax.tab.c	232;"	d	file:
-YYSIZE_T	syntax.tab.c	221;"	d	file:
-YYSIZE_T	syntax.tab.c	223;"	d	file:
-YYSIZE_T	syntax.tab.c	226;"	d	file:
-YYSIZE_T	syntax.tab.c	228;"	d	file:
+YYRECOVERING	syntax.tab.c	746;"	d	file:
+YYRHSLOC	syntax.tab.c	794;"	d	file:
+YYSIZE_MAXIMUM	syntax.tab.c	233;"	d	file:
+YYSIZE_T	syntax.tab.c	222;"	d	file:
+YYSIZE_T	syntax.tab.c	224;"	d	file:
+YYSIZE_T	syntax.tab.c	227;"	d	file:
+YYSIZE_T	syntax.tab.c	229;"	d	file:
 YYSKELETON_NAME	syntax.tab.c	50;"	d	file:
-YYSTACK_ALLOC	syntax.tab.c	307;"	d	file:
-YYSTACK_ALLOC	syntax.tab.c	311;"	d	file:
-YYSTACK_ALLOC	syntax.tab.c	316;"	d	file:
-YYSTACK_ALLOC	syntax.tab.c	339;"	d	file:
-YYSTACK_ALLOC_MAXIMUM	syntax.tab.c	336;"	d	file:
-YYSTACK_ALLOC_MAXIMUM	syntax.tab.c	342;"	d	file:
-YYSTACK_BYTES	syntax.tab.c	386;"	d	file:
-YYSTACK_FREE	syntax.tab.c	330;"	d	file:
-YYSTACK_FREE	syntax.tab.c	340;"	d	file:
-YYSTACK_GAP_MAXIMUM	syntax.tab.c	382;"	d	file:
-YYSTACK_RELOCATE	syntax.tab.c	397;"	d	file:
+YYSTACK_ALLOC	syntax.tab.c	308;"	d	file:
+YYSTACK_ALLOC	syntax.tab.c	312;"	d	file:
+YYSTACK_ALLOC	syntax.tab.c	317;"	d	file:
+YYSTACK_ALLOC	syntax.tab.c	340;"	d	file:
+YYSTACK_ALLOC_MAXIMUM	syntax.tab.c	337;"	d	file:
+YYSTACK_ALLOC_MAXIMUM	syntax.tab.c	343;"	d	file:
+YYSTACK_BYTES	syntax.tab.c	387;"	d	file:
+YYSTACK_FREE	syntax.tab.c	331;"	d	file:
+YYSTACK_FREE	syntax.tab.c	341;"	d	file:
+YYSTACK_GAP_MAXIMUM	syntax.tab.c	383;"	d	file:
+YYSTACK_RELOCATE	syntax.tab.c	398;"	d	file:
 YYSTATE	lex.yy.c	133;"	d	file:
 YYSTYPE	syntax.tab.c	/^typedef union YYSTYPE YYSTYPE;$/;"	t	typeref:union:YYSTYPE	file:
 YYSTYPE	syntax.tab.c	/^union YYSTYPE$/;"	u	file:
 YYSTYPE	syntax.tab.h	/^typedef union YYSTYPE YYSTYPE;$/;"	t	typeref:union:YYSTYPE
 YYSTYPE	syntax.tab.h	/^union YYSTYPE$/;"	u
-YYSTYPE_IS_DECLARED	syntax.tab.c	163;"	d	file:
+YYSTYPE_IS_DECLARED	syntax.tab.c	164;"	d	file:
 YYSTYPE_IS_DECLARED	syntax.tab.h	96;"	d
-YYSTYPE_IS_TRIVIAL	syntax.tab.c	162;"	d	file:
+YYSTYPE_IS_TRIVIAL	syntax.tab.c	163;"	d	file:
 YYSTYPE_IS_TRIVIAL	syntax.tab.h	95;"	d
 YYTABLES_NAME	lex.yy.c	2104;"	d	file:
-YYTABLE_NINF	syntax.tab.c	534;"	d	file:
-YYTERROR	syntax.tab.c	765;"	d	file:
-YYTOKENTYPE	syntax.tab.c	112;"	d	file:
+YYTABLE_NINF	syntax.tab.c	535;"	d	file:
+YYTERROR	syntax.tab.c	766;"	d	file:
+YYTOKENTYPE	syntax.tab.c	113;"	d	file:
 YYTOKENTYPE	syntax.tab.h	45;"	d
-YYTRANSLATE	syntax.tab.c	449;"	d	file:
-YYUNDEFTOK	syntax.tab.c	446;"	d	file:
-YYUSE	syntax.tab.c	275;"	d	file:
-YYUSE	syntax.tab.c	277;"	d	file:
-YY_	syntax.tab.c	238;"	d	file:
-YY_	syntax.tab.c	242;"	d	file:
-YY_ATTRIBUTE	syntax.tab.c	250;"	d	file:
-YY_ATTRIBUTE	syntax.tab.c	252;"	d	file:
-YY_ATTRIBUTE_PURE	syntax.tab.c	257;"	d	file:
-YY_ATTRIBUTE_UNUSED	syntax.tab.c	261;"	d	file:
+YYTRANSLATE	syntax.tab.c	450;"	d	file:
+YYUNDEFTOK	syntax.tab.c	447;"	d	file:
+YYUSE	syntax.tab.c	276;"	d	file:
+YYUSE	syntax.tab.c	278;"	d	file:
+YY_	syntax.tab.c	239;"	d	file:
+YY_	syntax.tab.c	243;"	d	file:
+YY_ATTRIBUTE	syntax.tab.c	251;"	d	file:
+YY_ATTRIBUTE	syntax.tab.c	253;"	d	file:
+YY_ATTRIBUTE_PURE	syntax.tab.c	258;"	d	file:
+YY_ATTRIBUTE_UNUSED	syntax.tab.c	262;"	d	file:
 YY_AT_BOL	lex.yy.c	360;"	d	file:
 YY_BREAK	lex.yy.c	740;"	d	file:
 YY_BUFFER_EOF_PENDING	lex.yy.c	276;"	d	file:
@@ -323,55 +330,59 @@ YY_FLEX_MAJOR_VERSION	lex.yy.c	10;"	d	file:
 YY_FLEX_MINOR_VERSION	lex.yy.c	11;"	d	file:
 YY_FLEX_SUBMINOR_VERSION	lex.yy.c	12;"	d	file:
 YY_FLUSH_BUFFER	lex.yy.c	328;"	d	file:
-YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN	syntax.tab.c	282;"	d	file:
-YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN	syntax.tab.c	292;"	d	file:
-YY_IGNORE_MAYBE_UNINITIALIZED_END	syntax.tab.c	286;"	d	file:
-YY_IGNORE_MAYBE_UNINITIALIZED_END	syntax.tab.c	293;"	d	file:
-YY_INITIAL_VALUE	syntax.tab.c	289;"	d	file:
-YY_INITIAL_VALUE	syntax.tab.c	296;"	d	file:
+YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN	syntax.tab.c	283;"	d	file:
+YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN	syntax.tab.c	293;"	d	file:
+YY_IGNORE_MAYBE_UNINITIALIZED_END	syntax.tab.c	287;"	d	file:
+YY_IGNORE_MAYBE_UNINITIALIZED_END	syntax.tab.c	294;"	d	file:
+YY_INITIAL_VALUE	syntax.tab.c	290;"	d	file:
+YY_INITIAL_VALUE	syntax.tab.c	297;"	d	file:
 YY_INPUT	lex.yy.c	668;"	d	file:
 YY_INT_ALIGNED	lex.yy.c	5;"	d	file:
 YY_LESS_LINENO	lex.yy.c	185;"	d	file:
 YY_LINENO_REWIND_TO	lex.yy.c	192;"	d	file:
-YY_LOCATION_PRINT	syntax.tab.c	846;"	d	file:
-YY_LOCATION_PRINT	syntax.tab.c	850;"	d	file:
+YY_LOCATION_PRINT	syntax.tab.c	847;"	d	file:
+YY_LOCATION_PRINT	syntax.tab.c	851;"	d	file:
 YY_MORE_ADJ	lex.yy.c	538;"	d	file:
 YY_NEW_FILE	lex.yy.c	139;"	d	file:
 YY_NULL	lex.yy.c	113;"	d	file:
-YY_NULLPTR	syntax.tab.c	84;"	d	file:
-YY_NULLPTR	syntax.tab.c	86;"	d	file:
+YY_NULLPTR	syntax.tab.c	85;"	d	file:
+YY_NULLPTR	syntax.tab.c	87;"	d	file:
 YY_NUM_RULES	lex.yy.c	398;"	d	file:
 YY_READ_BUF_SIZE	lex.yy.c	650;"	d	file:
 YY_READ_BUF_SIZE	lex.yy.c	652;"	d	file:
-YY_REDUCE_PRINT	syntax.tab.c	951;"	d	file:
-YY_REDUCE_PRINT	syntax.tab.c	964;"	d	file:
+YY_REDUCE_PRINT	syntax.tab.c	952;"	d	file:
+YY_REDUCE_PRINT	syntax.tab.c	965;"	d	file:
 YY_RESTORE_YY_MORE_OFFSET	lex.yy.c	539;"	d	file:
 YY_RULE_SETUP	lex.yy.c	743;"	d	file:
 YY_SC_TO_UI	lex.yy.c	120;"	d	file:
-YY_STACK_PRINT	syntax.tab.c	920;"	d	file:
-YY_STACK_PRINT	syntax.tab.c	963;"	d	file:
+YY_STACK_PRINT	syntax.tab.c	921;"	d	file:
+YY_STACK_PRINT	syntax.tab.c	964;"	d	file:
 YY_START	lex.yy.c	132;"	d	file:
 YY_START_STACK_INCR	lex.yy.c	710;"	d	file:
 YY_STATE_BUF_SIZE	lex.yy.c	158;"	d	file:
 YY_STATE_EOF	lex.yy.c	136;"	d	file:
 YY_STRUCT_YY_BUFFER_STATE	lex.yy.c	217;"	d	file:
-YY_SYMBOL_PRINT	syntax.tab.c	855;"	d	file:
-YY_SYMBOL_PRINT	syntax.tab.c	962;"	d	file:
+YY_SYMBOL_PRINT	syntax.tab.c	856;"	d	file:
+YY_SYMBOL_PRINT	syntax.tab.c	963;"	d	file:
 YY_TYPEDEF_YY_BUFFER_STATE	lex.yy.c	161;"	d	file:
 YY_TYPEDEF_YY_SIZE_T	lex.yy.c	166;"	d	file:
 YY_USER_ACTION	lex.yy.c	551;"	d	file:
 YY_USER_ACTION	lex.yy.c	735;"	d	file:
 YY_USE_CONST	lex.yy.c	101;"	d	file:
 YY_USE_CONST	lex.yy.c	94;"	d	file:
-YY_YY_SYNTAX_TAB_H_INCLUDED	syntax.tab.c	101;"	d	file:
+YY_YY_SYNTAX_TAB_H_INCLUDED	syntax.tab.c	102;"	d	file:
 YY_YY_SYNTAX_TAB_H_INCLUDED	syntax.tab.h	34;"	d
 _INTERCODEGEN_H_	intercodegen.h	2;"	d
-_Noreturn	syntax.tab.c	267;"	d	file:
-_Noreturn	syntax.tab.c	269;"	d	file:
+_Noreturn	syntax.tab.c	268;"	d	file:
+_Noreturn	syntax.tab.c	270;"	d	file:
+_OBJECTCODEGEN_H_	objectcodegen.h	2;"	d
 _PARSE_TREE_H_	parseTree.h	2;"	d
 _SEMANTIC_H_	semantic.h	2;"	d
 __STDC_LIMIT_MACROS	lex.yy.c	40;"	d	file:
-alloca	syntax.tab.c	314;"	d	file:
+_prompt	1.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_ret	1.s	/^_ret: .asciiz "\\n"$/;"	l
+age	objectcodegen.h	/^    int age;$/;"	m	struct:Register
+alloca	syntax.tab.c	315;"	d	file:
 argListHead	intercodegen.c	/^ArgListNode* argListHead = NULL;$/;"	v
 arrayDesc	intercodegen.h	/^    ArrayDesc* arrayDesc;$/;"	m	struct:ArrayDescNode
 arrayDescListHead	intercodegen.c	/^ArrayDescNode* arrayDescListHead = NULL;$/;"	v
@@ -381,13 +392,16 @@ bool	parseTree.h	/^} bool;$/;"	t	typeref:enum:Boolean
 children	parseTree.h	/^    struct TreeNode** children;        \/\/ children of current node$/;"	m	struct:TreeNode	typeref:struct:TreeNode::TreeNode
 children	semantic.h	/^    struct HASH_TABLE_NODE** children;$/;"	m	struct:HASH_TABLE_NODE	typeref:struct:HASH_TABLE_NODE::HASH_TABLE_NODE
 clearArgList	intercodegen.c	/^void clearArgList(){$/;"	f
+compareOperand	objectcodegen.c	/^bool compareOperand(Operand* o1, Operand* o2){$/;"	f
 conJump	intercodegen.h	/^        }conJump;$/;"	m	union:InterCode::__anon1	typeref:struct:InterCode::__anon1::__anon5
 constructTree	parseTree.c	/^void constructTree(Node* parent, int n_children, ...){$/;"	f
+content	objectcodegen.h	/^    VarDesc* content;$/;"	m	struct:Register
 copyArrayInfo	semantic.c	/^ARRAY_INFO* copyArrayInfo(ARRAY_INFO* src){$/;"	f
 copyFuncInfo	semantic.c	/^FUNC_INFO* copyFuncInfo(FUNC_INFO* src){$/;"	f
 copyOperand	intercodegen.c	/^Operand* copyOperand(Operand* src){$/;"	f
 copyStructInfo	semantic.c	/^STRUCT_INFO* copyStructInfo(STRUCT_INFO* src){$/;"	f
 copyTypeInfo	semantic.c	/^TYPE_INFO* copyTypeInfo(TYPE_INFO* src, const char* typeCategory){$/;"	f
+copyVarDesc	objectcodegen.c	/^VarDesc* copyVarDesc(VarDesc* src){$/;"	f
 copyVarInfo	semantic.c	/^VAR_INFO* copyVarInfo(VAR_INFO* src){$/;"	f
 createHashNode	semantic.c	/^HASH_NODE* createHashNode(HASH_NODE* parent){$/;"	f
 createLabel	intercodegen.c	/^Operand* createLabel(){$/;"	f
@@ -428,8 +442,10 @@ getArraySize	intercodegen.c	/^int getArraySize(Node* vardec){$/;"	f
 getDecName	intercodegen.c	/^char* getDecName(Node* dec){$/;"	f
 getFormatStr	intercodegen.c	/^char* getFormatStr(const char* prefix, int num){$/;"	f
 getInterCodeVarName	intercodegen.c	/^char* getInterCodeVarName(char* varName){$/;"	f
+getReg	objectcodegen.c	/^int getReg(Operand* operand, FILE* fp){$/;"	f
 getSourceCodeVarName	intercodegen.c	/^char* getSourceCodeVarName(char* interCodeVarName){$/;"	f
 getSpecialParam	intercodegen.c	/^SpecialParam* getSpecialParam(char* name){$/;"	f
+getStr	objectcodegen.c	/^char* getStr(char* str){$/;"	f
 getSymbolInfo	semantic.c	/^VAR_INFO* getSymbolInfo(char* varName){$/;"	f
 getTypeInfo	semantic.c	/^TYPE_INFO* getTypeInfo(char* typeName){$/;"	f
 getVarDecName	intercodegen.c	/^char* getVarDecName(Node* vardec){$/;"	f
@@ -439,10 +455,13 @@ ifAddr	intercodegen.h	/^    bool ifAddr;$/;"	m	struct:SpecialParam
 ifArray	semantic.h	/^    bool ifArray;   \/\/ array->true, non-array->false$/;"	m	struct:VAR_INFO
 ifExpIsArrayName	intercodegen.c	/^char* ifExpIsArrayName(Node* exp){$/;"	f
 if_leaf	parseTree.h	/^    bool if_leaf;           \/\/ note if current node is leaf node$/;"	m	struct:TreeNode
+index	objectcodegen.h	/^    int index;$/;"	m	struct:Register
 info	semantic.h	/^    struct TYPE_INFO* info;$/;"	m	struct:TYPE_LIST_NODE	typeref:struct:TYPE_LIST_NODE::TYPE_INFO
 info	semantic.h	/^    struct VAR_INFO* info;$/;"	m	struct:SYMBOL_LIST_NODE	typeref:struct:SYMBOL_LIST_NODE::VAR_INFO
 initHashTable	semantic.c	/^void initHashTable(){$/;"	f
 initReadWriteFunction	semantic.c	/^void initReadWriteFunction(){$/;"	f
+initRegs	objectcodegen.c	/^void initRegs(){$/;"	f
+initStk	objectcodegen.c	/^void initStk(){$/;"	f
 insertArithmic	intercodegen.c	/^void insertArithmic(Operand* place, Operand* o1, Operand* o2, char* type){$/;"	f
 insertArrayDesc	intercodegen.c	/^void insertArrayDesc(char* arrayName, int n_dim, int dim1, int dim2){$/;"	f
 insertInterCode	intercodegen.c	/^void insertInterCode(InterCode* interCode){$/;"	f
@@ -457,6 +476,9 @@ insertType	semantic.c	/^void insertType(TYPE_INFO* typeInfo, const char* typeCat
 interCode	intercodegen.h	/^    InterCode* interCode;$/;"	m	struct:InterCodeNode
 interCodeListHead	intercodegen.c	/^InterCodeNode* interCodeListHead = NULL;$/;"	v
 interCodeVarName	intercodegen.h	/^    char* interCodeVarName;$/;"	m	struct:NameMap
+label0	1.s	/^label0:$/;"	l
+label1	1.s	/^label1:$/;"	l
+label2	1.s	/^label2:$/;"	l
 labelCount	intercodegen.c	/^int labelCount = 0;     \/\/ labelx$/;"	v
 last_column	syntax.tab.c	/^  int last_column;$/;"	m	struct:YYLTYPE	file:
 last_column	syntax.tab.h	/^  int last_column;$/;"	m	struct:YYLTYPE
@@ -465,6 +487,9 @@ last_line	syntax.tab.h	/^  int last_line;$/;"	m	struct:YYLTYPE
 line_b	lex.yy.c	/^    int line_p = 0, line_b = 0, line_c = 0;$/;"	v
 line_c	lex.yy.c	/^    int line_p = 0, line_b = 0, line_c = 0;$/;"	v
 line_p	lex.yy.c	/^    int line_p = 0, line_b = 0, line_c = 0;$/;"	v
+loadAllVarFromStack	objectcodegen.c	/^void loadAllVarFromStack(FILE* fp){$/;"	f
+loadVarFromStackTop	objectcodegen.c	/^VarDesc* loadVarFromStackTop(FILE* fp){$/;"	f
+main	1.s	/^main:$/;"	l
 main	syntax.tab.c	/^int main(int argc, char** argv){$/;"	f
 memDec	intercodegen.h	/^        }memDec;$/;"	m	union:InterCode::__anon1	typeref:struct:InterCode::__anon1::__anon6
 n_children	parseTree.h	/^    int n_children;         \/\/ number of children node$/;"	m	struct:TreeNode
@@ -475,6 +500,7 @@ n_fields	semantic.h	/^    int n_fields;   \/\/ num of fields$/;"	m	struct:STRUCT
 n_operand	intercodegen.h	/^    int n_operand;          \/\/ number of operands$/;"	m	struct:InterCode
 n_params	semantic.h	/^    int n_params;       \/\/ num of parameters$/;"	m	struct:FUNC_INFO
 name	intercodegen.h	/^    char* name;$/;"	m	struct:SpecialParam
+name	objectcodegen.h	/^    char* name;$/;"	m	struct:Register
 name	parseTree.h	/^    char* name;             \/\/ name of node, e.g. ID, LP, Stmt$/;"	m	struct:TreeNode
 nameMap	intercodegen.h	/^    NameMap nameMap;$/;"	m	struct:NameMapNode
 nameMapListHead	intercodegen.c	/^NameMapNode* nameMapListHead = NULL;$/;"	v
@@ -491,6 +517,7 @@ np	lex.yy.c	/^    int np = 0, nb = 0, nc = 0;$/;"	v
 o1	intercodegen.h	/^        }o1;$/;"	m	union:InterCode::__anon1	typeref:struct:InterCode::__anon1::__anon2
 o2	intercodegen.h	/^        }o2;$/;"	m	union:InterCode::__anon1	typeref:struct:InterCode::__anon1::__anon3
 o3	intercodegen.h	/^        }o3;$/;"	m	union:InterCode::__anon1	typeref:struct:InterCode::__anon1::__anon4
+op	objectcodegen.h	/^    Operand* op;$/;"	m	struct:VarDesc
 op1	intercodegen.h	/^            Operand* op1;    \/\/ owner of this declared space$/;"	m	struct:InterCode::__anon1::__anon6
 op1	intercodegen.h	/^            Operand* op1;$/;"	m	struct:InterCode::__anon1::__anon2
 op1	intercodegen.h	/^            Operand* op1;$/;"	m	struct:InterCode::__anon1::__anon3
@@ -509,32 +536,45 @@ paramCount	intercodegen.c	/^int paramCount = 0;     \/\/ px$/;"	v
 params	semantic.h	/^    struct VAR_INFO** params;     \/\/ parameters of function (var type and var name)$/;"	m	struct:FUNC_INFO	typeref:struct:FUNC_INFO::VAR_INFO
 parent	parseTree.h	/^    struct TreeNode* parent;           \/\/ parent of current node$/;"	m	struct:TreeNode	typeref:struct:TreeNode::TreeNode
 parent	semantic.h	/^    struct HASH_TABLE_NODE* parent;$/;"	m	struct:HASH_TABLE_NODE	typeref:struct:HASH_TABLE_NODE::HASH_TABLE_NODE
+popStack	objectcodegen.c	/^VarDesc* popStack(){$/;"	f
 preOrderTraverse	parseTree.c	/^void preOrderTraverse(Node* root, int depth){$/;"	f
 printDebug2	syntax.tab.c	/^    void printDebug2(char* str, int lineno){$/;"	f
 printErrorTypeA	parseTree.c	/^void printErrorTypeA(char* msg, int lineno){$/;"	f
 printErrorTypeB	parseTree.c	/^void printErrorTypeB(char* msg, int lineno){$/;"	f
 printInterCode	intercodegen.c	/^void printInterCode(){$/;"	f
 propertyValue	parseTree.h	/^    char* propertyValue;    \/\/ property value of node, can be empty, e.g. myVar, int, float$/;"	m	struct:TreeNode
+pushStack	objectcodegen.c	/^void pushStack(VarDesc* var){$/;"	f
+read	1.s	/^read:$/;"	l
+reg_no	objectcodegen.h	/^    int reg_no;$/;"	m	struct:VarDesc
+regs	objectcodegen.c	/^Register regs[32];$/;"	v
 relop	intercodegen.h	/^            char* relop;$/;"	m	struct:InterCode::__anon1::__anon5
 replaceLabel	intercodegen.c	/^void replaceLabel(char* oldLabel, char* newLabel){$/;"	f
 returnTypeName	semantic.h	/^    char* returnTypeName;   \/\/ type name of return value ("void" for void)$/;"	m	struct:FUNC_INFO
 root	syntax.tab.c	/^    Node* root;$/;"	v
 root_hash_node	semantic.c	/^HASH_NODE* root_hash_node = NULL;$/;"	v
+saveAllVarIntoStack	objectcodegen.c	/^void saveAllVarIntoStack(FILE* fp){$/;"	f
+saveVarIntoStack	objectcodegen.c	/^void saveVarIntoStack(VarDesc* var, FILE* fp){$/;"	f
 searchHashTable	semantic.c	/^bool searchHashTable(char* str){$/;"	f
 searchHashTableInNode	semantic.c	/^HASH_NODE* searchHashTableInNode(char* str, HASH_NODE* node){$/;"	f
-short	syntax.tab.c	192;"	d	file:
+short	syntax.tab.c	193;"	d	file:
 showAllInterCode	intercodegen.c	/^void showAllInterCode(){$/;"	f
 showAllNameMap	intercodegen.c	/^void showAllNameMap(){$/;"	f
+showAllRegs	objectcodegen.c	/^void showAllRegs(){$/;"	f
 showSymbolList	semantic.c	/^void showSymbolList(){$/;"	f
 showTypeList	semantic.c	/^void showTypeList(){$/;"	f
 size	intercodegen.h	/^            int size;$/;"	m	struct:InterCode::__anon1::__anon6
 size	semantic.h	/^    int size;               \/\/ size of array$/;"	m	struct:ARRAY_INFO
 specialParamListHead	intercodegen.c	/^SpecialParamNode* specialParamListHead = NULL;$/;"	v
+stack	objectcodegen.h	/^    VarDesc* stack[STK_SIZE];$/;"	m	struct:StackDesc
 status	semantic.h	/^    bool status;$/;"	m	struct:HASH_ELE
+stk	objectcodegen.c	/^StackDesc stk;$/;"	v
 str	semantic.h	/^    char* str;$/;"	m	struct:HASH_ELE
 struct_info	semantic.h	/^    struct STRUCT_INFO* struct_info;$/;"	m	union:TYPE_DETAIL	typeref:struct:TYPE_DETAIL::STRUCT_INFO
+subStr	objectcodegen.c	/^char* subStr(char* src, int begin){$/;"	f
 symbol_list_head	semantic.c	/^SYMBOL_NODE* symbol_list_head = NULL;$/;"	v
 tempCount	intercodegen.c	/^int tempCount = 0;      \/\/ tx$/;"	v
+top	objectcodegen.h	/^    int top;$/;"	m	struct:StackDesc
+translateInterCode	objectcodegen.c	/^void translateInterCode(InterCode* ir, FILE* fp){$/;"	f
 translate_Args	intercodegen.c	/^void translate_Args(Node* args){$/;"	f
 translate_ArrayAddr	intercodegen.c	/^void translate_ArrayAddr(Node* exp, Operand* place){    \/\/ Exp -> Exp LB Exp RB$/;"	f
 translate_ArrayArg	intercodegen.c	/^void translate_ArrayArg(char* arrayName){$/;"	f
@@ -578,6 +618,8 @@ varCount	intercodegen.c	/^int varCount = 0;       \/\/ vx$/;"	v
 varName	intercodegen.h	/^    char* varName;$/;"	m	struct:NameMap
 varName	semantic.h	/^    char* varName;$/;"	m	struct:VAR_INFO
 varType	semantic.h	/^    char* varType;  \/\/ int->"int", float->"float", array->element type name, function->"function", stru->"struct"$/;"	m	struct:VAR_INFO
+write	1.s	/^write:$/;"	l
+writeAssemblyCode	objectcodegen.c	/^void writeAssemblyCode(char* fileName){$/;"	f
 writeInterCode	intercodegen.c	/^void writeInterCode(char* fileName){$/;"	f
 yy_accept	lex.yy.c	/^static yyconst flex_int16_t yy_accept[72] =$/;"	v	file:
 yy_at_bol	lex.yy.c	/^	int yy_at_bol;$/;"	m	struct:yy_buffer_state	file:
@@ -645,7 +687,7 @@ yyalloc	lex.yy.c	/^void *yyalloc (yy_size_t  size )$/;"	f
 yyalloc	syntax.tab.c	/^union yyalloc$/;"	u	file:
 yychar	syntax.tab.c	/^int yychar;$/;"	v
 yycheck	syntax.tab.c	/^static const yytype_int16 yycheck[] =$/;"	v	file:
-yyclearin	syntax.tab.c	736;"	d	file:
+yyclearin	syntax.tab.c	737;"	d	file:
 yycolumn	lex.yy.c	/^    int yycolumn = 1;$/;"	v
 yyconst	lex.yy.c	107;"	d	file:
 yyconst	lex.yy.c	109;"	d	file:
@@ -654,7 +696,7 @@ yydefact	syntax.tab.c	/^static const yytype_uint8 yydefact[] =$/;"	v	file:
 yydefgoto	syntax.tab.c	/^static const yytype_int8 yydefgoto[] =$/;"	v	file:
 yydestruct	syntax.tab.c	/^yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp)$/;"	f	file:
 yyensure_buffer_stack	lex.yy.c	/^static void yyensure_buffer_stack (void)$/;"	f	file:
-yyerrok	syntax.tab.c	735;"	d	file:
+yyerrok	syntax.tab.c	736;"	d	file:
 yyerror	syntax.tab.c	/^int yyerror(char* str){$/;"	f
 yyfree	lex.yy.c	/^void yyfree (void * ptr )$/;"	f
 yyget_debug	lex.yy.c	/^int yyget_debug  (void)$/;"	f
@@ -678,7 +720,7 @@ yymore	lex.yy.c	537;"	d	file:
 yynerrs	syntax.tab.c	/^int yynerrs;$/;"	v
 yyout	lex.yy.c	/^FILE *yyin = (FILE *) 0, *yyout = (FILE *) 0;$/;"	v
 yypact	syntax.tab.c	/^static const yytype_int16 yypact[] =$/;"	v	file:
-yypact_value_is_default	syntax.tab.c	531;"	d	file:
+yypact_value_is_default	syntax.tab.c	532;"	d	file:
 yyparse	syntax.tab.c	/^yyparse (void)$/;"	f
 yypgoto	syntax.tab.c	/^static const yytype_int16 yypgoto[] =$/;"	v	file:
 yypop_buffer_state	lex.yy.c	/^void yypop_buffer_state (void)$/;"	f
@@ -695,12 +737,12 @@ yyset_out	lex.yy.c	/^void yyset_out (FILE *  _out_str )$/;"	f
 yyss_alloc	syntax.tab.c	/^  yytype_int16 yyss_alloc;$/;"	m	union:yyalloc	file:
 yystos	syntax.tab.c	/^static const yytype_uint8 yystos[] =$/;"	v	file:
 yystpcpy	syntax.tab.c	/^yystpcpy (char *yydest, const char *yysrc)$/;"	f	file:
-yystpcpy	syntax.tab.c	1005;"	d	file:
+yystpcpy	syntax.tab.c	1006;"	d	file:
 yystrlen	syntax.tab.c	/^yystrlen (const char *yystr)$/;"	f	file:
-yystrlen	syntax.tab.c	989;"	d	file:
+yystrlen	syntax.tab.c	990;"	d	file:
 yysyntax_error	syntax.tab.c	/^yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,$/;"	f	file:
 yytable	syntax.tab.c	/^static const yytype_int16 yytable[] =$/;"	v	file:
-yytable_value_is_error	syntax.tab.c	536;"	d	file:
+yytable_value_is_error	syntax.tab.c	537;"	d	file:
 yyterminate	lex.yy.c	705;"	d	file:
 yytext	lex.yy.c	/^char *yytext;$/;"	v
 yytext_ptr	lex.yy.c	376;"	d	file:

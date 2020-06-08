@@ -822,8 +822,9 @@ void translate_Exp(Node* exp, Operand* placeOperand){
         case 3:{
             if(strcmp(exp->children[1]->name, "ASSIGNOP") == 0){    // Exp -> Exp ASSIGNOP Exp
                 Node* leftExp = exp->children[0];
+                Node* rightExp = exp->children[2];
                 if(leftExp->n_children == 1 && strcmp(leftExp->children[0]->name, "ID")==0){    //left side: Exp -> ID
-                    if(strcmp(exp->children[2]->name, "INT")==0){   // optimize
+                    if(rightExp->n_children==1 && strcmp(rightExp->children[0]->name, "INT")==0){   // optimize
                         char* id = leftExp->children[0]->propertyValue;
                         Operand* varOperand = (Operand*)malloc(sizeof(Operand));
                         varOperand->value = (char*)malloc(strlen(id)+1);
@@ -840,6 +841,25 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                         ic1->ops.o2.op2 = intOperand;
                         insertInterCode(ic1);
 
+                    }else if(rightExp->n_children==1 && strcmp(rightExp->children[0]->name, "ID")==0){
+                        char* id1 = leftExp->children[0]->propertyValue;
+                        char* id2 = rightExp->children[0]->propertyValue;
+                        Operand* left = (Operand*)malloc(sizeof(Operand));
+                        left->value = (char*)malloc(strlen(id1)+1);
+                        strcpy(left->value, id1);
+                        left->type = Variable;
+
+                        Operand* right = (Operand*)malloc(sizeof(Operand));
+                        right->value = (char*)malloc(strlen(id2)+1);
+                        strcpy(right->value, id2);
+                        right->type = Variable;
+
+                        InterCode* ir = (InterCode*)malloc(sizeof(InterCode));
+                        ir->n_operand = 2;
+                        ir->type = Assign_IR;
+                        ir->ops.o2.op1 = left;
+                        ir->ops.o2.op2 = right;
+                        insertInterCode(ir);
                     }else{ 
                         char* id = leftExp->children[0]->propertyValue;
                         Operand* temp = createTemp();
@@ -1331,9 +1351,16 @@ void translate_Stmt(Node* stmt){
         return;
     }else if(stmt->n_children == 3){        // Stmt -> RETURN Exp SEMI
         
-        Operand* temp = createTemp();
-        translate_Exp(stmt->children[1], temp);
-
+        Node* exp = stmt->children[1];
+        Operand* temp;
+        if(exp->n_children==1 && strcmp(exp->children[0]->name, "INT")==0){
+            temp = createNumber(atoi(exp->children[0]->propertyValue));
+        }else if(exp->n_children==1 && strcmp(exp->children[0]->name, "ID")==0){
+            temp = createVar(exp->children[0]->propertyValue);
+        }else{
+            temp = createTemp();
+            translate_Exp(stmt->children[1], temp);
+        }
         InterCode* returnIR = (InterCode*)malloc(sizeof(InterCode));
         returnIR->n_operand = 1;
         returnIR->type = Return_IR;
