@@ -48,8 +48,8 @@ label1:
   addi $sp, $sp, 4
   move $t0, $t1
   move $t1, $t6
-  addi $t8, $t2, 1
-  move $t2, $t8
+  addi $s0, $t2, 1
+  move $t2, $s0
   j label0
 label2:
   move $v0, $0

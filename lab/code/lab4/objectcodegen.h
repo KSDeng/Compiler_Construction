@@ -44,4 +44,5 @@ void showAllRegs();
 void doCall(InterCode* ir, FILE* fp);
 
 char* subStr(char* src, int begin);
+void clearRegs();
 #endif

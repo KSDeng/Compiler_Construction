@@ -831,7 +831,7 @@ void translate_Exp(Node* exp, Operand* placeOperand){
                         strcpy(varOperand->value, id);
                         varOperand->type = Variable;
 
-                        int intValue = atoi(exp->children[2]->propertyValue);
+                        int intValue = atoi(rightExp->children[0]->propertyValue);
                         Operand* intOperand = createNumber(intValue);
 
                         InterCode* ic1 = (InterCode*)malloc(sizeof(InterCode));

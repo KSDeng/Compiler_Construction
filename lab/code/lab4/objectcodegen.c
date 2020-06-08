@@ -86,13 +86,13 @@ int countArgList(){
 
 void showAllRegs(){
     for(int i = 8; i <= 25; ++i){
-        if((i >= 8 && i <= 15) || i == 24 || i == 25){
+        //if((i >= 8 && i <= 15) || i == 24 || i == 25){
             if(regs[i].content == NULL){
                 printf("[%d] %s, age %d, content is NULL\n", regs[i].index, regs[i].name, regs[i].age);
             }else{
                 printf("[%d] %s, age %d, content (type %d, value %s)\n", regs[i].index, regs[i].name, regs[i].age, regs[i].content->op->type, regs[i].content->op->value);
             }
-        }
+        //}
     }
 }
 
@@ -207,6 +207,7 @@ VarDesc* loadVarFromStackTop(FILE* fp){
 
 void saveAllVarIntoStack(FILE* fp){
     // t0 - t7
+    /*
     for(int i = 8; i <= 15; ++i){
         if(regs[i].content){
             saveVarIntoStack(regs[i].content, fp);
@@ -218,6 +219,12 @@ void saveAllVarIntoStack(FILE* fp){
     }
     if(regs[25].content){
         saveVarIntoStack(regs[25].content, fp);
+    }
+    */
+    for(int i = 8; i <= 25; ++i){
+        if(regs[i].content){
+            saveVarIntoStack(regs[i].content, fp);
+        }
     }
 }
 
@@ -237,60 +244,61 @@ bool compareOperand(Operand* o1, Operand* o2){
 
 int getReg(Operand* operand, FILE* fp){
     // $t0-$t7: 8-15
+    // $s0-$s7: 16-23
     // $t8-$t9: 24-25
     
     int res = -1;
     for(int i = 8; i <= 25; ++i){
-        if((i >= 8 && i <= 15) || i == 24 || i == 25){
+        //if((i >= 8 && i <= 15) || i == 24 || i == 25){
             if(regs[i].content != NULL && compareOperand(regs[i].content->op, operand)){
                 // already in register
                 regs[i].age = 0;
                 res = i;
                 break;
             }
-        }
+        //}
     }
 
     if(res == -1){
         for(int i = 8; i <= 25; ++i){
-            if((i >= 8 && i <= 15) || i == 24 || i == 25){
+            //if((i >= 8 && i <= 15) || i == 24 || i == 25){
                 if(regs[i].content == NULL){
                     // found empty register
                     res = i; 
                     break;
                 }
-            }
+            //}
         }
 
         if(res == -1){
             // no empty register found
             int maxAge = -1;
             for(int i = 8; i <= 25; ++i){
-                if((i >= 8 && i <= 15) || i == 24 || i == 25){
+                //if((i >= 8 && i <= 15) || i == 24 || i == 25){
                     if(regs[i].age > maxAge){
                         maxAge = regs[i].age;
                         res = i;
                     }
-                }
+                //}
             }
         }else{
             // found empty register, aging other registers
             for(int i = 8; i <= 25; ++i){
-                if((i >= 8 && i <= 15) || i == 24 || i == 25){
+                //if((i >= 8 && i <= 15) || i == 24 || i == 25){
                     if(regs[i].content != NULL && i != res){
                         regs[i].age++;
                     }
-                }
+                //}
             }
         }
     }else{
         // already in register, aging other registers
         for(int i = 8; i <= 25; ++i){
-            if((i >= 8 && i <= 15) || i == 24 || i == 25){
+            //if((i >= 8 && i <= 15) || i == 24 || i == 25){
                 if(regs[i].content != NULL && i != res){
                     regs[i].age++;
                 }
-            }
+            //}
         }
     }
 
@@ -328,10 +336,10 @@ char* subStr(char* src, int begin){
 
 void clearRegs(){
     for(int i = 8; i <= 25; ++i){
-        if((i>=8 && i<=15) || i==24 || i==25){
+        //if((i>=8 && i<=15) || i==24 || i==25){
             regs[i].age = 0;
             regs[i].content = NULL;
-        }
+        //}
     }
 }
 

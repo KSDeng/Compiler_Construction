@@ -7,41 +7,36 @@ b := t3
 IF a > b GOTO label0
 GOTO label1
 LABEL label0 :
-t5 := a
-start := t5
+start := a
 GOTO label2
 LABEL label1 :
-t7 := b
-start := t7
+start := b
 LABEL label2 :
 IF found == #0 GOTO label4
 GOTO label5
 LABEL label4 :
-t9 := start / a
-t8 := t9 * a
-IF start == t8 GOTO label6
+t7 := start / a
+t6 := t7 * a
+IF start == t6 GOTO label6
 GOTO label7
 LABEL label6 :
-t11 := start / b
-t10 := t11 * b
-IF start == t10 GOTO label9
+t9 := start / b
+t8 := t9 * b
+IF start == t8 GOTO label9
 GOTO label10
 LABEL label9 :
-t13 := start
-result := t13
-t15 := #1
-found := t15
+result := start
+found := #1
 GOTO label2
 LABEL label10 :
-t17 := start + #1
-start := t17
+t13 := start + #1
+start := t13
 GOTO label2
 LABEL label7 :
-t19 := start + #1
-start := t19
+t15 := start + #1
+start := t15
 GOTO label2
 LABEL label5 :
-t21 := result
-WRITE t21
-t22 := #0
-RETURN t22
+t17 := result
+WRITE t17
+RETURN #0

@@ -43,5 +43,4 @@ LABEL label13 :
 t17 := price * #2
 WRITE t17
 LABEL label14 :
-t18 := #0
-RETURN t18
+RETURN #0

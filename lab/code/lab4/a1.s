@@ -31,39 +31,39 @@ main:
   add $t5, $t4, $t2
   sub $t6, $t5, $t1
   move $t7, $t6
-  mul $t8, $t7, $t1
-  add $t9, $t4, $t8
-  move $t0, $t9
-  move $t3, $t0
-  move $a0, $t3
+  mul $s0, $t7, $t1
+  add $s1, $t4, $s0
+  move $s2, $s1
+  move $s3, $s2
+  move $a0, $s3
   addi $sp, $sp, -4
   sw $ra, 0($sp)
   jal write
   lw $ra, 0($sp)
   addi $sp, $sp, 4
-  add $t2, $t4, $t7
-  mul $t5, $t0, $t2
-  li $t6, 25
-  div $t5, $t6
-  mflo $t1
-  move $t0, $t1
-  add $t8, $t7, $t0
-  div $t4, $t0
+  add $s4, $t4, $t7
+  mul $s5, $s2, $s4
+  li $s6, 25
+  div $s5, $s6
+  mflo $s7
+  move $s2, $s7
+  add $t8, $t7, $s2
+  div $t4, $s2
   mflo $t9
-  sub $t3, $t8, $t9
-  li $t6, 12
-  mul $t2, $t5, $t6
-  add $t1, $t3, $t2
-  move $t7, $t1
-  move $t4, $t0
-  move $a0, $t4
+  sub $t0, $t8, $t9
+  li $t2, 12
+  mul $t3, $t1, $t2
+  add $t5, $t0, $t3
+  move $t7, $t5
+  move $t6, $s2
+  move $a0, $t6
   addi $sp, $sp, -4
   sw $ra, 0($sp)
   jal write
   lw $ra, 0($sp)
   addi $sp, $sp, 4
-  move $t8, $t7
-  move $a0, $t8
+  move $s0, $t7
+  move $a0, $s0
   addi $sp, $sp, -4
   sw $ra, 0($sp)
   jal write

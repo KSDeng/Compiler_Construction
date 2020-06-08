@@ -380,7 +380,16 @@ _PARSE_TREE_H_	parseTree.h	2;"	d
 _SEMANTIC_H_	semantic.h	2;"	d
 __STDC_LIMIT_MACROS	lex.yy.c	40;"	d	file:
 _prompt	1.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_prompt	2.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_prompt	a1.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_prompt	test1.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_prompt	test2.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
 _ret	1.s	/^_ret: .asciiz "\\n"$/;"	l
+_ret	2.s	/^_ret: .asciiz "\\n"$/;"	l
+_ret	a1.s	/^_ret: .asciiz "\\n"$/;"	l
+_ret	test1.s	/^_ret: .asciiz "\\n"$/;"	l
+_ret	test2.s	/^_ret: .asciiz "\\n"$/;"	l
+add2	test1.s	/^add2:$/;"	l
 age	objectcodegen.h	/^    int age;$/;"	m	struct:Register
 alloca	syntax.tab.c	315;"	d	file:
 argListHead	intercodegen.c	/^ArgListNode* argListHead = NULL;$/;"	v
@@ -392,6 +401,9 @@ bool	parseTree.h	/^} bool;$/;"	t	typeref:enum:Boolean
 children	parseTree.h	/^    struct TreeNode** children;        \/\/ children of current node$/;"	m	struct:TreeNode	typeref:struct:TreeNode::TreeNode
 children	semantic.h	/^    struct HASH_TABLE_NODE** children;$/;"	m	struct:HASH_TABLE_NODE	typeref:struct:HASH_TABLE_NODE::HASH_TABLE_NODE
 clearArgList	intercodegen.c	/^void clearArgList(){$/;"	f
+clearObjectArgList	objectcodegen.c	/^void clearObjectArgList(){$/;"	f
+clearParamList	objectcodegen.c	/^void clearParamList(){$/;"	f
+clearRegs	objectcodegen.c	/^void clearRegs(){$/;"	f
 compareOperand	objectcodegen.c	/^bool compareOperand(Operand* o1, Operand* o2){$/;"	f
 conJump	intercodegen.h	/^        }conJump;$/;"	m	union:InterCode::__anon1	typeref:struct:InterCode::__anon1::__anon5
 constructTree	parseTree.c	/^void constructTree(Node* parent, int n_children, ...){$/;"	f
@@ -403,6 +415,7 @@ copyStructInfo	semantic.c	/^STRUCT_INFO* copyStructInfo(STRUCT_INFO* src){$/;"	f
 copyTypeInfo	semantic.c	/^TYPE_INFO* copyTypeInfo(TYPE_INFO* src, const char* typeCategory){$/;"	f
 copyVarDesc	objectcodegen.c	/^VarDesc* copyVarDesc(VarDesc* src){$/;"	f
 copyVarInfo	semantic.c	/^VAR_INFO* copyVarInfo(VAR_INFO* src){$/;"	f
+countArgList	objectcodegen.c	/^int countArgList(){$/;"	f
 createHashNode	semantic.c	/^HASH_NODE* createHashNode(HASH_NODE* parent){$/;"	f
 createLabel	intercodegen.c	/^Operand* createLabel(){$/;"	f
 createNode	parseTree.c	/^Node* createNode(char* name, char* propertyValue, int first_line){$/;"	f
@@ -414,7 +427,10 @@ debug_intercode	intercodegen.c	/^bool debug_intercode = true;$/;"	v
 debug_sema	semantic.c	/^bool debug_sema = false;$/;"	v
 dim1	intercodegen.h	/^    int dim1;$/;"	m	struct:ArrayDesc
 dim2	intercodegen.h	/^    int dim2;$/;"	m	struct:ArrayDesc
+doCall	objectcodegen.c	/^void doCall(InterCode* ir, FILE* fp){$/;"	f
 eleTypeName	semantic.h	/^    char* eleTypeName;      \/\/ type name of element$/;"	m	struct:ARRAY_INFO
+fact	2.s	/^fact:$/;"	l
+fact	test2.s	/^fact:$/;"	l
 false	parseTree.h	/^    true = 1, false = 0$/;"	e	enum:Boolean
 fields	semantic.h	/^    struct VAR_INFO** fields;         \/\/ fields of struct (var type and var name)$/;"	m	struct:STRUCT_INFO	typeref:struct:STRUCT_INFO::VAR_INFO
 first_column	syntax.tab.c	/^  int first_column;$/;"	m	struct:YYLTYPE	file:
@@ -462,6 +478,7 @@ initHashTable	semantic.c	/^void initHashTable(){$/;"	f
 initReadWriteFunction	semantic.c	/^void initReadWriteFunction(){$/;"	f
 initRegs	objectcodegen.c	/^void initRegs(){$/;"	f
 initStk	objectcodegen.c	/^void initStk(){$/;"	f
+insertArg	objectcodegen.c	/^void insertArg(InterCode* ir){$/;"	f
 insertArithmic	intercodegen.c	/^void insertArithmic(Operand* place, Operand* o1, Operand* o2, char* type){$/;"	f
 insertArrayDesc	intercodegen.c	/^void insertArrayDesc(char* arrayName, int n_dim, int dim1, int dim2){$/;"	f
 insertInterCode	intercodegen.c	/^void insertInterCode(InterCode* interCode){$/;"	f
@@ -470,6 +487,7 @@ insertIntoHashTable	semantic.c	/^void insertIntoHashTable(char* str){$/;"	f
 insertIntoHashTableInNode	semantic.c	/^void insertIntoHashTableInNode(char* str, HASH_NODE** node){$/;"	f
 insertLabelInterCode	intercodegen.c	/^void insertLabelInterCode(Operand* label){$/;"	f
 insertNameMap	intercodegen.c	/^void insertNameMap(char* varName, char* interCodeVarName){$/;"	f
+insertParam	objectcodegen.c	/^void insertParam(InterCode* ir){$/;"	f
 insertSpecialParam	intercodegen.c	/^void insertSpecialParam(char* name, bool ifAddr){$/;"	f
 insertSymbol	semantic.c	/^void insertSymbol(VAR_INFO* var_info){$/;"	f
 insertType	semantic.c	/^void insertType(TYPE_INFO* typeInfo, const char* typeCategory){$/;"	f
@@ -477,8 +495,15 @@ interCode	intercodegen.h	/^    InterCode* interCode;$/;"	m	struct:InterCodeNode
 interCodeListHead	intercodegen.c	/^InterCodeNode* interCodeListHead = NULL;$/;"	v
 interCodeVarName	intercodegen.h	/^    char* interCodeVarName;$/;"	m	struct:NameMap
 label0	1.s	/^label0:$/;"	l
+label0	2.s	/^label0:$/;"	l
+label0	test2.s	/^label0:$/;"	l
 label1	1.s	/^label1:$/;"	l
+label1	2.s	/^label1:$/;"	l
+label1	test2.s	/^label1:$/;"	l
 label2	1.s	/^label2:$/;"	l
+label3	2.s	/^label3:$/;"	l
+label4	2.s	/^label4:$/;"	l
+label5	2.s	/^label5:$/;"	l
 labelCount	intercodegen.c	/^int labelCount = 0;     \/\/ labelx$/;"	v
 last_column	syntax.tab.c	/^  int last_column;$/;"	m	struct:YYLTYPE	file:
 last_column	syntax.tab.h	/^  int last_column;$/;"	m	struct:YYLTYPE
@@ -490,7 +515,11 @@ line_p	lex.yy.c	/^    int line_p = 0, line_b = 0, line_c = 0;$/;"	v
 loadAllVarFromStack	objectcodegen.c	/^void loadAllVarFromStack(FILE* fp){$/;"	f
 loadVarFromStackTop	objectcodegen.c	/^VarDesc* loadVarFromStackTop(FILE* fp){$/;"	f
 main	1.s	/^main:$/;"	l
+main	2.s	/^main:$/;"	l
+main	a1.s	/^main:$/;"	l
 main	syntax.tab.c	/^int main(int argc, char** argv){$/;"	f
+main	test1.s	/^main:$/;"	l
+main	test2.s	/^main:$/;"	l
 memDec	intercodegen.h	/^        }memDec;$/;"	m	union:InterCode::__anon1	typeref:struct:InterCode::__anon1::__anon6
 n_children	parseTree.h	/^    int n_children;         \/\/ number of children node$/;"	m	struct:TreeNode
 n_children	semantic.h	/^    int n_children;$/;"	m	struct:HASH_TABLE_NODE
@@ -517,6 +546,7 @@ np	lex.yy.c	/^    int np = 0, nb = 0, nc = 0;$/;"	v
 o1	intercodegen.h	/^        }o1;$/;"	m	union:InterCode::__anon1	typeref:struct:InterCode::__anon1::__anon2
 o2	intercodegen.h	/^        }o2;$/;"	m	union:InterCode::__anon1	typeref:struct:InterCode::__anon1::__anon3
 o3	intercodegen.h	/^        }o3;$/;"	m	union:InterCode::__anon1	typeref:struct:InterCode::__anon1::__anon4
+objectArgListHead	objectcodegen.c	/^InterCodeNode* objectArgListHead = NULL;$/;"	v
 op	objectcodegen.h	/^    Operand* op;$/;"	m	struct:VarDesc
 op1	intercodegen.h	/^            Operand* op1;    \/\/ owner of this declared space$/;"	m	struct:InterCode::__anon1::__anon6
 op1	intercodegen.h	/^            Operand* op1;$/;"	m	struct:InterCode::__anon1::__anon2
@@ -533,6 +563,7 @@ ops	intercodegen.h	/^    }ops;$/;"	m	struct:InterCode	typeref:union:InterCode::_
 optimize	intercodegen.c	/^void optimize(){$/;"	f
 param	intercodegen.h	/^    SpecialParam* param;$/;"	m	struct:SpecialParamNode
 paramCount	intercodegen.c	/^int paramCount = 0;     \/\/ px$/;"	v
+paramListHead	objectcodegen.c	/^InterCodeNode* paramListHead = NULL;$/;"	v
 params	semantic.h	/^    struct VAR_INFO** params;     \/\/ parameters of function (var type and var name)$/;"	m	struct:FUNC_INFO	typeref:struct:FUNC_INFO::VAR_INFO
 parent	parseTree.h	/^    struct TreeNode* parent;           \/\/ parent of current node$/;"	m	struct:TreeNode	typeref:struct:TreeNode::TreeNode
 parent	semantic.h	/^    struct HASH_TABLE_NODE* parent;$/;"	m	struct:HASH_TABLE_NODE	typeref:struct:HASH_TABLE_NODE::HASH_TABLE_NODE
@@ -545,6 +576,10 @@ printInterCode	intercodegen.c	/^void printInterCode(){$/;"	f
 propertyValue	parseTree.h	/^    char* propertyValue;    \/\/ property value of node, can be empty, e.g. myVar, int, float$/;"	m	struct:TreeNode
 pushStack	objectcodegen.c	/^void pushStack(VarDesc* var){$/;"	f
 read	1.s	/^read:$/;"	l
+read	2.s	/^read:$/;"	l
+read	a1.s	/^read:$/;"	l
+read	test1.s	/^read:$/;"	l
+read	test2.s	/^read:$/;"	l
 reg_no	objectcodegen.h	/^    int reg_no;$/;"	m	struct:VarDesc
 regs	objectcodegen.c	/^Register regs[32];$/;"	v
 relop	intercodegen.h	/^            char* relop;$/;"	m	struct:InterCode::__anon1::__anon5
@@ -619,6 +654,10 @@ varName	intercodegen.h	/^    char* varName;$/;"	m	struct:NameMap
 varName	semantic.h	/^    char* varName;$/;"	m	struct:VAR_INFO
 varType	semantic.h	/^    char* varType;  \/\/ int->"int", float->"float", array->element type name, function->"function", stru->"struct"$/;"	m	struct:VAR_INFO
 write	1.s	/^write:$/;"	l
+write	2.s	/^write:$/;"	l
+write	a1.s	/^write:$/;"	l
+write	test1.s	/^write:$/;"	l
+write	test2.s	/^write:$/;"	l
 writeAssemblyCode	objectcodegen.c	/^void writeAssemblyCode(char* fileName){$/;"	f
 writeInterCode	intercodegen.c	/^void writeInterCode(char* fileName){$/;"	f
 yy_accept	lex.yy.c	/^static yyconst flex_int16_t yy_accept[72] =$/;"	v	file:
