@@ -41,5 +41,7 @@ void translateInterCode(InterCode* ir, FILE* fp);
 
 bool compareOperand(Operand* o1, Operand* o2);
 void showAllRegs();
+void doCall(InterCode* ir, FILE* fp);
 
+char* subStr(char* src, int begin);
 #endif

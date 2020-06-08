@@ -26,5 +26,4 @@ t21 := c
 WRITE t21
 t23 := b
 WRITE t23
-t24 := #0
-RETURN t24
+RETURN #0

@@ -65,26 +65,18 @@ main:
   addi $sp, $sp, 4
   move $t0, $v0
   move $t1, $t0
-  li $t2, 1
-  bgt $t1, $t2, label3
-  j label4
-label3:
-  move $t3, $t1
+  move $t2, $t1
   addi $sp, $sp, -8
   sw $ra, 0($sp)
   sw $a0, 4($sp)
-  move $a0, $t3
+  move $a0, $t2
   addi $sp, $sp, -4
   sw $t0, 0($sp)
   addi $sp, $sp, -4
   sw $t1, 0($sp)
   addi $sp, $sp, -4
   sw $t2, 0($sp)
-  addi $sp, $sp, -4
-  sw $t3, 0($sp)
   jal fact
-  lw $t3, 0($sp)
-  addi $sp, $sp, 4
   lw $t2, 0($sp)
   addi $sp, $sp, 4
   lw $t1, 0($sp)
@@ -94,14 +86,10 @@ label3:
   lw $a0, 4($sp)
   lw $ra, 0($sp)
   addi $sp, $sp, 8
-  move $t4, $v0
+  move $t3, $v0
+  move $t4, $t3
   move $t5, $t4
-  j label5
-label4:
-  li $t5, 0
-label5:
-  move $t6, $t5
-  move $a0, $t6
+  move $a0, $t5
   addi $sp, $sp, -4
   sw $ra, 0($sp)
   jal write

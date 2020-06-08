@@ -44,6 +44,10 @@ void clearParamList(){
 void insertArg(InterCode* ir){
     InterCodeNode* p = (InterCodeNode*)malloc(sizeof(InterCode));
     p->interCode = ir;
+    p->next = objectArgListHead;
+    objectArgListHead = p;
+
+    /*
     p->next = NULL;
     if(!objectArgListHead){
         objectArgListHead = p;
@@ -52,6 +56,7 @@ void insertArg(InterCode* ir){
         while(q->next) q=q->next;
         q->next = p;
     }
+    */
 }
 
 void clearObjectArgList(){
@@ -290,6 +295,13 @@ int getReg(Operand* operand, FILE* fp){
     }
 
     if(res != -1){
+        if(operand->type == Constant){
+            // load constant
+            char str[30];
+            memset(str, 0, sizeof(str));
+            sprintf(str, "  li %s, %s\n", regs[res].name, subStr(operand->value, 1));
+            fputs(str, fp);
+        }
         // set register
         regs[res].content = (VarDesc*)malloc(sizeof(VarDesc));
         regs[res].content->op = operand;
@@ -555,7 +567,12 @@ void translateInterCode(InterCode* ir, FILE* fp){
                 memset(str, 0, sizeof(str));
                 sprintf(str, "  move %s, $v0\n", regs[reg1].name);
                 fputs(str, fp);
-            }else if(argNum == 1){
+            }else{
+                doCall(ir, fp);
+            }
+            
+            /*
+            else if(argNum == 1){
                 int stackSpace = 4 * argNum + 4;
 
 
@@ -620,6 +637,7 @@ void translateInterCode(InterCode* ir, FILE* fp){
             }else if(argNum == 4){
 
             }
+            */
             clearObjectArgList();
             break;
         }
@@ -730,5 +748,71 @@ void writeAssemblyCode(char* fileName){
         p=p->next;
     }
     fclose(fp);
+}
+
+void doCall(InterCode* ir, FILE* fp){
+    int argNum = countArgList();
+
+    // allocate stack space
+    int stackSpace = 4 * argNum + 4;
+    char str[30];
+    memset(str, 0, sizeof(str));
+    sprintf(str, "  addi $sp, $sp, -%d\n", stackSpace);
+    fputs(str, fp);
+
+    // save registers into stack
+    fputs("  sw $ra, 0($sp)\n", fp);
+    for(int i = 0; i < argNum; ++i){
+        memset(str, 0, sizeof(str));
+        sprintf(str, "  sw $a%d, %d($sp)\n", i, 4*(i+1));
+        fputs(str, fp);
+    }
+
+    // pass args reversely
+    InterCodeNode* p = objectArgListHead;
+    int count = 0;
+    while(p){
+        Operand* argOperand = p->interCode->ops.o1.op1;
+        int regIndex = getReg(argOperand, fp);
+        memset(str, 0, sizeof(str));
+        sprintf(str, "  move $a%d, %s\n", count, regs[regIndex].name);
+        fputs(str, fp);
+
+        p=p->next;
+        count++;
+    }
+
+    // save current temporary registers
+    saveAllVarIntoStack(fp);
+
+    // call function
+    Operand* funcOperand = ir->ops.o2.op2;
+    memset(str, 0, sizeof(str));
+    sprintf(str, "  jal %s\n", funcOperand->value);
+    fputs(str, fp);
+
+    // restore current temporary registers
+    loadAllVarFromStack(fp);
+
+    // restore registers from stack
+    for(int i = argNum-1; i >= 0; i--){
+        memset(str, 0, sizeof(str));
+        sprintf(str, "  lw $a%d, %d($sp)\n", i, 4*(i+1));
+        fputs(str, fp);
+    }
+    fputs("  lw $ra, 0($sp)\n", fp);
+
+    // deallocate stack space
+    memset(str, 0, sizeof(str));
+    sprintf(str, "  addi $sp, $sp, %d\n", stackSpace);
+    fputs(str, fp);
+
+    // set return value of function
+    Operand* retOperand = ir->ops.o2.op1;
+    int retRegNo = getReg(retOperand, fp);
+    memset(str, 0, sizeof(str));
+    sprintf(str, "  move %s, $v0\n", regs[retRegNo].name);
+    fputs(str, fp);
+
 }
 
