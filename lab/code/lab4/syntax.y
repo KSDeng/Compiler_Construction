@@ -379,15 +379,19 @@ int main(int argc, char** argv){
             Program(root);
             translate_Program(root);
             if(argc == 2) {
-                writeInterCode("stdout");
+                //writeInterCode("stdout");
                 writeAssemblyCode("stdout");
             }else if(argc == 3) {
-                writeInterCode(argv[2]);
-                writeAssemblyCode("stdout");
-            }else if(argc == 4){
+                //writeInterCode(argv[2]);
+                //writeAssemblyCode("stdout");
+                writeAssemblyCode(argv[2]);
+            }
+            /*
+            else if(argc == 4){
                 writeInterCode(argv[2]);
                 writeAssemblyCode(argv[3]);
             }else printf("Wrong number of params for main().\n");
+            */
         }
     //}
     return 0;
