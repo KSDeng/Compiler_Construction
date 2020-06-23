@@ -1,0 +1,380 @@
+Program (1)
+  ExtDefList (1)
+    ExtDef (1)
+      Specifier (1)
+        TYPE: int
+      FunDec (1)
+        ID: compare
+        LP
+        VarList (1)
+          ParamDec (1)
+            Specifier (1)
+              TYPE: int
+            VarDec (1)
+              ID: a
+          COMMA
+          VarList (1)
+            ParamDec (1)
+              Specifier (1)
+                TYPE: int
+              VarDec (1)
+                ID: b
+        RP
+      CompSt (1)
+        LC
+        StmtList (2)
+          Stmt (2)
+            IF
+            LP
+            Exp (2)
+              Exp (2)
+                ID: a
+              RELOP
+              Exp (2)
+                ID: b
+            RP
+            Stmt (2)
+              RETURN
+              Exp (2)
+                ID: a
+              SEMI
+          StmtList (3)
+            Stmt (3)
+              IF
+              LP
+              Exp (3)
+                Exp (3)
+                  ID: a
+                RELOP
+                Exp (3)
+                  ID: b
+              RP
+              Stmt (3)
+                RETURN
+                Exp (3)
+                  ID: b
+                SEMI
+            StmtList (4)
+              Stmt (4)
+                RETURN
+                Exp (4)
+                  INT: 0
+                SEMI
+        RC
+    ExtDefList (7)
+      ExtDef (7)
+        Specifier (7)
+          TYPE: int
+        FunDec (7)
+          ID: add2
+          LP
+          VarList (7)
+            ParamDec (7)
+              Specifier (7)
+                TYPE: int
+              VarDec (7)
+                ID: aa
+            COMMA
+            VarList (7)
+              ParamDec (7)
+                Specifier (7)
+                  TYPE: int
+                VarDec (7)
+                  ID: bb
+          RP
+        CompSt (7)
+          LC
+          StmtList (8)
+            Stmt (8)
+              RETURN
+              Exp (8)
+                Exp (8)
+                  ID: aa
+                PLUS
+                Exp (8)
+                  ID: bb
+              SEMI
+          RC
+      ExtDefList (11)
+        ExtDef (11)
+          Specifier (11)
+            TYPE: int
+          FunDec (11)
+            ID: main
+            LP
+            RP
+          CompSt (11)
+            LC
+            DefList (12)
+              Def (12)
+                Specifier (12)
+                  TYPE: int
+                DecList (12)
+                  Dec (12)
+                    VarDec (12)
+                      VarDec (12)
+                        ID: i
+                      LB
+                      INT: 10
+                      RB
+                  COMMA
+                  DecList (12)
+                    Dec (12)
+                      VarDec (12)
+                        VarDec (12)
+                          ID: r
+                        LB
+                        INT: 5
+                        RB
+                    COMMA
+                    DecList (12)
+                      Dec (12)
+                        VarDec (12)
+                          ID: n
+                      COMMA
+                      DecList (12)
+                        Dec (12)
+                          VarDec (12)
+                            ID: m
+                SEMI
+            StmtList (13)
+              Stmt (13)
+                Exp (13)
+                  Exp (13)
+                    ID: n
+                  ASSIGNOP
+                  Exp (13)
+                    INT: 0
+                SEMI
+              StmtList (14)
+                Stmt (14)
+                  WHILE
+                  LP
+                  Exp (14)
+                    Exp (14)
+                      ID: n
+                    RELOP
+                    Exp (14)
+                      INT: 10
+                  RP
+                  Stmt (14)
+                    CompSt (14)
+                      LC
+                      StmtList (15)
+                        Stmt (15)
+                          Exp (15)
+                            Exp (15)
+                              Exp (15)
+                                ID: i
+                              LB
+                              Exp (15)
+                                ID: n
+                              RB
+                            ASSIGNOP
+                            Exp (15)
+                              ID: read
+                              LP
+                              RP
+                          SEMI
+                        StmtList (16)
+                          Stmt (16)
+                            Exp (16)
+                              Exp (16)
+                                ID: n
+                              ASSIGNOP
+                              Exp (16)
+                                Exp (16)
+                                  ID: n
+                                PLUS
+                                Exp (16)
+                                  INT: 1
+                            SEMI
+                      RC
+                StmtList (18)
+                  Stmt (18)
+                    Exp (18)
+                      Exp (18)
+                        ID: n
+                      ASSIGNOP
+                      Exp (18)
+                        INT: 0
+                    SEMI
+                  StmtList (19)
+                    Stmt (19)
+                      Exp (19)
+                        Exp (19)
+                          ID: m
+                        ASSIGNOP
+                        Exp (19)
+                          INT: 0
+                      SEMI
+                    StmtList (20)
+                      Stmt (20)
+                        WHILE
+                        LP
+                        Exp (20)
+                          Exp (20)
+                            ID: n
+                          RELOP
+                          Exp (20)
+                            INT: 10
+                        RP
+                        Stmt (20)
+                          CompSt (20)
+                            LC
+                            StmtList (21)
+                              Stmt (21)
+                                Exp (21)
+                                  Exp (21)
+                                    Exp (21)
+                                      ID: r
+                                    LB
+                                    Exp (21)
+                                      ID: m
+                                    RB
+                                  ASSIGNOP
+                                  Exp (21)
+                                    ID: compare
+                                    LP
+                                    Args (21)
+                                      Exp (21)
+                                        Exp (21)
+                                          ID: i
+                                        LB
+                                        Exp (21)
+                                          ID: n
+                                        RB
+                                      COMMA
+                                      Args (21)
+                                        Exp (21)
+                                          Exp (21)
+                                            ID: i
+                                          LB
+                                          Exp (21)
+                                            Exp (21)
+                                              ID: n
+                                            PLUS
+                                            Exp (21)
+                                              INT: 1
+                                          RB
+                                    RP
+                                SEMI
+                              StmtList (22)
+                                Stmt (22)
+                                  Exp (22)
+                                    Exp (22)
+                                      ID: n
+                                    ASSIGNOP
+                                    Exp (22)
+                                      Exp (22)
+                                        ID: n
+                                      PLUS
+                                      Exp (22)
+                                        INT: 2
+                                  SEMI
+                                StmtList (23)
+                                  Stmt (23)
+                                    Exp (23)
+                                      Exp (23)
+                                        ID: m
+                                      ASSIGNOP
+                                      Exp (23)
+                                        Exp (23)
+                                          ID: m
+                                        PLUS
+                                        Exp (23)
+                                          INT: 1
+                                    SEMI
+                            RC
+                      StmtList (25)
+                        Stmt (25)
+                          Exp (25)
+                            Exp (25)
+                              ID: n
+                            ASSIGNOP
+                            Exp (25)
+                              INT: 0
+                          SEMI
+                        StmtList (26)
+                          Stmt (26)
+                            WHILE
+                            LP
+                            Exp (26)
+                              Exp (26)
+                                ID: n
+                              RELOP
+                              Exp (26)
+                                INT: 5
+                            RP
+                            Stmt (26)
+                              CompSt (26)
+                                LC
+                                StmtList (27)
+                                  Stmt (27)
+                                    Exp (27)
+                                      Exp (27)
+                                        Exp (27)
+                                          ID: r
+                                        LB
+                                        Exp (27)
+                                          ID: n
+                                        RB
+                                      ASSIGNOP
+                                      Exp (27)
+                                        ID: add2
+                                        LP
+                                        Args (27)
+                                          Exp (27)
+                                            Exp (27)
+                                              ID: r
+                                            LB
+                                            Exp (27)
+                                              ID: n
+                                            RB
+                                          COMMA
+                                          Args (27)
+                                            Exp (27)
+                                              Exp (27)
+                                                ID: i
+                                              LB
+                                              Exp (27)
+                                                ID: n
+                                              RB
+                                        RP
+                                    SEMI
+                                  StmtList (28)
+                                    Stmt (28)
+                                      Exp (28)
+                                        ID: write
+                                        LP
+                                        Args (28)
+                                          Exp (28)
+                                            Exp (28)
+                                              ID: r
+                                            LB
+                                            Exp (28)
+                                              ID: n
+                                            RB
+                                        RP
+                                      SEMI
+                                    StmtList (29)
+                                      Stmt (29)
+                                        Exp (29)
+                                          Exp (29)
+                                            ID: n
+                                          ASSIGNOP
+                                          Exp (29)
+                                            Exp (29)
+                                              ID: n
+                                            PLUS
+                                            Exp (29)
+                                              INT: 1
+                                        SEMI
+                                RC
+                          StmtList (31)
+                            Stmt (31)
+                              RETURN
+                              Exp (31)
+                                INT: 0
+                              SEMI
+            RC

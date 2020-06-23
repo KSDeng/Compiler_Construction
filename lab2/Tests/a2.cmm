@@ -1,26 +1,20 @@
+struct Student{
+    int id;
+    int weight;
+    int grades;
+};
+
+int newStudent(int a, int b){
+    struct Student st;
+    st.id = a;
+    st.weight = b;
+    st.grades = 0;
+    return 0;
+}
+
 int main(){
-    int price;
-    int money;
-    price = read();
-    money = read();
-    if(price > money){
-        if(price > money * 2){
-            write(price);
-        }else {
-            write(money * 2);
-        }
-    }else if (price == money){
-        if(money > 100){
-            write(100);
-        }else {
-            write(money);
-        }
-    }else{
-        if(price * 2 < money){
-            write(money);
-        }else {
-            write(price * 2);
-        }
-    }
+    int k = 3;
+    int p = 14;
+    newStdent(k, p);
     return 0;
 }

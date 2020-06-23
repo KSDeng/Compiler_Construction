@@ -1,0 +1,229 @@
+Program (1)
+  ExtDefList (1)
+    ExtDef (1)
+      Specifier (1)
+        TYPE: int
+      FunDec (1)
+        ID: main
+        LP
+        RP
+      CompSt (1)
+        LC
+        DefList (2)
+          Def (2)
+            Specifier (2)
+              TYPE: int
+            DecList (2)
+              Dec (2)
+                VarDec (2)
+                  ID: price
+            SEMI
+          DefList (3)
+            Def (3)
+              Specifier (3)
+                TYPE: int
+              DecList (3)
+                Dec (3)
+                  VarDec (3)
+                    ID: money
+              SEMI
+        StmtList (4)
+          Stmt (4)
+            Exp (4)
+              Exp (4)
+                ID: price
+              ASSIGNOP
+              Exp (4)
+                ID: read
+                LP
+                RP
+            SEMI
+          StmtList (5)
+            Stmt (5)
+              Exp (5)
+                Exp (5)
+                  ID: money
+                ASSIGNOP
+                Exp (5)
+                  ID: read
+                  LP
+                  RP
+              SEMI
+            StmtList (6)
+              Stmt (6)
+                IF
+                LP
+                Exp (6)
+                  Exp (6)
+                    ID: price
+                  RELOP
+                  Exp (6)
+                    ID: money
+                RP
+                Stmt (6)
+                  CompSt (6)
+                    LC
+                    StmtList (7)
+                      Stmt (7)
+                        IF
+                        LP
+                        Exp (7)
+                          Exp (7)
+                            ID: price
+                          RELOP
+                          Exp (7)
+                            Exp (7)
+                              ID: money
+                            STAR
+                            Exp (7)
+                              INT: 2
+                        RP
+                        Stmt (7)
+                          CompSt (7)
+                            LC
+                            StmtList (8)
+                              Stmt (8)
+                                Exp (8)
+                                  ID: write
+                                  LP
+                                  Args (8)
+                                    Exp (8)
+                                      ID: price
+                                  RP
+                                SEMI
+                            RC
+                        ELSE
+                        Stmt (9)
+                          CompSt (9)
+                            LC
+                            StmtList (10)
+                              Stmt (10)
+                                Exp (10)
+                                  ID: write
+                                  LP
+                                  Args (10)
+                                    Exp (10)
+                                      Exp (10)
+                                        ID: money
+                                      STAR
+                                      Exp (10)
+                                        INT: 2
+                                  RP
+                                SEMI
+                            RC
+                    RC
+                ELSE
+                Stmt (12)
+                  IF
+                  LP
+                  Exp (12)
+                    Exp (12)
+                      ID: price
+                    RELOP
+                    Exp (12)
+                      ID: money
+                  RP
+                  Stmt (12)
+                    CompSt (12)
+                      LC
+                      StmtList (13)
+                        Stmt (13)
+                          IF
+                          LP
+                          Exp (13)
+                            Exp (13)
+                              ID: money
+                            RELOP
+                            Exp (13)
+                              INT: 100
+                          RP
+                          Stmt (13)
+                            CompSt (13)
+                              LC
+                              StmtList (14)
+                                Stmt (14)
+                                  Exp (14)
+                                    ID: write
+                                    LP
+                                    Args (14)
+                                      Exp (14)
+                                        INT: 100
+                                    RP
+                                  SEMI
+                              RC
+                          ELSE
+                          Stmt (15)
+                            CompSt (15)
+                              LC
+                              StmtList (16)
+                                Stmt (16)
+                                  Exp (16)
+                                    ID: write
+                                    LP
+                                    Args (16)
+                                      Exp (16)
+                                        ID: money
+                                    RP
+                                  SEMI
+                              RC
+                      RC
+                  ELSE
+                  Stmt (18)
+                    CompSt (18)
+                      LC
+                      StmtList (19)
+                        Stmt (19)
+                          IF
+                          LP
+                          Exp (19)
+                            Exp (19)
+                              Exp (19)
+                                ID: price
+                              STAR
+                              Exp (19)
+                                INT: 2
+                            RELOP
+                            Exp (19)
+                              ID: money
+                          RP
+                          Stmt (19)
+                            CompSt (19)
+                              LC
+                              StmtList (20)
+                                Stmt (20)
+                                  Exp (20)
+                                    ID: write
+                                    LP
+                                    Args (20)
+                                      Exp (20)
+                                        ID: money
+                                    RP
+                                  SEMI
+                              RC
+                          ELSE
+                          Stmt (21)
+                            CompSt (21)
+                              LC
+                              StmtList (22)
+                                Stmt (22)
+                                  Exp (22)
+                                    ID: write
+                                    LP
+                                    Args (22)
+                                      Exp (22)
+                                        Exp (22)
+                                          ID: price
+                                        STAR
+                                        Exp (22)
+                                          INT: 2
+                                    RP
+                                  SEMI
+                              RC
+                      RC
+              StmtList (25)
+                Stmt (25)
+                  RETURN
+                  Exp (25)
+                    INT: 0
+                  SEMI
+        RC

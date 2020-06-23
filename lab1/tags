@@ -1,0 +1,167 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+Args	syntax.y	/^Args : Exp COMMA Args       { printDebug2("Args -> Exp COMMA Args", @$.first_line);$/;"	l
+BISON	Makefile	/^BISON = bison$/;"	m
+Boolean	parseTree.h	/^typedef enum Boolean{$/;"	g
+CC	Makefile	/^CC = gcc$/;"	m
+CFILES	Makefile	/^CFILES = $(shell find .\/ -name "*.c")$/;"	m
+CFLAGS	Makefile	/^CFLAGS = -std=c99$/;"	m
+CompSt	syntax.y	/^CompSt : LC DefList StmtList RC     { printDebug2("CompSt -> LC DefList StmtList RC", @$.first_line);  $/;"	l
+Dec	syntax.y	/^Dec : VarDec        { printDebug2("Dec -> VarDec", @$.first_line); $/;"	l
+DecList	syntax.y	/^DecList : Dec       { printDebug2("DecList -> Dec", @$.first_line);    $/;"	l
+Def	syntax.y	/^Def : Specifier DecList SEMI        { printDebug2("Def -> Specifier DecList SEMI", @$.first_line); $/;"	l
+DefList	syntax.y	/^DefList : Def DefList       { printDebug2("DefList -> Def DefList", @$.first_line);$/;"	l
+Exp	syntax.y	/^Exp : Exp ASSIGNOP Exp      { printDebug2("Exp -> Exp ASSIGNOP Exp", @$.first_line);$/;"	l
+ExtDecList	syntax.y	/^ExtDecList : VarDec     { printDebug2("ExtDecList -> VarDec", @$.first_line);  $/;"	l
+ExtDef	syntax.y	/^ExtDef : Specifier ExtDecList SEMI  { printDebug2("ExtDef -> Specifier ExtDecList SEMI", @$.first_line);$/;"	l
+ExtDefList	syntax.y	/^ExtDefList : ExtDef ExtDefList  { printDebug2("ExtDefList -> ExtDef ExtDefList", @$.first_line);$/;"	l
+FLEX	Makefile	/^FLEX = flex$/;"	m
+FunDec	syntax.y	/^FunDec : ID LP VarList RP   { printDebug2("FunDec -> ID LP VarList RP", @$.first_line);$/;"	l
+LFC	Makefile	/^LFC = $(shell find .\/ -name "*.l" | sed s\/[^\/]*\\\\.l\/lex.yy.c\/)$/;"	m
+LFILE	Makefile	/^LFILE = $(shell find .\/ -name "*.l")$/;"	m
+LFO	Makefile	/^LFO = $(LFC:.c=.o)$/;"	m
+Node	parseTree.h	/^} Node;$/;"	t	typeref:struct:TreeNode
+OBJS	Makefile	/^OBJS = $(CFILES:.c=.o)$/;"	m
+OptTag	syntax.y	/^OptTag : ID     { printDebug2("OptTag -> ID", @$.first_line);$/;"	l
+ParamDec	syntax.y	/^ParamDec : Specifier VarDec     { printDebug2("ParamDec -> Specifier VarDec", @$.first_line);$/;"	l
+Program	syntax.y	/^Program : ExtDefList        { printDebug2("Program -> ExtDefList", @$.first_line);$/;"	l
+Specifier	syntax.y	/^Specifier : TYPE    { printDebug2("Specifier -> TYPE", @$.first_line); $/;"	l
+Stmt	syntax.y	/^Stmt : Exp SEMI     { printDebug2("Stmt -> Exp SEMI", @$.first_line);  $/;"	l
+StmtList	syntax.y	/^StmtList : Stmt StmtList    { printDebug2("StmtList -> Stmt StmtList", @$.first_line); $/;"	l
+StructSpecifier	syntax.y	/^StructSpecifier : STRUCT OptTag LC DefList RC   { printDebug2("StructSpecifier -> STRUCT OptTag LC DefList RC", @$.first_line);   $/;"	l
+Tag	syntax.y	/^Tag : ID    { printDebug2("Tag -> ID", @$.first_line); $/;"	l
+TreeNode	parseTree.h	/^typedef struct TreeNode{$/;"	s
+VarDec	syntax.y	/^VarDec : ID    { printDebug2("VarDec -> ID", @$.first_line);$/;"	l
+VarList	syntax.y	/^VarList : ParamDec COMMA VarList    { printDebug2("VarList -> ParamDec COMMA VarList", @$.first_line);$/;"	l
+YFC	Makefile	/^YFC = $(shell find .\/ -name "*.y" | sed s\/[^\/]*\\\\.y\/syntax.tab.c\/)$/;"	m
+YFILE	Makefile	/^YFILE = $(shell find .\/ -name "*.y")$/;"	m
+YFO	Makefile	/^YFO = $(YFC:.c=.o)$/;"	m
+_PARSE_TREE_H_	parseTree.h	2;"	d
+_prompt	Tests/1.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_prompt	Tests/2.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_prompt	Tests/a1.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_prompt	Tests/a2.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_prompt	Tests/a3.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_prompt	Tests/a4.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_prompt	Tests/a5.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_prompt	Tests/test1.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_prompt	Tests/test2.s	/^_prompt: .asciiz "Enter an integer:"$/;"	l
+_ret	Tests/1.s	/^_ret: .asciiz "\\n"$/;"	l
+_ret	Tests/2.s	/^_ret: .asciiz "\\n"$/;"	l
+_ret	Tests/a1.s	/^_ret: .asciiz "\\n"$/;"	l
+_ret	Tests/a2.s	/^_ret: .asciiz "\\n"$/;"	l
+_ret	Tests/a3.s	/^_ret: .asciiz "\\n"$/;"	l
+_ret	Tests/a4.s	/^_ret: .asciiz "\\n"$/;"	l
+_ret	Tests/a5.s	/^_ret: .asciiz "\\n"$/;"	l
+_ret	Tests/test1.s	/^_ret: .asciiz "\\n"$/;"	l
+_ret	Tests/test2.s	/^_ret: .asciiz "\\n"$/;"	l
+add2	Tests/a5.s	/^add2:$/;"	l
+add2	Tests/test1.s	/^add2:$/;"	l
+bool	parseTree.h	/^} bool;$/;"	t	typeref:enum:Boolean
+children	parseTree.h	/^    struct TreeNode** children;        \/\/ children of current node$/;"	m	struct:TreeNode	typeref:struct:TreeNode::TreeNode
+compare	Tests/a5.s	/^compare:$/;"	l
+constructTree	parseTree.c	/^void constructTree(Node* parent, int n_children, ...){$/;"	f
+createNode	parseTree.c	/^Node* createNode(char* name, char* propertyValue, int first_line){$/;"	f
+debug	parseTree.c	/^bool debug = false;      \/\/ set true to enter debug mode$/;"	v
+fact	Tests/2.s	/^fact:$/;"	l
+fact	Tests/test2.s	/^fact:$/;"	l
+false	parseTree.h	/^    true = 1, false = 0$/;"	e	enum:Boolean
+first_line	parseTree.h	/^    int first_line;         \/\/ first line number of current node$/;"	m	struct:TreeNode
+if_leaf	parseTree.h	/^    bool if_leaf;           \/\/ note if current node is leaf node$/;"	m	struct:TreeNode
+label0	Tests/1.s	/^label0:$/;"	l
+label0	Tests/2.s	/^label0:$/;"	l
+label0	Tests/a2.s	/^label0:$/;"	l
+label0	Tests/a3.s	/^label0:$/;"	l
+label0	Tests/a4.s	/^label0:$/;"	l
+label0	Tests/a5.s	/^label0:$/;"	l
+label0	Tests/test2.s	/^label0:$/;"	l
+label1	Tests/1.s	/^label1:$/;"	l
+label1	Tests/2.s	/^label1:$/;"	l
+label1	Tests/a2.s	/^label1:$/;"	l
+label1	Tests/a3.s	/^label1:$/;"	l
+label1	Tests/a4.s	/^label1:$/;"	l
+label1	Tests/a5.s	/^label1:$/;"	l
+label1	Tests/test2.s	/^label1:$/;"	l
+label10	Tests/a2.s	/^label10:$/;"	l
+label10	Tests/a3.s	/^label10:$/;"	l
+label10	Tests/a4.s	/^label10:$/;"	l
+label10	Tests/a5.s	/^label10:$/;"	l
+label11	Tests/a4.s	/^label11:$/;"	l
+label11	Tests/a5.s	/^label11:$/;"	l
+label12	Tests/a2.s	/^label12:$/;"	l
+label12	Tests/a4.s	/^label12:$/;"	l
+label12	Tests/a5.s	/^label12:$/;"	l
+label13	Tests/a2.s	/^label13:$/;"	l
+label13	Tests/a4.s	/^label13:$/;"	l
+label14	Tests/a2.s	/^label14:$/;"	l
+label14	Tests/a4.s	/^label14:$/;"	l
+label15	Tests/a4.s	/^label15:$/;"	l
+label2	Tests/1.s	/^label2:$/;"	l
+label2	Tests/a3.s	/^label2:$/;"	l
+label2	Tests/a4.s	/^label2:$/;"	l
+label2	Tests/a5.s	/^label2:$/;"	l
+label3	Tests/2.s	/^label3:$/;"	l
+label3	Tests/a2.s	/^label3:$/;"	l
+label3	Tests/a4.s	/^label3:$/;"	l
+label3	Tests/a5.s	/^label3:$/;"	l
+label4	Tests/2.s	/^label4:$/;"	l
+label4	Tests/a2.s	/^label4:$/;"	l
+label4	Tests/a3.s	/^label4:$/;"	l
+label4	Tests/a4.s	/^label4:$/;"	l
+label4	Tests/a5.s	/^label4:$/;"	l
+label5	Tests/2.s	/^label5:$/;"	l
+label5	Tests/a3.s	/^label5:$/;"	l
+label5	Tests/a4.s	/^label5:$/;"	l
+label5	Tests/a5.s	/^label5:$/;"	l
+label6	Tests/a2.s	/^label6:$/;"	l
+label6	Tests/a3.s	/^label6:$/;"	l
+label6	Tests/a4.s	/^label6:$/;"	l
+label6	Tests/a5.s	/^label6:$/;"	l
+label7	Tests/a2.s	/^label7:$/;"	l
+label7	Tests/a3.s	/^label7:$/;"	l
+label7	Tests/a4.s	/^label7:$/;"	l
+label7	Tests/a5.s	/^label7:$/;"	l
+label8	Tests/a5.s	/^label8:$/;"	l
+label9	Tests/a2.s	/^label9:$/;"	l
+label9	Tests/a3.s	/^label9:$/;"	l
+label9	Tests/a4.s	/^label9:$/;"	l
+label9	Tests/a5.s	/^label9:$/;"	l
+main	Tests/1.s	/^main:$/;"	l
+main	Tests/2.s	/^main:$/;"	l
+main	Tests/a1.s	/^main:$/;"	l
+main	Tests/a2.s	/^main:$/;"	l
+main	Tests/a3.s	/^main:$/;"	l
+main	Tests/a4.s	/^main:$/;"	l
+main	Tests/a5.s	/^main:$/;"	l
+main	Tests/test1.s	/^main:$/;"	l
+main	Tests/test2.s	/^main:$/;"	l
+n_children	parseTree.h	/^    int n_children;         \/\/ number of children node$/;"	m	struct:TreeNode
+name	parseTree.h	/^    char* name;             \/\/ name of node, e.g. ID, LP, Stmt$/;"	m	struct:TreeNode
+parent	parseTree.h	/^    struct TreeNode* parent;           \/\/ parent of current node$/;"	m	struct:TreeNode	typeref:struct:TreeNode::TreeNode
+preOrderTraverse	parseTree.c	/^void preOrderTraverse(Node* root, int depth){$/;"	f
+printErrorTypeA	parseTree.c	/^void printErrorTypeA(char* msg, int lineno){$/;"	f
+printErrorTypeB	parseTree.c	/^void printErrorTypeB(char* msg, int lineno){$/;"	f
+propertyValue	parseTree.h	/^    char* propertyValue;    \/\/ property value of node, can be empty, e.g. myVar, int, float$/;"	m	struct:TreeNode
+read	Tests/1.s	/^read:$/;"	l
+read	Tests/2.s	/^read:$/;"	l
+read	Tests/a1.s	/^read:$/;"	l
+read	Tests/a2.s	/^read:$/;"	l
+read	Tests/a3.s	/^read:$/;"	l
+read	Tests/a4.s	/^read:$/;"	l
+read	Tests/a5.s	/^read:$/;"	l
+read	Tests/test1.s	/^read:$/;"	l
+read	Tests/test2.s	/^read:$/;"	l
+true	parseTree.h	/^    true = 1, false = 0$/;"	e	enum:Boolean
+write	Tests/1.s	/^write:$/;"	l
+write	Tests/2.s	/^write:$/;"	l
+write	Tests/a1.s	/^write:$/;"	l
+write	Tests/a2.s	/^write:$/;"	l
+write	Tests/a3.s	/^write:$/;"	l
+write	Tests/a4.s	/^write:$/;"	l
+write	Tests/a5.s	/^write:$/;"	l
+write	Tests/test1.s	/^write:$/;"	l
+write	Tests/test2.s	/^write:$/;"	l

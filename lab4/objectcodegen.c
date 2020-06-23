@@ -47,16 +47,6 @@ void insertArg(InterCode* ir){
     p->next = objectArgListHead;
     objectArgListHead = p;
 
-    /*
-    p->next = NULL;
-    if(!objectArgListHead){
-        objectArgListHead = p;
-    }else{
-        InterCodeNode* q = objectArgListHead;
-        while(q->next) q=q->next;
-        q->next = p;
-    }
-    */
 }
 
 void clearObjectArgList(){
@@ -86,13 +76,11 @@ int countArgList(){
 
 void showAllRegs(){
     for(int i = 8; i <= 25; ++i){
-        //if((i >= 8 && i <= 15) || i == 24 || i == 25){
             if(regs[i].content == NULL){
                 printf("[%d] %s, age %d, content is NULL\n", regs[i].index, regs[i].name, regs[i].age);
             }else{
                 printf("[%d] %s, age %d, content (type %d, value %s)\n", regs[i].index, regs[i].name, regs[i].age, regs[i].content->op->type, regs[i].content->op->value);
             }
-        //}
     }
 }
 
@@ -206,21 +194,6 @@ VarDesc* loadVarFromStackTop(FILE* fp){
 }
 
 void saveAllVarIntoStack(FILE* fp){
-    // t0 - t7
-    /*
-    for(int i = 8; i <= 15; ++i){
-        if(regs[i].content){
-            saveVarIntoStack(regs[i].content, fp);
-        }
-    }
-    // t8, t9
-    if(regs[24].content){
-        saveVarIntoStack(regs[24].content, fp);
-    }
-    if(regs[25].content){
-        saveVarIntoStack(regs[25].content, fp);
-    }
-    */
     for(int i = 8; i <= 25; ++i){
         if(regs[i].content){
             saveVarIntoStack(regs[i].content, fp);
@@ -249,56 +222,46 @@ int getReg(Operand* operand, FILE* fp){
     
     int res = -1;
     for(int i = 8; i <= 25; ++i){
-        //if((i >= 8 && i <= 15) || i == 24 || i == 25){
             if(regs[i].content != NULL && compareOperand(regs[i].content->op, operand)){
                 // already in register
                 regs[i].age = 0;
                 res = i;
                 break;
             }
-        //}
     }
 
     if(res == -1){
         for(int i = 8; i <= 25; ++i){
-            //if((i >= 8 && i <= 15) || i == 24 || i == 25){
                 if(regs[i].content == NULL){
                     // found empty register
                     res = i; 
                     break;
                 }
-            //}
         }
 
         if(res == -1){
             // no empty register found
             int maxAge = -1;
             for(int i = 8; i <= 25; ++i){
-                //if((i >= 8 && i <= 15) || i == 24 || i == 25){
                     if(regs[i].age > maxAge){
                         maxAge = regs[i].age;
                         res = i;
                     }
-                //}
             }
         }else{
             // found empty register, aging other registers
             for(int i = 8; i <= 25; ++i){
-                //if((i >= 8 && i <= 15) || i == 24 || i == 25){
                     if(regs[i].content != NULL && i != res){
                         regs[i].age++;
                     }
-                //}
             }
         }
     }else{
         // already in register, aging other registers
         for(int i = 8; i <= 25; ++i){
-            //if((i >= 8 && i <= 15) || i == 24 || i == 25){
                 if(regs[i].content != NULL && i != res){
                     regs[i].age++;
                 }
-            //}
         }
     }
 
@@ -336,10 +299,8 @@ char* subStr(char* src, int begin){
 
 void clearRegs(){
     for(int i = 8; i <= 25; ++i){
-        //if((i>=8 && i<=15) || i==24 || i==25){
             regs[i].age = 0;
             regs[i].content = NULL;
-        //}
     }
 }
 
@@ -470,7 +431,7 @@ void translateInterCode(InterCode* ir, FILE* fp){
             fputs(str, fp);
             break;
         }
-        case Address_IR:
+        case Address_IR: break;
         case ReadMemory_IR:{
             Operand* op1 = ir->ops.o2.op1;
             Operand* op2 = ir->ops.o2.op2;
@@ -579,73 +540,6 @@ void translateInterCode(InterCode* ir, FILE* fp){
                 doCall(ir, fp);
             }
             
-            /*
-            else if(argNum == 1){
-                int stackSpace = 4 * argNum + 4;
-
-
-            }else if(argNum == 2){
-                // allocate stack space
-                int stackSpace = 4 * argNum + 4;
-                char str[30];
-                memset(str, 0, sizeof(str));
-                sprintf(str, "  addi $sp, $sp, -%d\n", stackSpace);
-                fputs(str, fp);
-
-                // save register into stack
-                fputs("  sw $ra, 0($sp)\n", fp);
-                fputs("  sw $a0, 4($sp)\n", fp);
-                fputs("  sw $a1, 8($sp)\n", fp);
-
-                // pass args reversely
-                InterCodeNode* p = objectArgListHead;
-                Operand* arg2 = p->interCode->ops.o1.op1;
-                Operand* arg1 = p->next->interCode->ops.o1.op1;
-
-                int regIndex1 = getReg(arg1, fp);
-                int regIndex2 = getReg(arg2, fp);
-                memset(str, 0, sizeof(str));
-                sprintf(str, "  move $a0, %s\n", regs[regIndex1].name);
-                fputs(str, fp);
-                memset(str, 0, sizeof(str));
-                sprintf(str, "  move $a1, %s\n", regs[regIndex2].name);
-                fputs(str, fp);
-
-                // save current temporary registers
-                saveAllVarIntoStack(fp);
-
-                // call function
-                Operand* op1 = ir->ops.o2.op1;
-                Operand* op2 = ir->ops.o2.op2;
-                memset(str, 0, sizeof(str));
-                sprintf(str, "  jal %s\n", op2->value);
-                fputs(str, fp);
-
-                // restore current temporary registers
-                loadAllVarFromStack(fp);
-
-                // restore registers from stack
-                fputs("  lw $a1, 8($sp)\n", fp);
-                fputs("  lw $a0, 4($sp)\n", fp);
-                fputs("  lw $ra, 0($sp)\n", fp);
-
-                // deallocate stack space
-                memset(str, 0, sizeof(str));
-                sprintf(str, "  addi $sp, $sp, %d\n", stackSpace);
-                fputs(str, fp);
-
-                // set return value of function
-                int returnRegNo = getReg(op1, fp);
-                memset(str, 0, sizeof(str));
-                sprintf(str, "  move %s, $v0\n", regs[returnRegNo].name);
-                fputs(str, fp);
-
-            }else if(argNum == 3){
-
-            }else if(argNum == 4){
-
-            }
-            */
             clearObjectArgList();
             break;
         }
