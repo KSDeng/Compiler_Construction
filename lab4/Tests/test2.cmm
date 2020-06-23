@@ -1,0 +1,14 @@
+int fact(int n){
+    if(n == 1)
+        return n;
+    else
+        return (n * fact(n-1));
+}
+
+int main(){
+    int m, result;
+    m = read();
+    result = fact(m);
+    write(result);
+    return 0;
+}

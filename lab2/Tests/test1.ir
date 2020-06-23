@@ -1,0 +1,19 @@
+FUNCTION add2 :
+PARAM a
+PARAM b
+t0 := a + b
+RETURN t0
+FUNCTION main :
+READ t1
+aa := t1
+READ t2
+bb := t2
+t4 := aa
+t5 := bb
+ARG t5
+ARG t4
+t3 := CALL add2
+cc := t3
+t7 := cc
+WRITE t7
+RETURN #0

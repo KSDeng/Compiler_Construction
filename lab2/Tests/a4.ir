@@ -1,0 +1,94 @@
+FUNCTION main :
+DEC i 20
+t := #0
+LABEL label0 :
+IF t < #5 GOTO label1
+GOTO label2
+LABEL label1 :
+READ t2
+t4 := t
+t5 := t4 * #4
+t6 := &i
+t3 := t6 + t5
+*t3 := t2
+t8 := t + #1
+t := t8
+GOTO label0
+LABEL label2 :
+changed := #0
+LABEL label3 :
+IF changed == #1 GOTO label4
+GOTO label5
+LABEL label4 :
+changed := #0
+t := #0
+LABEL label6 :
+IF t < #5 GOTO label7
+GOTO label3
+LABEL label7 :
+k := t
+LABEL label9 :
+IF k > #0 GOTO label12
+GOTO label11
+LABEL label12 :
+t15 := k
+t16 := t15 * #4
+t17 := &i
+t14 := t17 + t16
+t13 := *t14
+t20 := k - #1
+t21 := t20 * #4
+t22 := &i
+t19 := t22 + t21
+t18 := *t19
+IF t13 < t18 GOTO label10
+GOTO label11
+LABEL label10 :
+t26 := k
+t27 := t26 * #4
+t28 := &i
+t25 := t28 + t27
+t24 := *t25
+tem := t24
+t32 := k - #1
+t33 := t32 * #4
+t34 := &i
+t31 := t34 + t33
+t30 := *t31
+t36 := k
+t37 := t36 * #4
+t38 := &i
+t35 := t38 + t37
+*t35 := t30
+t40 := tem
+t42 := k - #1
+t43 := t42 * #4
+t44 := &i
+t41 := t44 + t43
+*t41 := t40
+changed := #0
+t47 := k - #1
+k := t47
+GOTO label9
+LABEL label11 :
+t49 := t + #1
+t := t49
+GOTO label6
+GOTO label3
+LABEL label5 :
+t := #0
+LABEL label13 :
+IF t < #5 GOTO label14
+GOTO label15
+LABEL label14 :
+t54 := t
+t55 := t54 * #4
+t56 := &i
+t53 := t56 + t55
+t52 := *t53
+WRITE t52
+t58 := t + #1
+t := t58
+GOTO label13
+LABEL label15 :
+RETURN #0
